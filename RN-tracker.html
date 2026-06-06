@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>RN | Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+        body.dark { background: radial-gradient(circle at 20% 30%, #1a1a1c, #0b0b0e); color: #e0e0e0; }
+        body.light { background: #f0f2f5; color: #1a1a2e; }
+        .app-layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 300px;
+            background: #0e0e10;
+            border-right: 1px solid #2e2e32;
+            padding: 1.5rem 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, background 0.3s;
+            z-index: 100;
+        }
+        body.light .sidebar { background: #ffffff; border-right: 1px solid #d0d7de; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; max-width: 100%; }
+        }
+        .sidebar-header { 
+            text-align: center; 
+            margin-bottom: 1.5rem; 
+            border-bottom: 1px solid; 
+            padding-bottom: 1rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .sidebar-header .left-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .sidebar-header .home-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #ff8c42;
+            transition: color 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .sidebar-header .home-btn:hover {
+            color: #ffb347;
+        }
+        body.dark .sidebar-header { border-color: #2e2e32; }
+        body.light .sidebar-header { border-color: #d0d7de; }
+        .sidebar-header h2 { font-size: 1.2rem; color: #ff8c42; margin: 0; }
+        .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #ff8c42; transition: color 0.2s; }
+        .theme-toggle:hover { color: #ffb347; }
+        .sidebar-nav { list-style: none; flex-grow: 1; }
+        .sidebar-nav li { margin: 0.5rem 0; }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.7rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        body.dark .sidebar-nav a { color: #ccc; }
+        body.light .sidebar-nav a { color: #333; }
+        .sidebar-nav a i { width: 24px; color: #ff8c42; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: #1f1f23; color: #ff8c42; border-left: 5px solid #ff8c42; }
+        body.light .sidebar-nav a:hover, body.light .sidebar-nav a.active { background: #e9ecef; }
+        .sidebar-actions { margin-top: 1.5rem; border-top: 1px solid; padding-top: 1rem; }
+        body.dark .sidebar-actions { border-color: #2e2e32; }
+        body.light .sidebar-actions { border-color: #d0d7de; }
+        .sidebar-actions button, .sidebar-actions label {
+            display: block;
+            width: 100%;
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        body.dark .sidebar-actions button, body.dark .sidebar-actions label { background: #1f1f23; color: #ccc; border: 1px solid #3a3a40; }
+        body.light .sidebar-actions button, body.light .sidebar-actions label { background: #f8f9fa; color: #212529; border: 1px solid #ced4da; }
+        .sidebar-actions button:hover, .sidebar-actions label:hover { border-color: #ff8c42; color: #ff8c42; }
+        .sidebar-footer { font-size: 0.7rem; text-align: center; border-top: 1px solid; padding-top: 1rem; margin-top: 1rem; }
+        body.dark .sidebar-footer { color: #6a6a70; border-color: #2c2c30; }
+        body.light .sidebar-footer { color: #6c757d; border-color: #dee2e6; }
+        .mobile-menu-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background: #ff8c42;
+            color: #0b0b0e;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+            font-size: 1.2rem;
+        }
+        @media (max-width: 768px) { .mobile-menu-btn { display: block; } }
+        .main-content {
+            flex: 1;
+            margin-left: 300px;
+            padding: 2rem;
+            max-width: calc(100% - 300px);
+        }
+        @media (max-width: 768px) { .main-content { margin-left: 0; padding-top: 4rem; } }
+        .section-card {
+            background: #141416;
+            border: 1px solid #2e2e32;
+            border-radius: 4px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            transition: background 0.3s, border 0.3s;
+        }
+        body.light .section-card { background: #ffffff; border: 1px solid #dee2e6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff8c42;
+            border-left: 4px solid #ff8c42;
+            padding-left: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .section-title .btn-pdf {
+            background: #1f1f23;
+            border: 1px solid #ff8c42;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 2px;
+            cursor: pointer;
+            color: #ff8c42;
+            transition: 0.2s;
+        }
+        .section-title .btn-pdf:hover { background: #ff8c42; color: #0b0b0e; }
+        .hu-badge {
+            font-size: 0.8rem;
+            margin-bottom: 1.2rem;
+            color: #aaa;
+            border-left: 2px solid #ff8c42;
+            padding-left: 0.8rem;
+        }
+        .hu-badge strong { color: #ff8c42; }
+        .hu-id-highlight {
+            background: #1f1f23;
+            border: 1px solid #ff8c42;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            box-shadow: 0 0 12px rgba(255, 140, 66, 0.2);
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        body.light .hu-id-highlight { background: #f8f9fa; border: 1px solid #ff8c42; }
+        .hu-id-highlight .field { display: inline-flex; flex-direction: column; align-items: center; }
+        .hu-id-highlight label { font-size: 0.8rem; text-transform: uppercase; color: #ff8c42; letter-spacing: 1px; }
+        .hu-id-highlight input {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #ff8c42;
+            width: 140px;
+            margin-top: 0.5rem;
+            padding: 0.3rem;
+            color: inherit;
+        }
+        .hu-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+        .input-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .input-group label { font-size: 0.8rem; text-transform: uppercase; color: #ff8c42; font-weight: 500; }
+        input, textarea {
+            background: #1f1f23;
+            border: 1px solid #2e2e32;
+            padding: 0.8rem;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            border-radius: 2px;
+            transition: 0.2s;
+            width: 100%;
+        }
+        body.light input, body.light textarea { background: #f8f9fa; border: 1px solid #ced4da; color: #212529; }
+        input:focus, textarea:focus { outline: none; border-color: #ff8c42; box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2); }
+        textarea { resize: vertical; min-height: 80px; }
+        .pregunta-item {
+            background: #1f1f23;
+            border-left: 3px solid #ff8c42;
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+        body.light .pregunta-item { background: #f8f9fa; }
+        .pregunta-texto {
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .respuesta-area textarea { width: 100%; background: #0e0e10; margin-top: 0.5rem; }
+        body.light .respuesta-area textarea { background: #ffffff; }
+        .acciones-pregunta { display: flex; gap: 0.5rem; }
+        .btn-icon { background: transparent; border: none; color: #aaa; cursor: pointer; font-size: 1rem; transition: color 0.2s; }
+        .btn-icon:hover { color: #ff8c42; }
+        .btn-sm {
+            background: #2c2c30;
+            border: 1px solid #3a3a40;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.75rem;
+            color: #ccc;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        body.light .btn-sm { background: #e9ecef; border-color: #ced4da; color: #212529; }
+        .btn-sm:hover { background: #ff8c42; color: #0b0b0e; }
+        .subpreguntas-container {
+            margin-left: 2rem;
+            margin-top: 0.8rem;
+            border-left: 1px dashed #ff8c42;
+            padding-left: 1rem;
+        }
+        .subpregunta-item {
+            background: #0e0e10;
+            border-left: 2px solid #ff8c42;
+            margin-bottom: 0.8rem;
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+        body.light .subpregunta-item { background: #f1f3f5; }
+        .subpregunta-texto {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        @media print {
+            body { background: white; color: black; padding: 0; margin: 0; }
+            .sidebar, .mobile-menu-btn, .sidebar-actions, .sidebar-footer, .btn-sm, .btn-icon, .acciones-pregunta, .btn-pdf { display: none !important; }
+            .main-content { margin: 0 !important; padding: 1.5cm !important; max-width: 100% !important; }
+            .section-card { background: white; border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }
+            .hu-id-highlight { border: 1px solid #2c7da0; box-shadow: none; }
+            .pregunta-item { background: #f8f9fc; border-left: 3px solid #2c7da0; }
+            .subpregunta-item { background: #f0f4f8; }
+            table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; }
+            th, td { border: 1px solid #aaa; padding: 10px 12px; text-align: left; vertical-align: top; }
+            th { background: #d4e6f1; color: #1a4c6e; }
+        }
+    </style>
+</head>
+<body class="dark">
+<button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+<div class="app-layout">
+    <div class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <div class="left-group">
+                    <h2><i class="fas fa-gavel"></i> Reglas de Negocio</h2>
+                    <a href="index.html" class="home-btn" title="Ir al inicio"><i class="fas fa-home"></i></a>
+                </div>
+                <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#" data-section="hu"><i class="fas fa-user-check"></i> Historia de Usuario</a></li>
+                <li><a href="#" data-section="rol"><i class="fas fa-user-tie"></i> Desarrollo de rol</a></li>
+                <li><a href="#" data-section="funcionalidad"><i class="fas fa-code-branch"></i> Desarrollo de funcionalidad</a></li>
+                <li><a href="#" data-section="objetivo"><i class="fas fa-flag-checkered"></i> Desarrollo de objetivo</a></li>
+                <li><a href="#" data-section="anotaciones"><i class="fas fa-pen-alt"></i> Anotaciones</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="sidebar-actions">
+                <button id="exportarPdfCompletoBtn"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+                <button id="exportarCsvBtn"><i class="fas fa-table"></i> Exportar CSV</button>
+                <button id="exportarJsonBtn"><i class="fas fa-download"></i> Exportar JSON</button>
+                <label for="importarJsonInput" style="cursor:pointer;"><i class="fas fa-upload"></i> Importar JSON</label>
+                <input type="file" id="importarJsonInput" accept=".json" style="display:none">
+                <button id="limpiarBtn"><i class="fas fa-trash-alt"></i> Limpiar todo</button>
+            </div>
+            <div class="sidebar-footer"><i class="fas fa-database"></i> LocalStorage automático</div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div id="contenidoDinamico"></div>
+    </div>
+</div>
+
+<script>
+    // ---------- DATOS GLOBALES (misma lógica original) ----------
+    let appData = {
+        hu: { id: "", version: "", como: "", quiero: "", para: "" },
+        preguntas: { rol: [], funcionalidad: [], objetivo: [] },
+        anotaciones: ""
+    };
+
+    const categorias = [
+        { id: "rol", titulo: "Desarrollo de rol", icono: "fa-user-tie" },
+        { id: "funcionalidad", titulo: "Desarrollo de funcionalidad", icono: "fa-code-branch" },
+        { id: "objetivo", titulo: "Desarrollo de objetivo", icono: "fa-flag-checkered" }
+    ];
+
+    let currentSection = "hu";
+    const contenidoDinamico = document.getElementById('contenidoDinamico');
+
+    // ---------- PERSISTENCIA ----------
+    function guardarLocalStorage() {
+        localStorage.setItem('reglasNegocioData', JSON.stringify(appData));
+    }
+
+    function cargarLocalStorage() {
+        const saved = localStorage.getItem('reglasNegocioData');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.hu) appData.hu = { id: "", version: "", como: "", quiero: "", para: "", ...parsed.hu };
+                if (parsed.anotaciones !== undefined) appData.anotaciones = parsed.anotaciones;
+                if (parsed.preguntas) {
+                    for (let cat of categorias) {
+                        if (parsed.preguntas[cat.id]) {
+                            appData.preguntas[cat.id] = parsed.preguntas[cat.id].map(p => ({
+                                texto: p.texto || "",
+                                respuesta: p.respuesta || "",
+                                subpreguntas: (p.subpreguntas || []).map(sp => ({ texto: sp.texto || "", respuesta: sp.respuesta || "" }))
+                            }));
+                        } else {
+                            appData.preguntas[cat.id] = [];
+                        }
+                    }
+                }
+            } catch(e) { console.warn(e); }
+        }
+        guardarLocalStorage();
+    }
+
+    function actualizarBadgesHU() {
+        const badges = document.querySelectorAll('.hu-badge');
+        badges.forEach(badge => {
+            badge.innerHTML = `<strong>HU:</strong> ${escapeHtml(appData.hu.id) || "Sin identificar"} ${appData.hu.version ? `- ${escapeHtml(appData.hu.version)}` : ''}`;
+        });
+    }
+
+    function generarTablaPreguntas(preguntas) {
+        if (!preguntas || !preguntas.length) return `<div class="empty-state">Sin preguntas definidas para esta sección.</div>`;
+        let html = `<table><thead><tr><th>#</th><th>Pregunta</th><th>Respuesta</th></tr></thead><tbody>`;
+        let contador = 1;
+        preguntas.forEach(p => {
+            html += `<tr><td class="num">${contador++}</td><td class="pregunta">${escapeHtml(p.texto)}</td><td class="respuesta">${escapeHtml(p.respuesta) || '<span class="sin-resp">Sin respuesta</span>'}</td></tr>`;
+            if (p.subpreguntas && p.subpreguntas.length) {
+                p.subpreguntas.forEach(sp => {
+                    html += `<tr style="background: #f5f9fc;"><td class="num" style="padding-left: 1.5rem;">↳</td><td class="pregunta" style="font-style: italic;">${escapeHtml(sp.texto)}</td><td class="respuesta">${escapeHtml(sp.respuesta) || '<span class="sin-resp">Sin respuesta</span>'}</td></tr>`;
+                });
+            }
+        });
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function exportarPDFCompleto() {
+        if (!appData?.hu?.id) {
+            alert("No hay datos de Historia de Usuario para exportar.");
+            return;
+        }
+        const versionTexto = appData.hu.version ? escapeHtml(appData.hu.version) : "v1";
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="es">
+            <head><meta charset="UTF-8"><title>Reglas de Negocio - ${escapeHtml(appData.hu.id)} - ${versionTexto}</title>
+            <style>
+                @page { size: A4; margin: 2.2cm 2cm; }
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; background: #ffffff; color: #1a1a2e; font-size: 10.5pt; line-height: 1.6; }
+                .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #2c7da0; padding-bottom: 12px; margin-bottom: 20px; }
+                .header-title h1 { font-size: 18pt; color: #1a4c6e; font-weight: 700; letter-spacing: -0.3px; }
+                .header-title .subtitulo { font-size: 10pt; color: #2c7da0; font-style: italic; margin-top: 2px; }
+                .header-badge { background: #2c7da0; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 9.5pt; font-weight: 600; white-space: nowrap; }
+                .hu-card { background: linear-gradient(135deg, #eaf4fb 0%, #f5f9fc 100%); border: 1px solid #b8d9ee; border-left: 5px solid #2c7da0; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 24px; }
+                .hu-card .row { display: flex; gap: 8px; margin-bottom: 5px; }
+                .hu-card .label { font-weight: 700; color: #1a4c6e; min-width: 70px; font-size: 10pt; }
+                .seccion { margin-bottom: 24px; }
+                .seccion-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+                .seccion-header .icono { width: 28px; height: 28px; border-radius: 50%; background: #2c7da0; display: flex; align-items: center; justify-content: center; color: white; font-size: 12pt; font-weight: 700; flex-shrink: 0; }
+                .seccion-header h2 { font-size: 13pt; color: #1a4c6e; font-weight: 700; border-bottom: 2px solid #d4e6f1; padding-bottom: 4px; flex: 1; }
+                table { border-collapse: collapse; width: 100%; margin: 0; border-radius: 8px; overflow: hidden; font-size: 10pt; }
+                thead tr { background: #1a4c6e; color: #ffffff; }
+                th { padding: 9px 12px; text-align: left; font-weight: 600; font-size: 9.5pt; }
+                td { border: 1px solid #dce8f0; padding: 9px 12px; vertical-align: top; }
+                tbody tr:nth-child(even) td { background: #f2f8fc; }
+                .sin-resp { color: #aaa; font-style: italic; }
+                .anotaciones-box { background: #fefdf5; border: 1px solid #e0d9b0; border-left: 5px solid #e9c46a; border-radius: 0 8px 8px 0; padding: 14px 18px; white-space: pre-wrap; }
+                .footer { margin-top: 36px; padding-top: 10px; border-top: 1px solid #d0d9e2; display: flex; justify-content: space-between; font-size: 8.5pt; color: #999; }
+            </style>
+            </head>
+            <body>
+                <div class="header"><div class="header-title"><h1>Reglas de Negocio</h1><div class="subtitulo">Documento de análisis — ${versionTexto}</div></div><div class="header-badge">${escapeHtml(appData.hu.id)}</div></div>
+                <div class="hu-card"><div class="row"><span class="label">Como:</span><span class="valor">${escapeHtml(appData.hu.como) || "—"}</span></div><div class="row"><span class="label">Quiero:</span><span class="valor">${escapeHtml(appData.hu.quiero) || "—"}</span></div><div class="row"><span class="label">Para:</span><span class="valor">${escapeHtml(appData.hu.para) || "—"}</span></div></div>
+                <div class="seccion"><div class="seccion-header"><div class="icono">R</div><h2>Desarrollo de rol</h2></div>${generarTablaPreguntas(appData.preguntas.rol)}</div>
+                <div class="seccion"><div class="seccion-header"><div class="icono">F</div><h2>Desarrollo de funcionalidad</h2></div>${generarTablaPreguntas(appData.preguntas.funcionalidad)}</div>
+                <div class="seccion"><div class="seccion-header"><div class="icono">O</div><h2>Desarrollo de objetivo</h2></div>${generarTablaPreguntas(appData.preguntas.objetivo)}</div>
+                <div class="seccion"><div class="seccion-header"><div class="icono">A</div><h2>Anotaciones</h2></div><div class="anotaciones-box">${escapeHtml(appData.anotaciones || "").replace(/\n/g, "<br>") || "Sin anotaciones"}</div></div>
+                <div class="footer"><span>Reglas de Negocio — ${escapeHtml(appData.hu.id)} ${versionTexto ? `- ${versionTexto}` : ''}</span><span>Generado el ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
+            </body>
+            </html>
+        `;
+        const ventana = window.open('', '_blank');
+        if (!ventana) { alert("El navegador bloqueó la ventana emergente. Permite los popups para este sitio e intenta de nuevo."); return; }
+        ventana.document.write(htmlContent);
+        ventana.document.close();
+        ventana.onload = () => {
+            ventana.print();
+            ventana.onafterprint = () => ventana.close();
+            setTimeout(() => ventana.close(), 1000);
+        };
+    }
+    
+    function exportarSeccionPDF(titulo, contenidoHTML, huId, version) {
+        const ventana = window.open('', '_blank');
+        ventana.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titulo} - Reglas de Negocio</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; margin: 2cm; line-height: 1.4; } h1 { color: #2c7da0; font-size: 22pt; border-bottom: 2px solid #2c7da0; padding-bottom: 8px; } table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; } th, td { border: 1px solid #aaa; padding: 10px 12px; text-align: left; vertical-align: top; } th { background: #d4e6f1; color: #1a4c6e; } .hu-id { font-size: 12pt; color: #2c7da0; margin-bottom: 1rem; font-style: italic; }</style></head><body><h1>${titulo}</h1><div class="hu-id">HU: ${escapeHtml(huId)} ${version ? `- ${escapeHtml(version)}` : ''}</div>${contenidoHTML}</body></html>`);
+        ventana.document.close();
+        ventana.print();
+        ventana.onafterprint = () => ventana.close();
+        setTimeout(() => ventana.close(), 1000);
+    }
+
+    function renderizarSeccion(seccion) {
+        if (seccion === "hu") {
+            contenidoDinamico.innerHTML = `
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-user-check"></i> Historia de Usuario Generalizada</h2>
+                    <div class="hu-id-highlight">
+                        <div class="field"><label><i class="fas fa-tag"></i> Identificador</label><input type="text" id="huId" value="${escapeHtml(appData.hu.id)}" placeholder="US0000"></div>
+                        <div class="field"><label><i class="fas fa-code-branch"></i> Versión</label><input type="text" id="huVersion" value="${escapeHtml(appData.hu.version)}" placeholder="v1"></div>
+                    </div>
+                    <div class="hu-form">
+                        <div class="input-group"><label><i class="fas fa-user"></i> Como (rol)</label><textarea id="huComo" rows="2" placeholder="Descripción de rol dentro de la institución">${escapeHtml(appData.hu.como)}</textarea></div>
+                        <div class="input-group"><label><i class="fas fa-cog"></i> Quiero (funcionalidad)</label><textarea id="huQuiero" rows="2" placeholder="Actividad que se debe, quiere, o necesita desempeñar">${escapeHtml(appData.hu.quiero)}</textarea></div>
+                        <div class="input-group"><label><i class="fas fa-bullseye"></i> Para (objetivo)</label><textarea id="huPara" rows="2" placeholder="Motivo u objetivo de la actividad a desempeñar">${escapeHtml(appData.hu.para)}</textarea></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('huId').addEventListener('input', (e) => { appData.hu.id = e.target.value; guardarLocalStorage(); actualizarBadgesHU(); });
+            document.getElementById('huVersion').addEventListener('input', (e) => { appData.hu.version = e.target.value; guardarLocalStorage(); actualizarBadgesHU(); });
+            document.getElementById('huComo').addEventListener('input', (e) => { appData.hu.como = e.target.value; guardarLocalStorage(); });
+            document.getElementById('huQuiero').addEventListener('input', (e) => { appData.hu.quiero = e.target.value; guardarLocalStorage(); });
+            document.getElementById('huPara').addEventListener('input', (e) => { appData.hu.para = e.target.value; guardarLocalStorage(); });
+        } 
+        else if (seccion === "anotaciones") {
+            contenidoDinamico.innerHTML = `
+                <div class="section-card"><h2 class="section-title"><span><i class="fas fa-pen-alt"></i> Anotaciones</span><button class="btn-pdf" id="pdfAnotacionesBtn"><i class="fas fa-file-pdf"></i> Exportar esta sección a PDF</button></h2>
+                <div class="hu-badge"><strong>HU:</strong> ${escapeHtml(appData.hu.id) || "Sin identificar"} ${appData.hu.version ? `- ${escapeHtml(appData.hu.version)}` : ''}</div>
+                <textarea id="anotacionesTextarea" rows="8" placeholder="Agrega aclaraciones, sugerencias o notas adicionales..." style="width:100%">${escapeHtml(appData.anotaciones)}</textarea></div>
+            `;
+            document.getElementById('anotacionesTextarea').addEventListener('input', (e) => { appData.anotaciones = e.target.value; guardarLocalStorage(); });
+            document.getElementById('pdfAnotacionesBtn').addEventListener('click', () => {
+                const contenido = `<p style="white-space: pre-wrap;">${escapeHtml(appData.anotaciones).replace(/\n/g, '<br>')}</p>`;
+                exportarSeccionPDF("Anotaciones", contenido, appData.hu.id, appData.hu.version);
+            });
+        }
+        else {
+            const cat = categorias.find(c => c.id === seccion);
+            if (cat) {
+                const preguntas = appData.preguntas[cat.id];
+                let preguntasHtml = '';
+                if (preguntas.length === 0) {
+                    preguntasHtml = '<p style="color:#aaa;">No hay preguntas. Agrega una nueva.</p>';
+                } else {
+                    preguntas.forEach((preg, idx) => {
+                        let subpreguntasHtml = '';
+                        if (preg.subpreguntas && preg.subpreguntas.length) {
+                            subpreguntasHtml = `<div class="subpreguntas-container">`;
+                            preg.subpreguntas.forEach((sp, spIdx) => {
+                                subpreguntasHtml += `
+                                    <div class="subpregunta-item" data-sp-idx="${spIdx}">
+                                        <div class="subpregunta-texto">
+                                            <strong>${escapeHtml(sp.texto)}</strong>
+                                            <div class="acciones-pregunta">
+                                                <button class="btn-icon editar-subpregunta" data-cat="${cat.id}" data-idx="${idx}" data-sp-idx="${spIdx}" title="Editar"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon eliminar-subpregunta" data-cat="${cat.id}" data-idx="${idx}" data-sp-idx="${spIdx}" title="Eliminar"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="respuesta-area">
+                                            <textarea class="respuesta-subpregunta" data-cat="${cat.id}" data-idx="${idx}" data-sp-idx="${spIdx}" placeholder="Escribe tu respuesta..." style="width:100%">${escapeHtml(sp.respuesta)}</textarea>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            subpreguntasHtml += `</div>`;
+                        }
+                        preguntasHtml += `
+                            <div class="pregunta-item" data-idx="${idx}">
+                                <div class="pregunta-texto">
+                                    <strong>${escapeHtml(preg.texto)}</strong>
+                                    <div class="acciones-pregunta">
+                                        <button class="btn-icon agregar-subpregunta" data-cat="${cat.id}" data-idx="${idx}" title="Añadir pregunta de sondeo"><i class="fas fa-plus"></i></button>
+                                        <button class="btn-icon editar-pregunta" data-cat="${cat.id}" data-idx="${idx}" title="Editar"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-icon eliminar-pregunta" data-cat="${cat.id}" data-idx="${idx}" title="Eliminar"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="respuesta-area">
+                                    <textarea class="respuesta-texto" data-cat="${cat.id}" data-idx="${idx}" placeholder="Escribe tu respuesta..." style="width:100%">${escapeHtml(preg.respuesta)}</textarea>
+                                </div>
+                                ${subpreguntasHtml}
+                            </div>
+                        `;
+                    });
+                }
+                contenidoDinamico.innerHTML = `
+                    <div class="section-card">
+                        <h2 class="section-title"><span><i class="fas ${cat.icono}"></i> ${cat.titulo}</span><button class="btn-pdf" id="pdfSeccionBtn" data-cat="${cat.id}"><i class="fas fa-file-pdf"></i> Exportar esta sección a PDF</button></h2>
+                        <div class="hu-badge"><strong>HU:</strong> ${escapeHtml(appData.hu.id) || "Sin identificar"} ${appData.hu.version ? `- ${escapeHtml(appData.hu.version)}` : ''}</div>
+                        <div id="preguntasContainer">${preguntasHtml}</div>
+                        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                            <button class="btn-sm" id="nuevaPreguntaBtn" data-cat="${cat.id}"><i class="fas fa-plus"></i> Nueva pregunta</button>
+                            <label class="btn-sm" style="cursor:pointer;"><i class="fas fa-file-csv"></i> Importar CSV <input type="file" accept=".csv" style="display:none" class="importCsvBtn" data-cat="${cat.id}"></label>
+                        </div>
+                    </div>
+                `;
+                // Eventos (igual que original)
+                document.querySelectorAll('.editar-pregunta').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const catId = btn.getAttribute('data-cat');
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        const nuevoTexto = prompt("Editar pregunta:", appData.preguntas[catId][idx].texto);
+                        if (nuevoTexto && nuevoTexto.trim()) {
+                            appData.preguntas[catId][idx].texto = nuevoTexto.trim();
+                            guardarLocalStorage();
+                            renderizarSeccion(seccion);
+                        }
+                    });
+                });
+                document.querySelectorAll('.eliminar-pregunta').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const catId = btn.getAttribute('data-cat');
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        if (confirm("¿Eliminar esta pregunta y todas sus subpreguntas?")) {
+                            appData.preguntas[catId].splice(idx, 1);
+                            guardarLocalStorage();
+                            renderizarSeccion(seccion);
+                        }
+                    });
+                });
+                document.querySelectorAll('.respuesta-texto').forEach(ta => {
+                    ta.addEventListener('input', (e) => {
+                        const catId = ta.getAttribute('data-cat');
+                        const idx = parseInt(ta.getAttribute('data-idx'));
+                        appData.preguntas[catId][idx].respuesta = ta.value;
+                        guardarLocalStorage();
+                    });
+                });
+                document.querySelectorAll('.agregar-subpregunta').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const catId = btn.getAttribute('data-cat');
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        const textoSub = prompt("Escribe la pregunta de sondeo (subpregunta):");
+                        if (textoSub && textoSub.trim()) {
+                            if (!appData.preguntas[catId][idx].subpreguntas) appData.preguntas[catId][idx].subpreguntas = [];
+                            appData.preguntas[catId][idx].subpreguntas.push({ texto: textoSub.trim(), respuesta: "" });
+                            guardarLocalStorage();
+                            renderizarSeccion(seccion);
+                        }
+                    });
+                });
+                document.querySelectorAll('.editar-subpregunta').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const catId = btn.getAttribute('data-cat');
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        const spIdx = parseInt(btn.getAttribute('data-sp-idx'));
+                        const nuevoTexto = prompt("Editar subpregunta:", appData.preguntas[catId][idx].subpreguntas[spIdx].texto);
+                        if (nuevoTexto && nuevoTexto.trim()) {
+                            appData.preguntas[catId][idx].subpreguntas[spIdx].texto = nuevoTexto.trim();
+                            guardarLocalStorage();
+                            renderizarSeccion(seccion);
+                        }
+                    });
+                });
+                document.querySelectorAll('.eliminar-subpregunta').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const catId = btn.getAttribute('data-cat');
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        const spIdx = parseInt(btn.getAttribute('data-sp-idx'));
+                        if (confirm("¿Eliminar esta subpregunta?")) {
+                            appData.preguntas[catId][idx].subpreguntas.splice(spIdx, 1);
+                            guardarLocalStorage();
+                            renderizarSeccion(seccion);
+                        }
+                    });
+                });
+                document.querySelectorAll('.respuesta-subpregunta').forEach(ta => {
+                    ta.addEventListener('input', (e) => {
+                        const catId = ta.getAttribute('data-cat');
+                        const idx = parseInt(ta.getAttribute('data-idx'));
+                        const spIdx = parseInt(ta.getAttribute('data-sp-idx'));
+                        appData.preguntas[catId][idx].subpreguntas[spIdx].respuesta = ta.value;
+                        guardarLocalStorage();
+                    });
+                });
+                const nuevaBtn = document.getElementById('nuevaPreguntaBtn');
+                if (nuevaBtn) {
+                    nuevaBtn.addEventListener('click', () => {
+                        const catId = nuevaBtn.getAttribute('data-cat');
+                        const texto = prompt("Escribe la nueva pregunta:");
+                        if (texto && texto.trim()) {
+                            appData.preguntas[catId].push({ texto: texto.trim(), respuesta: "", subpreguntas: [] });
+                            guardarLocalStorage();
+                            renderizarSeccion(seccion);
+                        }
+                    });
+                }
+                document.querySelectorAll('.importCsvBtn').forEach(importInput => {
+                    importInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const catId = importInput.getAttribute('data-cat');
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const lines = ev.target.result.split(/\r?\n/);
+                            const nuevas = [];
+                            for (let line of lines) {
+                                if (line.trim()) {
+                                    let texto = line.split(',')[0].replace(/^"|"$/g, '').trim();
+                                    if (texto) nuevas.push({ texto: texto, respuesta: "", subpreguntas: [] });
+                                }
+                            }
+                            if (nuevas.length) {
+                                appData.preguntas[catId] = appData.preguntas[catId].concat(nuevas);
+                                guardarLocalStorage();
+                                renderizarSeccion(seccion);
+                            } else {
+                                alert("No se encontraron preguntas válidas.");
+                            }
+                        };
+                        reader.readAsText(file, 'UTF-8');
+                        importInput.value = '';
+                    });
+                });
+                const pdfBtn = document.getElementById('pdfSeccionBtn');
+                if (pdfBtn) {
+                    pdfBtn.addEventListener('click', () => {
+                        const catId = pdfBtn.getAttribute('data-cat');
+                        const preguntas = appData.preguntas[catId];
+                        let htmlContent = '';
+                        if (preguntas.length === 0) htmlContent = '<p>No hay preguntas definidas.</p>';
+                        else {
+                            htmlContent = `<table><thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead><tbody>`;
+                            preguntas.forEach(p => {
+                                htmlContent += `<tr><td>${escapeHtml(p.texto)}</td><td>${escapeHtml(p.respuesta) || 'Sin respuesta'}</td></tr>`;
+                                if (p.subpreguntas && p.subpreguntas.length) {
+                                    p.subpreguntas.forEach(sp => {
+                                        htmlContent += `<tr style="background:#f5f5f5;"><td style="padding-left:1.5rem;">↳ ${escapeHtml(sp.texto)}</td><td>${escapeHtml(sp.respuesta) || 'Sin respuesta'}</td></tr>`;
+                                    });
+                                }
+                            });
+                            htmlContent += `</tbody></table>`;
+                        }
+                        exportarSeccionPDF(cat.titulo, htmlContent, appData.hu.id, appData.hu.version);
+                    });
+                }
+            }
+        }
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === seccion) link.classList.add('active');
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+    }
+
+    function getBaseFileName() {
+        let base = "Reglas de negocio";
+        if (appData.hu.id) base += ` - ${appData.hu.id}`;
+        if (appData.hu.version) base += ` - ${appData.hu.version}`;
+        else base += ` - v1`;
+        return base;
+    }
+
+    function exportarJSON() {
+        const dataStr = JSON.stringify(appData, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${getBaseFileName()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function exportarCSV() {
+        let filas = [["Categoria", "Pregunta padre", "Pregunta", "Respuesta"]];
+        for (let cat of categorias) {
+            appData.preguntas[cat.id].forEach(p => {
+                filas.push([cat.titulo, "", p.texto, p.respuesta]);
+                if (p.subpreguntas && p.subpreguntas.length) {
+                    p.subpreguntas.forEach(sp => {
+                        filas.push([cat.titulo, p.texto, sp.texto, sp.respuesta]);
+                    });
+                }
+            });
+        }
+        filas.push(["Historia de Usuario", "", "ID", appData.hu.id]);
+        filas.push(["Historia de Usuario", "", "Versión", appData.hu.version]);
+        filas.push(["Historia de Usuario", "", "Como", appData.hu.como]);
+        filas.push(["Historia de Usuario", "", "Quiero", appData.hu.quiero]);
+        filas.push(["Historia de Usuario", "", "Para", appData.hu.para]);
+        filas.push(["Anotaciones", "", "", appData.anotaciones]);
+        const csvContent = filas.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${getBaseFileName()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function importarJSON(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (imported.hu && imported.preguntas && imported.anotaciones !== undefined) {
+                    appData = imported;
+                    for (let cat of categorias) {
+                        if (!appData.preguntas[cat.id]) appData.preguntas[cat.id] = [];
+                        appData.preguntas[cat.id] = appData.preguntas[cat.id].map(p => ({
+                            texto: p.texto || "",
+                            respuesta: p.respuesta || "",
+                            subpreguntas: (p.subpreguntas || []).map(sp => ({ texto: sp.texto || "", respuesta: sp.respuesta || "" }))
+                        }));
+                    }
+                    guardarLocalStorage();
+                    renderizarSeccion(currentSection);
+                    alert("Importación exitosa");
+                } else {
+                    alert("Estructura JSON inválida.");
+                }
+            } catch(err) {
+                alert("Error al leer JSON: " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function limpiarTodo() {
+        if (confirm("⚠️ Borrará TODOS los datos. ¿Continuar?")) {
+            appData = {
+                hu: { id: "", version: "", como: "", quiero: "", para: "" },
+                preguntas: { rol: [], funcionalidad: [], objetivo: [] },
+                anotaciones: ""
+            };
+            guardarLocalStorage();
+            renderizarSeccion(currentSection);
+        }
+    }
+
+    // ----- Tema oscuro/claro -----
+    let currentTheme = localStorage.getItem('rnTheme') || 'dark';
+    function applyTheme(theme) {
+        document.body.classList.remove('dark', 'light');
+        document.body.classList.add(theme);
+        const toggleBtn = document.getElementById('themeToggle');
+        if (toggleBtn) toggleBtn.innerHTML = theme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        localStorage.setItem('rnTheme', theme);
+    }
+    function toggleTheme() { currentTheme = currentTheme === 'dark' ? 'light' : 'dark'; applyTheme(currentTheme); }
+
+    function initNavigation() {
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.getAttribute('data-section');
+                if (section) {
+                    currentSection = section;
+                    renderizarSeccion(section);
+                    if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    }
+
+    function initGlobalEvents() {
+        document.getElementById('exportarPdfCompletoBtn').addEventListener('click', exportarPDFCompleto);
+        document.getElementById('exportarJsonBtn').addEventListener('click', exportarJSON);
+        document.getElementById('exportarCsvBtn').addEventListener('click', exportarCSV);
+        document.getElementById('limpiarBtn').addEventListener('click', limpiarTodo);
+        const importJsonInput = document.getElementById('importarJsonInput');
+        importJsonInput.addEventListener('change', (e) => {
+            if (e.target.files.length) importarJSON(e.target.files[0]);
+            importJsonInput.value = '';
+        });
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        mobileBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    cargarLocalStorage();
+    applyTheme(currentTheme);
+    initNavigation();
+    initGlobalEvents();
+    renderizarSeccion('hu');
+    currentSection = 'hu';
+</script>
+</body>
+</html>

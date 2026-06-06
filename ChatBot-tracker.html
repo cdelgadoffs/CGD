@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ChatBot | Generador de Preguntas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        /* ===== ESTILOS BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Comfortaa', sans-serif; transition: background 0.3s, color 0.3s; }
+        body.dark { background: radial-gradient(circle at 20% 30%, #1a1a1c, #0b0b0e); color: #e0e0e0; }
+        body.light { background: #f0f2f5; color: #1a1a2e; }
+        .app-layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 300px;
+            background: #0e0e10;
+            border-right: 1px solid #2e2e32;
+            padding: 1.5rem 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, background 0.3s;
+            z-index: 100;
+        }
+        body.light .sidebar { background: #ffffff; border-right: 1px solid #d0d7de; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; max-width: 100%; }
+        }
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid;
+            padding-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar-header .left-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .sidebar-header .home-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #ff8c42;
+            transition: color 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .sidebar-header .home-btn:hover {
+            color: #ffb347;
+        }
+        body.dark .sidebar-header { border-color: #2e2e32; }
+        body.light .sidebar-header { border-color: #d0d7de; }
+        .sidebar-header h2 { font-size: 1.2rem; color: #ff8c42; margin: 0; }
+        .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #ff8c42; transition: color 0.2s; }
+        .theme-toggle:hover { color: #ffb347; }
+        .sidebar-nav { list-style: none; flex-grow: 1; }
+        .sidebar-nav li { margin: 0.5rem 0; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 1rem; text-decoration: none; border-radius: 4px; transition: 0.2s; font-size: 0.9rem; font-family: 'Comfortaa', sans-serif; }
+        body.dark .sidebar-nav a { color: #ccc; }
+        body.light .sidebar-nav a { color: #333; }
+        .sidebar-nav a i { width: 24px; color: #ff8c42; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: #1f1f23; color: #ff8c42; border-left: 5px solid #ff8c42; }
+        body.light .sidebar-nav a:hover, body.light .sidebar-nav a.active { background: #e9ecef; }
+        .protection-section { margin: 1rem 0; border-top: 1px solid; padding-top: 1rem; }
+        body.dark .protection-section { border-color: #2e2e32; }
+        body.light .protection-section { border-color: #d0d7de; }
+        .protection-section h4 { font-size: 0.8rem; margin-bottom: 0.6rem; color: #ff8c42; display: flex; align-items: center; gap: 0.5rem; font-family: 'Comfortaa', sans-serif; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .checkbox-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-family: 'Comfortaa', sans-serif; }
+        body.dark .checkbox-item { color: #ccc; }
+        body.light .checkbox-item { color: #333; }
+        .checkbox-item input { width: auto; margin: 0; transform: scale(0.9); }
+        .sidebar-actions { margin-top: 1rem; border-top: 1px solid; padding-top: 1rem; }
+        body.dark .sidebar-actions { border-color: #2e2e32; }
+        body.light .sidebar-actions { border-color: #d0d7de; }
+        .sidebar-actions button, .sidebar-actions label { 
+            display: block; width: 100%; padding: 0.6rem; margin-bottom: 0.6rem; text-align: center; cursor: pointer; border-radius: 2px; font-size: 0.85rem; transition: all 0.2s; 
+            font-family: 'Comfortaa', sans-serif;
+        }
+        body.dark .sidebar-actions button, body.dark .sidebar-actions label { background: #1f1f23; color: #ccc; border: 1px solid #3a3a40; }
+        body.light .sidebar-actions button, body.light .sidebar-actions label { background: #f8f9fa; color: #212529; border: 1px solid #ced4da; }
+        .sidebar-actions button:hover, .sidebar-actions label:hover { border-color: #ff8c42; color: #ff8c42; }
+        .sidebar-footer { font-size: 0.7rem; text-align: center; border-top: 1px solid; padding-top: 1rem; margin-top: 1rem; font-family: 'Comfortaa', sans-serif; }
+        body.dark .sidebar-footer { color: #6a6a70; border-color: #2c2c30; }
+        body.light .sidebar-footer { color: #6c757d; border-color: #dee2e6; }
+        .mobile-menu-btn { position: fixed; top: 1rem; left: 1rem; z-index: 101; background: #ff8c42; color: #0b0b0e; border: none; padding: 0.6rem; border-radius: 4px; cursor: pointer; display: none; font-size: 1.2rem; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; }
+        .mobile-menu-btn:hover { background: #ffb347; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: block; } }
+        .main-content { flex: 1; margin-left: 300px; padding: 2rem; max-width: calc(100% - 300px); }
+        @media (max-width: 768px) { .main-content { margin-left: 0; padding-top: 4rem; } }
+        .section-card { border-radius: 12px; padding: 1.8rem; margin-bottom: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: background 0.3s, border 0.3s; }
+        body.dark .section-card { background: #141416; border: 1px solid #2e2e32; }
+        body.light .section-card { background: #ffffff; border: 1px solid #dee2e6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .section-title { font-size: 1.5rem; margin-bottom: 1rem; color: #ff8c42; border-left: 4px solid #ff8c42; padding-left: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; font-family: 'Comfortaa', sans-serif; }
+        .stats-badges { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .stat-badge { background: rgba(255, 140, 66, 0.15); border-radius: 4px; padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 500; font-family: 'Comfortaa', sans-serif; }
+        body.dark .stat-badge { background: #1f1f23; border: 1px solid #2e2e32; color: #ccc; }
+        body.light .stat-badge { background: #f8f9fa; border: 1px solid #dee2e6; color: #212529; }
+        .edit-badge { background: #ff8c42; color: #0b0b0e; font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 20px; font-weight: bold; font-family: 'Comfortaa', sans-serif; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+        .full-width { grid-column: span 2; }
+        .input-group { display: flex; flex-direction: column; gap: 0.4rem; position: relative; margin-bottom: 0.5rem; }
+        .input-group label { font-size: 0.75rem; text-transform: uppercase; color: #ff8c42; font-weight: 600; letter-spacing: 0.5px; font-family: 'Comfortaa', sans-serif; display: flex; align-items: center; gap: 0.4rem; }
+        .input-group label i.fa-shield-alt { font-size: 0.75rem; margin-top: 0; line-height: 1; vertical-align: middle; display: inline-block; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper input, .input-wrapper textarea { width: 100%; padding-right: 4.5rem; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; }
+        .input-wrapper textarea { padding-right: 4.5rem; }
+        .clear-field-inside, .copy-field-inside {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 1rem;
+            padding: 0.2rem;
+            transition: color 0.2s;
+            font-family: 'Comfortaa', sans-serif;
+            z-index: 2;
+        }
+        .input-wrapper textarea + .clear-field-inside,
+        .input-wrapper textarea + .copy-field-inside {
+            top: 0.8rem;
+            transform: none;
+        }
+        .clear-field-inside { right: 0.5rem; }
+        .copy-field-inside { right: 2rem; }
+        .clear-field-inside:hover, .copy-field-inside:hover { color: #ff8c42; }
+        input, textarea, select { 
+            padding: 0.8rem; font-family: 'Comfortaa', sans-serif; font-size: 0.9rem; border-radius: 8px; transition: 0.2s; width: 100%; 
+        }
+        .required-field { background: rgba(255, 140, 66, 0.08) !important; }
+        select {
+            padding-right: 2rem;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ff8c42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1rem;
+        }
+        body.dark input, body.dark textarea, body.dark select { background: #1f1f23; border: 1px solid #2e2e32; color: #e0e0e0; }
+        body.light input, body.light textarea, body.light select { background: #f8f9fa; border: 1px solid #ced4da; color: #212529; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #ff8c42; box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2); }
+        .preguntas-horizontal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        @media (max-width: 768px) { .preguntas-horizontal { grid-template-columns: 1fr; } }
+        .pregunta-item-form { border-radius: 12px; padding: 1rem; border: 1px solid; }
+        body.dark .pregunta-item-form { background: #0e0e10; border-color: #2a2a2e; }
+        body.light .pregunta-item-form { background: #f8f9fa; border-color: #dee2e6; }
+        .pregunta-item-form label { font-size: 1rem; margin-bottom: 0.5rem; display: block; color: #ff8c42; font-weight: bold; font-family: 'Comfortaa', sans-serif; display: flex; align-items: center; gap: 0.4rem; }
+        .pregunta-item-form label i.fa-shield-alt { font-size: 0.85rem; vertical-align: middle; }
+        .btn-sm { 
+            padding: 0.5rem 1.2rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; margin-right: 0.8rem; margin-top: 0.5rem; border: 1px solid; 
+            font-family: 'Comfortaa', sans-serif;
+        }
+        body.dark .btn-sm { background: #2c2c30; border-color: #3a3a40; color: #e0e0e0; }
+        body.light .btn-sm { background: #e9ecef; border-color: #ced4da; color: #212529; }
+        body.dark .btn-sm:hover, body.light .btn-sm:hover { background: #ff8c42; color: #0b0b0e; border-color: #ff8c42; }
+        .flex-buttons { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.5rem; }
+        .grupo-item { border-radius: 16px; margin-bottom: 1rem; padding: 1rem; transition: all 0.2s; cursor: pointer; }
+        body.dark .grupo-item { background: #1a1a1e; border: 1px solid #2e2e32; }
+        body.light .grupo-item { background: #ffffff; border: 1px solid #dee2e6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .grupo-item:hover { border-color: #ff8c42; }
+        .grupo-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 0.5rem; gap: 0.5rem; }
+        .toggle-icon { font-size: 1.2rem; margin-right: auto; cursor: pointer; transition: color 0.2s; }
+        .toggle-icon:hover { color: #ff8c42; }
+        .clasificacion-badge { background: #ff8c42; color: #0b0b0e; font-size: 0.8rem; padding: 4px 12px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 0.8rem; transition: background 0.2s; font-family: 'Comfortaa', sans-serif; }
+        .clasificacion-badge.validado { background: #558b2f; color: white; }
+        .respuesta-preview { 
+            font-size: 0.9rem; line-height: 1.4; margin: 0.5rem 0 0.8rem 0; padding: 0.8rem; border-radius: 8px; 
+            font-family: 'Comfortaa', sans-serif;
+            background: rgba(255, 140, 66, 0.15); 
+            border-left: 3px solid #ff8c42;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        body.dark .respuesta-preview { background: rgba(255, 140, 66, 0.1); }
+        body.light .respuesta-preview { background: rgba(255, 140, 66, 0.08); }
+        .respuesta-texto { flex: 1; }
+        .copy-respuesta-btn { background: transparent; border: none; cursor: pointer; color: #aaa; font-size: 1rem; transition: color 0.2s; }
+        .copy-respuesta-btn:hover { color: #ff8c42; }
+        .grupo-details { display: none; margin-top: 1rem; padding-top: 0.5rem; border-top: 1px dashed; }
+        body.dark .grupo-details { border-color: #2e2e32; }
+        body.light .grupo-details { border-color: #dee2e6; }
+        .meta-chips { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1rem; align-items: flex-start; }
+        .chip-group { background: rgba(255, 140, 66, 0.1); border-radius: 12px; padding: 0.5rem 0.8rem; flex: 1 1 auto; min-width: 150px; font-family: 'Comfortaa', sans-serif; }
+        body.dark .chip-group { background: #0e0e10; border: 1px solid #2e2e32; }
+        body.light .chip-group { background: #f8f9fa; border: 1px solid #dee2e6; }
+        .chip-group strong { display: block; font-size: 0.7rem; text-transform: uppercase; color: #ff8c42; margin-bottom: 0.3rem; font-family: 'Comfortaa', sans-serif; }
+        .chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.2rem; }
+        .chip { background: #ff8c42; color: #0b0b0e; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; display: inline-block; font-family: 'Comfortaa', sans-serif; }
+        .chip-text { background: transparent; color: inherit; font-size: 0.85rem; }
+        .preguntas-list { margin-top: 1rem; }
+        .pregunta-item-chat { margin-bottom: 0.8rem; padding: 0.6rem 0.8rem; border-radius: 8px; display: flex; align-items: center; gap: 0.8rem; border: 1px solid; flex-wrap: wrap; font-family: 'Comfortaa', sans-serif; }
+        body.dark .pregunta-item-chat { background: #0e0e10; border-color: #2a2a2e; color: #ccc; }
+        body.light .pregunta-item-chat { background: #f8f9fa; border-color: #dee2e6; color: #212529; }
+        .pregunta-tipo-badge { background: #ff8c42; color: #0b0b0e; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; font-weight: 600; min-width: 70px; text-align: center; font-family: 'Comfortaa', sans-serif; }
+        .pregunta-texto { flex: 1; }
+        .copy-pregunta-btn { background: transparent; border: none; cursor: pointer; color: #aaa; font-size: 1rem; margin-left: 0.5rem; transition: color 0.2s; }
+        .copy-pregunta-btn:hover { color: #ff8c42; }
+        .empty-state { padding: 2rem; text-align: center; border-radius: 12px; font-family: 'Comfortaa', sans-serif; }
+        body.dark .empty-state { color: #aaa; background: #0e0e10; }
+        body.light .empty-state { color: #6c757d; background: #f8f9fa; }
+        .btn-icon { background: transparent; border: none; cursor: pointer; font-size: 1.2rem; transition: color 0.2s; margin-left: 0.5rem; font-family: 'Comfortaa', sans-serif; }
+        body.dark .btn-icon { color: #aaa; }
+        body.light .btn-icon { color: #6c757d; }
+        .btn-icon:hover { color: #ff8c42; }
+        .filter-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 180px; position: relative; }
+        .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: #ff8c42; display: block; margin-bottom: 0.3rem; font-family: 'Comfortaa', sans-serif; }
+        .search-wrapper { position: relative; display: flex; align-items: center; }
+        .search-wrapper input { padding-right: 2.2rem; font-family: 'Comfortaa', sans-serif; }
+        .clear-search { 
+            position: absolute; right: 0.5rem; background: transparent; border: none; cursor: pointer; color: #aaa; font-size: 1rem; padding: 0.2rem; 
+            font-family: 'Comfortaa', sans-serif; transition: color 0.2s;
+        }
+        .clear-search:hover { color: #ff8c42; }
+    </style>
+</head>
+<body class="dark">
+<button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+<div class="app-layout">
+    <div class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <div class="left-group">
+                    <h2><i class="fas fa-comments"></i> ChatBot</h2>
+                    <a href="index.html" class="home-btn" title="Ir al inicio"><i class="fas fa-home"></i></a>
+                </div>
+                <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#" data-section="generador"><i class="fas fa-edit"></i> Generador</a></li>
+                <li><a href="#" data-section="registros"><i class="fas fa-database"></i> Registros guardados</a></li>
+            </ul>
+            <div class="protection-section">
+                <h4><i class="fas fa-shield-alt"></i> Proteger campos</h4>
+                <div class="checkbox-grid" id="checkboxesContainer"></div>
+            </div>
+        </div>
+        <div>
+            <div class="sidebar-actions">
+                <button id="exportarExcelBtn"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+                <button id="guardarCopiaSeguridadBtn"><i class="fas fa-save"></i> Guardar copia de seguridad</button>
+                <label for="importarGruposJson" style="cursor:pointer;"><i class="fas fa-upload"></i> Cargar copia de seguridad</label>
+                <button id="exportarVectorJsonBtn"><i class="fas fa-download"></i> Exportar a JSON (vector)</button>
+                <input type="file" id="importarGruposJson" accept=".json" style="display:none">
+                <button id="limpiarHistorialBtn"><i class="fas fa-trash-alt"></i> Limpiar todo el historial</button>
+            </div>
+            <div class="sidebar-footer"><i class="fas fa-database"></i> LocalStorage automático</div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div id="contenidoDinamico"></div>
+    </div>
+</div>
+
+<script>
+    // ---------- DATOS ----------
+    let appData = {
+        grupos: [],
+        borrador: {
+            direccion: "", respuesta: "", clasificacion: "", tema: "", palabras_clave: "", abreviaciones: "",
+            pregunta1: "", pregunta2: "", pregunta3: ""
+        },
+        editandoIndex: null,
+        protectedFields: {
+            direccion: false, respuesta: false, clasificacion: false, tema: false,
+            palabras_clave: false, abreviaciones: false, pregunta1: false, pregunta2: false, pregunta3: false
+        }
+    };
+    let currentSection = "generador";
+    const contenidoDinamico = document.getElementById('contenidoDinamico');
+
+    // Tema
+    let currentTheme = localStorage.getItem('chatbotTheme') || 'dark';
+    function applyTheme(theme) {
+        document.body.classList.remove('dark', 'light');
+        document.body.classList.add(theme);
+        const toggleBtn = document.getElementById('themeToggle');
+        if (toggleBtn) toggleBtn.innerHTML = theme === 'dark' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        localStorage.setItem('chatbotTheme', theme);
+    }
+    function toggleTheme() { currentTheme = currentTheme === 'dark' ? 'light' : 'dark'; applyTheme(currentTheme); }
+
+    function guardarLocalStorage() {
+        localStorage.setItem('chatbotData', JSON.stringify({
+            grupos: appData.grupos,
+            borrador: appData.borrador,
+            editandoIndex: appData.editandoIndex,
+            protectedFields: appData.protectedFields
+        }));
+    }
+    function cargarLocalStorage() {
+        const saved = localStorage.getItem('chatbotData');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.grupos) {
+                    appData.grupos = parsed.grupos;
+                    appData.grupos.forEach(g => { if (g.validado === undefined) g.validado = false; });
+                }
+                if (parsed.borrador) appData.borrador = parsed.borrador;
+                if (parsed.editandoIndex !== undefined) appData.editandoIndex = parsed.editandoIndex;
+                if (parsed.protectedFields) appData.protectedFields = parsed.protectedFields;
+            } catch(e) {}
+        }
+        guardarLocalStorage();
+    }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
+
+    function limpiarCampo(nombreCampo, ignoreProtection = false) {
+        if (!ignoreProtection && appData.protectedFields[nombreCampo]) {
+            alert(`El campo "${nombreCampo}" está protegido. No se puede borrar con el botón global.`);
+            return;
+        }
+        appData.borrador[nombreCampo] = "";
+        guardarLocalStorage();
+        renderizarSeccion(currentSection);
+    }
+
+    function limpiarFormularioRespetandoProteccion() {
+        const p = appData.protectedFields;
+        if (!p.direccion) appData.borrador.direccion = "";
+        if (!p.respuesta) appData.borrador.respuesta = "";
+        if (!p.clasificacion) appData.borrador.clasificacion = "";
+        if (!p.tema) appData.borrador.tema = "";
+        if (!p.palabras_clave) appData.borrador.palabras_clave = "";
+        if (!p.abreviaciones) appData.borrador.abreviaciones = "";
+        if (!p.pregunta1) appData.borrador.pregunta1 = "";
+        if (!p.pregunta2) appData.borrador.pregunta2 = "";
+        if (!p.pregunta3) appData.borrador.pregunta3 = "";
+        guardarLocalStorage();
+    }
+    function resetearModoEdicion() { appData.editandoIndex = null; guardarLocalStorage(); }
+    function guardarGrupo() {
+        const b = appData.borrador;
+        if (!b.direccion.trim() || !b.respuesta.trim() || !b.pregunta1.trim() || !b.pregunta2.trim() || !b.pregunta3.trim()) {
+            alert("Completa Dirección, Respuesta y las 3 preguntas.");
+            return;
+        }
+        const palabrasClave = b.palabras_clave.split(',').map(s => s.trim()).filter(s => s);
+        const abreviaciones = b.abreviaciones.split(',').map(s => s.trim()).filter(s => s);
+        const nuevoGrupo = {
+            direccion: b.direccion.trim(),
+            respuesta: b.respuesta.trim(),
+            clasificacion: b.clasificacion.trim(),
+            tema: b.tema.trim(),
+            palabras_clave: palabrasClave,
+            abreviaciones: abreviaciones,
+            preguntas: [b.pregunta1.trim(), b.pregunta2.trim(), b.pregunta3.trim()],
+            validado: false
+        };
+        if (appData.editandoIndex !== null) {
+            if (confirm("¿Actualizar este registro?")) {
+                nuevoGrupo.validado = appData.grupos[appData.editandoIndex].validado || false;
+                appData.grupos[appData.editandoIndex] = nuevoGrupo;
+                resetearModoEdicion();
+                limpiarFormularioRespetandoProteccion();
+                guardarLocalStorage();
+                renderizarSeccion(currentSection);
+                alert("Registro actualizado.");
+            }
+        } else {
+            appData.grupos.push(nuevoGrupo);
+            limpiarFormularioRespetandoProteccion();
+            guardarLocalStorage();
+            renderizarSeccion(currentSection);
+        }
+    }
+    function limpiarFormularioManual() { limpiarFormularioRespetandoProteccion(); resetearModoEdicion(); renderizarSeccion(currentSection); }
+    function editarGrupo(index) {
+        const grupo = appData.grupos[index];
+        appData.borrador = {
+            direccion: grupo.direccion,
+            respuesta: grupo.respuesta,
+            clasificacion: grupo.clasificacion,
+            tema: grupo.tema,
+            palabras_clave: grupo.palabras_clave.join(", "),
+            abreviaciones: grupo.abreviaciones.join(", "),
+            pregunta1: grupo.preguntas[0],
+            pregunta2: grupo.preguntas[1],
+            pregunta3: grupo.preguntas[2]
+        };
+        appData.editandoIndex = index;
+        guardarLocalStorage();
+        currentSection = "generador";
+        renderizarSeccion("generador");
+    }
+    function eliminarGrupo(index) {
+        if (confirm("¿Eliminar este grupo?")) {
+            appData.grupos.splice(index, 1);
+            if (appData.editandoIndex !== null && appData.editandoIndex >= index) {
+                if (appData.editandoIndex === index) resetearModoEdicion();
+                else if (appData.editandoIndex > index) appData.editandoIndex--;
+            }
+            guardarLocalStorage();
+            renderizarSeccion(currentSection);
+        }
+    }
+
+    // Persistencia en JSON
+    function exportarCopiaSeguridad() {
+        if (appData.grupos.length === 0) { alert("No hay grupos guardados."); return; }
+        let nombreBase = prompt("Ingresa un nombre para la copia de seguridad:", "backup");
+        if (!nombreBase) nombreBase = "backup";
+        nombreBase = nombreBase.replace(/[^a-z0-9áéíóúñü_-]/gi, '_');
+        const nombreArchivo = `ChatBot-backup-${nombreBase}.json`;
+        const dataStr = JSON.stringify(appData.grupos, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    function importarCopiaSeguridad(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported) && imported.length && imported[0].direccion !== undefined && imported[0].preguntas) {
+                    appData.grupos = imported;
+                    appData.grupos.forEach(g => { if (g.validado === undefined) g.validado = false; });
+                    resetearModoEdicion();
+                    guardarLocalStorage();
+                    renderizarSeccion(currentSection);
+                    alert("Copia de seguridad cargada.");
+                } else alert("Formato inválido.");
+            } catch(err) { alert("Error al leer JSON: " + err.message); }
+        };
+        reader.readAsText(file);
+    }
+    function obtenerArrayParaVector() {
+        const vector = [];
+        for (const grupo of appData.grupos) {
+            const base = { direccion: grupo.direccion, respuesta: grupo.respuesta, clasificacion: grupo.clasificacion, tema: grupo.tema, palabras_clave: grupo.palabras_clave, abreviaciones: grupo.abreviaciones };
+            for (let i = 0; i < grupo.preguntas.length; i++) vector.push({ ...base, pregunta: grupo.preguntas[i] });
+        }
+        return vector;
+    }
+    function exportarChatbotExcel() {
+        const vector = obtenerArrayParaVector();
+        if (!vector.length) { alert("No hay grupos guardados."); return; }
+        const headers = ["direccion", "pregunta", "respuesta", "clasificacion", "tema", "palabras_clave", "abreviaciones"];
+        const wsData = [headers];
+        for (const item of vector) wsData.push([item.direccion, item.pregunta, item.respuesta, item.clasificacion, item.tema, item.palabras_clave.join(", "), item.abreviaciones.join(", ")]);
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Preguntas");
+        XLSX.writeFile(wb, `chatbot_preguntas.xlsx`);
+    }
+    function exportarChatbotJSONVector() {
+        const vector = obtenerArrayParaVector();
+        if (!vector.length) { alert("No hay grupos guardados."); return; }
+        const blob = new Blob([JSON.stringify(vector, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chatbot_preguntas_vector.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    function limpiarTodoHistorial() {
+        if (confirm("⚠️ Esto eliminará TODOS los grupos. ¿Continuar?")) {
+            appData.grupos = [];
+            resetearModoEdicion();
+            guardarLocalStorage();
+            renderizarSeccion(currentSection);
+        }
+    }
+
+    function renderCheckboxes() {
+        const container = document.getElementById('checkboxesContainer');
+        if (!container) return;
+        const fields = [
+            { id: 'direccion', label: 'Dirección' }, 
+            { id: 'respuesta', label: 'Respuesta' },
+            { id: 'clasificacion', label: 'Clasificación' }, 
+            { id: 'pregunta1', label: 'Pregunta 1' },
+            { id: 'tema', label: 'Tema' }, 
+            { id: 'pregunta2', label: 'Pregunta 2' },
+            { id: 'abreviaciones', label: 'Abreviaciones' },
+            { id: 'pregunta3', label: 'Pregunta 3' },
+            { id: 'palabras_clave', label: 'Palabras clave' } 
+        ];
+        container.innerHTML = fields.map(f => `<label class="checkbox-item"><input type="checkbox" data-field="${f.id}" ${appData.protectedFields[f.id] ? 'checked' : ''}><span>${f.label}</span></label>`).join('');
+        container.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+            chk.addEventListener('change', (e) => {
+                const field = chk.getAttribute('data-field');
+                appData.protectedFields[field] = chk.checked;
+                guardarLocalStorage();
+                if (currentSection === "generador") {
+                    renderizarSeccion("generador");
+                }
+            });
+        });
+    }
+
+    // --------------------- REGISTROS GUARDADOS ---------------------
+    let currentSearchText = "";
+    let currentClasificacionFilter = "todos";
+    let registrosDynamicContainer = null;
+
+    function actualizarStatsBadges(total, filtrados) {
+        const statsContainer = document.querySelector('.stats-badges');
+        if (!statsContainer) return;
+        statsContainer.innerHTML = `
+            <div class="stat-badge">Total: ${total}</div>
+            <div class="stat-badge">Filtrados: ${filtrados}</div>
+        `;
+    }
+
+    function aplicarFiltrosYRenderizar() {
+        if (!registrosDynamicContainer) return;
+        const grupos = appData.grupos;
+        if (!grupos.length) {
+            registrosDynamicContainer.innerHTML = `<div class="empty-state">No hay grupos. Crea uno en "Generador".</div>`;
+            actualizarStatsBadges(0, 0);
+            return;
+        }
+        const clasificaciones = [...new Set(grupos.map(g => g.clasificacion).filter(c => c && c.trim() !== ""))].sort();
+        let filtered = grupos.filter(grupo => {
+            if (currentClasificacionFilter !== "todos" && grupo.clasificacion !== currentClasificacionFilter) return false;
+            if (currentSearchText.trim() === "") return true;
+            const searchLower = currentSearchText.toLowerCase();
+            const preguntasMatch = grupo.preguntas.some(p => p.toLowerCase().includes(searchLower));
+            const respuestaMatch = grupo.respuesta.toLowerCase().includes(searchLower);
+            const direccionMatch = grupo.direccion.toLowerCase().includes(searchLower);
+            const clasificacionMatch = grupo.clasificacion.toLowerCase().includes(searchLower);
+            const temaMatch = grupo.tema.toLowerCase().includes(searchLower);
+            const keywordsMatch = grupo.palabras_clave.some(k => k.toLowerCase().includes(searchLower));
+            return preguntasMatch || respuestaMatch || direccionMatch || clasificacionMatch || temaMatch || keywordsMatch;
+        });
+        actualizarStatsBadges(grupos.length, filtered.length);
+        
+        let html = `
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Buscar (pregunta/respuesta)</label>
+                    <div class="search-wrapper">
+                        <input type="text" id="searchTextInput" placeholder="Escribe y presiona Enter" value="${escapeHtml(currentSearchText)}">
+                        <button class="clear-search" id="clearSearchBtn" title="Limpiar búsqueda"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Filtrar por clasificación</label>
+                    <select id="clasificacionSelect">
+                        <option value="todos" ${currentClasificacionFilter === "todos" ? 'selected' : ''}>Todas</option>
+                        ${clasificaciones.map(c => `<option value="${escapeHtml(c)}" ${currentClasificacionFilter === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div id="resultadosContainer"></div>
+        `;
+        registrosDynamicContainer.innerHTML = html;
+        const resultadosContainer = document.getElementById('resultadosContainer');
+        if (filtered.length === 0) {
+            resultadosContainer.innerHTML = `<div class="empty-state">No hay grupos que coincidan con los filtros.</div>`;
+        } else {
+            let gruposHtml = '';
+            filtered.forEach(grupo => {
+                const idx = appData.grupos.findIndex(g => g === grupo);
+                const validado = grupo.validado ? 'validado' : '';
+                gruposHtml += `
+                    <div class="grupo-item" data-grupo-idx="${idx}">
+                        <div class="grupo-header">
+                            <i class="fas fa-chevron-right toggle-icon" style="cursor:pointer;"></i>
+                            <div>
+                                <button class="btn-icon toggle-validado" data-idx="${idx}" title="${grupo.validado ? 'Desmarcar como confirmado' : 'Marcar como confirmado'}">
+                                    <i class="fas ${grupo.validado ? 'fa-times-circle' : 'fa-check-circle'}"></i>
+                                </button>
+                                <button class="btn-icon editar-grupo" data-index="${idx}" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon eliminar-grupo" data-index="${idx}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="clasificacion-badge ${validado}">${escapeHtml(grupo.clasificacion) || 'Sin clasificación'}</div>
+                        <div class="respuesta-preview">
+                            <span class="respuesta-texto">${escapeHtml(grupo.respuesta)}</span>
+                            <button class="copy-respuesta-btn" data-respuesta="${escapeHtml(grupo.respuesta)}" title="Copiar respuesta"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <div class="grupo-details" style="display: none;">
+                            <div class="meta-chips">
+                                <div class="chip-group"><strong>Dirección</strong><div class="chip-list"><span class="chip-text">${escapeHtml(grupo.direccion) || '—'}</span></div></div>
+                                <div class="chip-group"><strong>Tema</strong><div class="chip-list"><span class="chip-text">${escapeHtml(grupo.tema) || '—'}</span></div></div>
+                                <div class="chip-group"><strong>Palabras clave</strong><div class="chip-list">${grupo.palabras_clave.length ? grupo.palabras_clave.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('') : '<span class="chip-text">—</span>'}</div></div>
+                                <div class="chip-group"><strong>Abreviaciones</strong><div class="chip-list">${grupo.abreviaciones.length ? grupo.abreviaciones.map(a => `<span class="chip">${escapeHtml(a)}</span>`).join('') : '<span class="chip-text">—</span>'}</div></div>
+                            </div>
+                            <div class="preguntas-list">
+                                <strong><i class="fas fa-list"></i> Preguntas asociadas:</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    <div class="pregunta-item-chat">
+                                        <span class="pregunta-tipo-badge">Crítica</span>
+                                        <span class="pregunta-texto">${escapeHtml(grupo.preguntas[0])}</span>
+                                        <button class="copy-pregunta-btn" data-pregunta="${escapeHtml(grupo.preguntas[0])}" title="Copiar pregunta"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                    <div class="pregunta-item-chat">
+                                        <span class="pregunta-tipo-badge">Inferencial</span>
+                                        <span class="pregunta-texto">${escapeHtml(grupo.preguntas[1])}</span>
+                                        <button class="copy-pregunta-btn" data-pregunta="${escapeHtml(grupo.preguntas[1])}" title="Copiar pregunta"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                    <div class="pregunta-item-chat">
+                                        <span class="pregunta-tipo-badge">Literal</span>
+                                        <span class="pregunta-texto">${escapeHtml(grupo.preguntas[2])}</span>
+                                        <button class="copy-pregunta-btn" data-pregunta="${escapeHtml(grupo.preguntas[2])}" title="Copiar pregunta"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            resultadosContainer.innerHTML = gruposHtml;
+            attachGruposEvents();
+        }
+        const searchInput = document.getElementById('searchTextInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const clasifSelect = document.getElementById('clasificacionSelect');
+        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchText = searchInput.value; aplicarFiltrosYRenderizar(); } });
+        if (clearBtn) clearBtn.addEventListener('click', () => { currentSearchText = ""; aplicarFiltrosYRenderizar(); });
+        if (clasifSelect) clasifSelect.addEventListener('change', (e) => { currentClasificacionFilter = e.target.value; aplicarFiltrosYRenderizar(); });
+    }
+
+    function attachGruposEvents() {
+        // Copiar respuesta
+        document.querySelectorAll('.copy-respuesta-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const texto = btn.getAttribute('data-respuesta');
+                if (texto) {
+                    navigator.clipboard.writeText(texto).then(() => {
+                        const originalIcon = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => { btn.innerHTML = originalIcon; }, 1000);
+                    }).catch(err => console.error('Error al copiar: ', err));
+                }
+            });
+        });
+        // Validación con ícono (ahora en la cabecera)
+        document.querySelectorAll('.toggle-validado').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (!isNaN(idx) && appData.grupos[idx]) {
+                    const grupo = appData.grupos[idx];
+                    grupo.validado = !grupo.validado;
+                    guardarLocalStorage();
+                    const grupoDiv = btn.closest('.grupo-item');
+                    if (grupoDiv) {
+                        const badge = grupoDiv.querySelector('.clasificacion-badge');
+                        if (badge) {
+                            if (grupo.validado) badge.classList.add('validado');
+                            else badge.classList.remove('validado');
+                        }
+                        const icon = btn.querySelector('i');
+                        if (icon) {
+                            if (grupo.validado) {
+                                icon.classList.remove('fa-check-circle');
+                                icon.classList.add('fa-times-circle');
+                                btn.setAttribute('title', 'Desmarcar como confirmado');
+                            } else {
+                                icon.classList.remove('fa-times-circle');
+                                icon.classList.add('fa-check-circle');
+                                btn.setAttribute('title', 'Marcar como confirmado');
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        // Copiar preguntas
+        document.querySelectorAll('.copy-pregunta-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const texto = btn.getAttribute('data-pregunta');
+                if (texto) {
+                    navigator.clipboard.writeText(texto).then(() => {
+                        const originalIcon = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => { btn.innerHTML = originalIcon; }, 1000);
+                    }).catch(err => console.error('Error al copiar: ', err));
+                }
+            });
+        });
+        // Expansión/contracción
+        document.querySelectorAll('.grupo-item').forEach(item => {
+            const toggleIcon = item.querySelector('.toggle-icon');
+            const detailsDiv = item.querySelector('.grupo-details');
+            if (toggleIcon && detailsDiv) {
+                const setState = (expanded) => {
+                    if (expanded) { detailsDiv.style.display = 'block'; toggleIcon.classList.remove('fa-chevron-right'); toggleIcon.classList.add('fa-chevron-down'); }
+                    else { detailsDiv.style.display = 'none'; toggleIcon.classList.remove('fa-chevron-down'); toggleIcon.classList.add('fa-chevron-right'); }
+                };
+                setState(false);
+                toggleIcon.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); });
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.editar-grupo') || e.target.closest('.eliminar-grupo') || e.target.closest('.toggle-icon') || e.target.closest('.toggle-validado') || e.target.closest('.copy-pregunta-btn') || e.target.closest('.copy-respuesta-btn')) return;
+                    const isExpanded = detailsDiv.style.display === 'block';
+                    setState(!isExpanded);
+                });
+            }
+        });
+        // Editar y eliminar
+        document.querySelectorAll('.editar-grupo').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) editarGrupo(parseInt(idx)); });
+        });
+        document.querySelectorAll('.eliminar-grupo').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) eliminarGrupo(parseInt(idx)); });
+        });
+    }
+
+    // --------------------- GENERADOR ---------------------
+    function renderizarGenerador() {
+        const b = appData.borrador;
+        const editando = appData.editandoIndex !== null;
+        const requiredFields = ['direccion', 'respuesta', 'pregunta1', 'pregunta2', 'pregunta3'];
+        
+        function campoConTache(label, nombre, tipo='text', rows=null, placeholder='', showCopy = false) {
+            const value = b[nombre] || '';
+            const inputId = nombre;
+            const isTextarea = tipo === 'textarea';
+            const isProtected = appData.protectedFields[nombre];
+            const isRequired = requiredFields.includes(nombre);
+            const labelHtml = `<label>${label}${isProtected ? ' <i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.75rem;"></i>' : ''}</label>`;
+            const inputHtml = isTextarea 
+                ? `<textarea id="${inputId}" rows="${rows}" placeholder="${escapeHtml(placeholder)}" ${isRequired ? 'class="required-field"' : ''}>${escapeHtml(value)}</textarea>` 
+                : `<input type="text" id="${inputId}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${isRequired ? 'class="required-field"' : ''}>`;
+            const copyButton = showCopy ? `<button type="button" class="copy-field-inside" data-field-copy="${nombre}" title="Copiar contenido"><i class="fas fa-copy"></i></button>` : '';
+            return `<div class="input-group">${labelHtml}<div class="input-wrapper">${inputHtml}<button type="button" class="clear-field-inside" data-field="${nombre}" title="Limpiar campo"><i class="fas fa-times-circle"></i></button>${copyButton}</div></div>`;
+        }
+        
+        return `
+            <div class="section-card">
+                <h2 class="section-title"><span><i class="fas fa-edit"></i> Nuevo registro de preguntas</span>${editando ? '<span class="edit-badge"><i class="fas fa-pen"></i> Editando registro</span>' : ''}</h2>
+                <div class="form-grid">
+                    ${campoConTache('Dirección', 'direccion', 'text', null, 'Clasificación global')}
+                    ${campoConTache('Clasificación', 'clasificacion', 'text', null, 'Clasificación generalizada')}
+                    ${campoConTache('Tema', 'tema', 'text', null, 'Calsificación particular')}
+                    ${campoConTache('Abreviaciones', 'abreviaciones', 'text', null, 'Clasificación contextual')}
+                    <div class="full-width">${campoConTache('Palabras clave', 'palabras_clave', 'text', null, 'Clasificación específica')}</div>
+                    <div class="full-width">${campoConTache('Respuesta principal', 'respuesta', 'textarea', 3, 'Respuesta principal del chatbot', true)}</div>
+                </div>
+                <div class="preguntas-horizontal">
+                    <div class="pregunta-item-form">
+                        <label>Pregunta 1 ${appData.protectedFields.pregunta1 ? '<i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.85rem;"></i>' : ''}</label>
+                        <div class="input-wrapper">
+                            <textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${requiredFields.includes('pregunta1') ? 'required-field' : ''}">${escapeHtml(b.pregunta1)}</textarea>
+                            <button type="button" class="clear-field-inside" data-field="pregunta1" title="Limpiar campo"><i class="fas fa-times-circle"></i></button>
+                        </div>
+                    </div>
+                    <div class="pregunta-item-form">
+                        <label>Pregunta 2 ${appData.protectedFields.pregunta2 ? '<i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.85rem;"></i>' : ''}</label>
+                        <div class="input-wrapper">
+                            <textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${requiredFields.includes('pregunta2') ? 'required-field' : ''}">${escapeHtml(b.pregunta2)}</textarea>
+                            <button type="button" class="clear-field-inside" data-field="pregunta2" title="Limpiar campo"><i class="fas fa-times-circle"></i></button>
+                        </div>
+                    </div>
+                    <div class="pregunta-item-form">
+                        <label>Pregunta 3 ${appData.protectedFields.pregunta3 ? '<i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.85rem;"></i>' : ''}</label>
+                        <div class="input-wrapper">
+                            <textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${requiredFields.includes('pregunta3') ? 'required-field' : ''}">${escapeHtml(b.pregunta3)}</textarea>
+                            <button type="button" class="clear-field-inside" data-field="pregunta3" title="Limpiar campo"><i class="fas fa-times-circle"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-buttons">
+                    <button class="btn-sm" id="guardarGrupoBtn"><i class="fas fa-save"></i> ${editando ? 'Actualizar registro' : 'Guardar registro'}</button>
+                    <button class="btn-sm" id="limpiarFormularioBtn"><i class="fas fa-eraser"></i> Limpiar formulario</button>
+                    ${editando ? '<button class="btn-sm" id="cancelarEdicionBtn"><i class="fas fa-times"></i> Cancelar edición</button>' : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderizarRegistros() {
+        const grupos = appData.grupos;
+        if (!grupos.length) return `<div class="section-card"><h2 class="section-title"><i class="fas fa-database"></i> Registros guardados</h2><div class="stats-badges"></div><div class="empty-state">No hay grupos. Crea uno en "Generador".</div></div>`;
+        return `<div class="section-card" id="registrosCard">
+                    <h2 class="section-title"><i class="fas fa-database"></i> Registros guardados</h2>
+                    <div class="stats-badges"></div>
+                    <div id="registrosDynamicContent"></div>
+                </div>`;
+    }
+
+    function renderizarSeccion(seccion) {
+        if (seccion === "generador") {
+            contenidoDinamico.innerHTML = renderizarGenerador();
+            const campos = ['direccion','respuesta','clasificacion','tema','palabras_clave','abreviaciones','pregunta1','pregunta2','pregunta3'];
+            campos.forEach(campo => { const el = document.getElementById(campo); if (el) el.addEventListener('input', (e) => { appData.borrador[campo] = e.target.value; guardarLocalStorage(); }); });
+            // Eventos para botones de limpiar
+            document.querySelectorAll('.clear-field-inside').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const field = btn.getAttribute('data-field');
+                    if (field) limpiarCampo(field, true);
+                });
+            });
+            // Eventos para botón de copiar (solo respuesta)
+            document.querySelectorAll('.copy-field-inside').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const field = btn.getAttribute('data-field-copy');
+                    if (field) {
+                        const inputElement = document.getElementById(field);
+                        if (inputElement) {
+                            const textToCopy = inputElement.value;
+                            navigator.clipboard.writeText(textToCopy).then(() => {
+                                const originalIcon = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-check"></i>';
+                                setTimeout(() => { btn.innerHTML = originalIcon; }, 1000);
+                            }).catch(err => console.error('Error al copiar: ', err));
+                        }
+                    }
+                });
+            });
+            document.getElementById('guardarGrupoBtn').addEventListener('click', guardarGrupo);
+            document.getElementById('limpiarFormularioBtn').addEventListener('click', limpiarFormularioManual);
+            const cancelBtn = document.getElementById('cancelarEdicionBtn');
+            if (cancelBtn) cancelBtn.addEventListener('click', () => { resetearModoEdicion(); limpiarFormularioManual(); renderizarSeccion('generador'); });
+        } else if (seccion === "registros") {
+            contenidoDinamico.innerHTML = renderizarRegistros();
+            registrosDynamicContainer = document.getElementById('registrosDynamicContent');
+            if (registrosDynamicContainer) aplicarFiltrosYRenderizar();
+        }
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === seccion) link.classList.add('active');
+        });
+        renderCheckboxes();
+    }
+
+    function initNavigation() {
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.getAttribute('data-section');
+                if (section) { currentSection = section; renderizarSeccion(section); if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open'); }
+            });
+        });
+    }
+    function initGlobalEvents() {
+        document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
+        document.getElementById('exportarVectorJsonBtn').addEventListener('click', exportarChatbotJSONVector);
+        document.getElementById('guardarCopiaSeguridadBtn').addEventListener('click', exportarCopiaSeguridad);
+        document.getElementById('limpiarHistorialBtn').addEventListener('click', limpiarTodoHistorial);
+        const importFile = document.getElementById('importarGruposJson');
+        importFile.addEventListener('change', (e) => { if (e.target.files.length) importarCopiaSeguridad(e.target.files[0]); e.target.value = ''; });
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        mobileBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => { if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) sidebar.classList.remove('open'); });
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    cargarLocalStorage();
+    applyTheme(currentTheme);
+    initNavigation();
+    initGlobalEvents();
+    renderizarSeccion('generador');
+    currentSection = 'generador';
+</script>
+</body>
+</html>
