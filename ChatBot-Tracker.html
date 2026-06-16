@@ -272,12 +272,7 @@
             </div>
         </div>
         <div>
-            <div class="sidebar-actions">
-                <button id="exportarExcelBtn"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
-                <button id="vincularCarpetaBtn"><i class="fas fa-folder-open"></i> Vincular carpeta local</button>
-                <button id="cargarRespaldoBtn"><i class="fas fa-upload"></i> Cargar respaldo</button>
-                <button id="limpiarHistorialBtn"><i class="fas fa-trash-alt"></i> Limpiar todo el historial</button>
-            </div>
+            <div class="sidebar-actions" id="sidebarActions"></div>
             <div class="sidebar-footer">
                 <div><i class="fas fa-database"></i> LocalStorage automático</div>
                 <div class="fs-status" id="fsStatus">
@@ -469,50 +464,12 @@
         XLSX.writeFile(wb, `chatbot_preguntas.xlsx`);
     }
 
-    async function limpiarTodoHistorial() {
-        if (fsDirectoryHandle) {
-            const opcion = prompt(
-                "⚠️ Tienes una carpeta local vinculada.\n\n" +
-                "Escribe una opción:\n" +
-                "  1 → Restablecer historial y mantener carpeta vinculada\n" +
-                "  2 → Restablecer historial y desvincular carpeta\n" +
-                "  0 → Cancelar"
-            );
-            if (opcion === null || opcion === "0" || opcion.trim() === "") return;
-            if (opcion === "1") {
-                appData.grupos = [];
-                resetearModoEdicion();
-                guardarLocalStorage();
-                renderizarSeccion(currentSection);
-            } else if (opcion === "2") {
-                appData.grupos = [];
-                resetearModoEdicion();
-                fsDirectoryHandle = null;
-                fsFileName = null;
-                await new Promise((resolve) => {
-                    const request = indexedDB.open(FS_DB_NAME, 1);
-                    request.onupgradeneeded = () => { request.result.createObjectStore(FS_STORE_NAME); };
-                    request.onsuccess = () => {
-                        const tx = request.result.transaction(FS_STORE_NAME, 'readwrite');
-                        tx.objectStore(FS_STORE_NAME).delete('directoryHandle');
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => resolve();
-                    };
-                    request.onerror = () => resolve();
-                });
-                actualizarFsStatusUI('inactive');
-                guardarLocalStorage();
-                renderizarSeccion(currentSection);
-            } else {
-                alert("Opción no válida. Operación cancelada.");
-            }
-        } else {
-            if (confirm("⚠️ Esto eliminará TODOS los grupos. ¿Continuar?")) {
-                appData.grupos = [];
-                resetearModoEdicion();
-                guardarLocalStorage();
-                renderizarSeccion(currentSection);
-            }
+    function limpiarTodoHistorial() {
+        if (confirm("⚠️ Esto eliminará TODOS los grupos. ¿Continuar?")) {
+            appData.grupos = [];
+            resetearModoEdicion();
+            guardarLocalStorage();
+            renderizarSeccion(currentSection);
         }
     }
 
@@ -850,6 +807,7 @@
                         actualizarFsStatusUI('active', getFsFileName());
                         await escribirArchivoLocal();
                         banner.style.display = 'none';
+                        renderizarSidebarActions();
                     } else {
                         alert('No se pudo reconectar. Vuelve a vincular la carpeta manualmente.');
                     }
@@ -889,37 +847,7 @@
     }
 
     
-    async function cargarRespaldo() {
-        if (fsDirectoryHandle) {
-            const opcion = prompt(
-                "⚠️ Tienes una carpeta local vinculada.\n\n" +
-                "Si cargas un respaldo, los datos se sobreescribirán en el archivo vinculado.\n\n" +
-                "Escribe una opción:\n" +
-                "  1 → Cargar respaldo y mantener carpeta vinculada\n" +
-                "  2 → Cargar respaldo y desvincular carpeta\n" +
-                "  0 → Cancelar"
-            );
-            if (opcion === null || opcion === "0" || opcion.trim() === "") return;
-            if (opcion === "2") {
-                fsDirectoryHandle = null;
-                fsFileName = null;
-                await new Promise((resolve) => {
-                    const request = indexedDB.open(FS_DB_NAME, 1);
-                    request.onupgradeneeded = () => { request.result.createObjectStore(FS_STORE_NAME); };
-                    request.onsuccess = () => {
-                        const tx = request.result.transaction(FS_STORE_NAME, 'readwrite');
-                        tx.objectStore(FS_STORE_NAME).delete('directoryHandle');
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => resolve();
-                    };
-                    request.onerror = () => resolve();
-                });
-                actualizarFsStatusUI('inactive');
-            } else if (opcion !== "1") {
-                alert("Opción no válida. Operación cancelada.");
-                return;
-            }
-        }
+    function cargarRespaldo() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'application/json, .json';
@@ -960,13 +888,55 @@
     guardarLocalStorage = function() {
         _guardarLS();
         escribirArchivoLocal();
+        renderizarSidebarActions();
     };
 
+    function renderizarSidebarActions() {
+        const container = document.getElementById('sidebarActions');
+        if (!container) return;
+        const hayGrupos = appData.grupos.length > 0;
+        const hayCarpeta = !!fsDirectoryHandle;
+        if (hayCarpeta) {
+            container.innerHTML = `
+                <button id="desvincularCarpetaBtn"><i class="fas fa-folder-minus"></i> Desvincular carpeta</button>
+                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+            `;
+            document.getElementById('desvincularCarpetaBtn').addEventListener('click', async () => {
+                if (!confirm('¿Desvincular la carpeta local? El guardado automático en disco se desactivará.')) return;
+                fsDirectoryHandle = null;
+                fsFileName = null;
+                const request = indexedDB.open(FS_DB_NAME, 1);
+                request.onupgradeneeded = () => { request.result.createObjectStore(FS_STORE_NAME); };
+                request.onsuccess = () => {
+                    const tx = request.result.transaction(FS_STORE_NAME, 'readwrite');
+                    tx.objectStore(FS_STORE_NAME).delete('directoryHandle');
+                };
+                actualizarFsStatusUI('inactive');
+                renderizarSidebarActions();
+            });
+            if (hayGrupos) {
+                document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
+            }
+        } else {
+            container.innerHTML = `
+                <button id="vincularCarpetaBtn"><i class="fas fa-folder-open"></i> Vincular carpeta local</button>
+                <button id="cargarRespaldoBtn"><i class="fas fa-upload"></i> Cargar respaldo</button>
+                <button id="limpiarHistorialBtn"><i class="fas fa-trash-alt"></i> Restablecer historial</button>
+                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+            `;
+            document.getElementById('vincularCarpetaBtn').addEventListener('click', async () => {
+                await vincularCarpeta();
+                renderizarSidebarActions();
+            });
+            document.getElementById('cargarRespaldoBtn').addEventListener('click', cargarRespaldo);
+            document.getElementById('limpiarHistorialBtn').addEventListener('click', limpiarTodoHistorial);
+            if (hayGrupos) {
+                document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
+            }
+        }
+    }
+
     function initGlobalEvents() {
-        document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
-        document.getElementById('limpiarHistorialBtn').addEventListener('click', limpiarTodoHistorial);
-        document.getElementById('vincularCarpetaBtn').addEventListener('click', vincularCarpeta);
-        document.getElementById('cargarRespaldoBtn').addEventListener('click', cargarRespaldo);
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         mobileBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
@@ -980,9 +950,10 @@
         applyTheme(currentTheme);
         initNavigation();
         initGlobalEvents();
+        try { await restaurarCarpetaDesdeIndexedDB(); } catch(e) {}
+        renderizarSidebarActions();
         renderizarSeccion('generador');
         currentSection = 'generador';
-        await restaurarCarpetaDesdeIndexedDB();
     }
 
     iniciar();
