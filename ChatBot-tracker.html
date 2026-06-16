@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== ESTILOS BASE ===== */
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Comfortaa', sans-serif; transition: background 0.3s, color 0.3s; }
         body.dark { background: radial-gradient(circle at 20% 30%, #1a1a1c, #0b0b0e); color: #e0e0e0; }
@@ -272,7 +272,7 @@
 </div>
 
 <script>
-    // ---------- DATOS ----------
+    
     let appData = {
         grupos: [],
         borrador: {
@@ -288,7 +288,7 @@
     let currentSection = "generador";
     const contenidoDinamico = document.getElementById('contenidoDinamico');
 
-    // Tema
+    
     let currentTheme = localStorage.getItem('chatbotTheme') || 'dark';
     function applyTheme(theme) {
         document.body.classList.remove('dark', 'light');
@@ -415,7 +415,7 @@
         }
     }
 
-    // Persistencia en JSON
+    
     function exportarCopiaSeguridad() {
         if (appData.grupos.length === 0) { alert("No hay grupos guardados."); return; }
         let nombreBase = prompt("Ingresa un nombre para la copia de seguridad:", "backup");
@@ -514,7 +514,7 @@
         });
     }
 
-    // --------------------- REGISTROS GUARDADOS ---------------------
+    
     let currentSearchText = "";
     let currentClasificacionFilter = "todos";
     let registrosDynamicContainer = null;
@@ -639,7 +639,7 @@
     }
 
     function attachGruposEvents() {
-        // Copiar respuesta
+        
         document.querySelectorAll('.copy-respuesta-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -653,7 +653,7 @@
                 }
             });
         });
-        // Validación con ícono (ahora en la cabecera)
+        
         document.querySelectorAll('.toggle-validado').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -685,7 +685,7 @@
                 }
             });
         });
-        // Copiar preguntas
+        
         document.querySelectorAll('.copy-pregunta-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -699,7 +699,7 @@
                 }
             });
         });
-        // Expansión/contracción
+        
         document.querySelectorAll('.grupo-item').forEach(item => {
             const toggleIcon = item.querySelector('.toggle-icon');
             const detailsDiv = item.querySelector('.grupo-details');
@@ -717,7 +717,7 @@
                 });
             }
         });
-        // Editar y eliminar
+        
         document.querySelectorAll('.editar-grupo').forEach(btn => {
             btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) editarGrupo(parseInt(idx)); });
         });
@@ -726,7 +726,6 @@
         });
     }
 
-    // --------------------- GENERADOR ---------------------
     function renderizarGenerador() {
         const b = appData.borrador;
         const editando = appData.editandoIndex !== null;
@@ -804,14 +803,13 @@
             contenidoDinamico.innerHTML = renderizarGenerador();
             const campos = ['direccion','respuesta','clasificacion','tema','palabras_clave','abreviaciones','pregunta1','pregunta2','pregunta3'];
             campos.forEach(campo => { const el = document.getElementById(campo); if (el) el.addEventListener('input', (e) => { appData.borrador[campo] = e.target.value; guardarLocalStorage(); }); });
-            // Eventos para botones de limpiar
             document.querySelectorAll('.clear-field-inside').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const field = btn.getAttribute('data-field');
                     if (field) limpiarCampo(field, true);
                 });
             });
-            // Eventos para botón de copiar (solo respuesta)
+            
             document.querySelectorAll('.copy-field-inside').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const field = btn.getAttribute('data-field-copy');
