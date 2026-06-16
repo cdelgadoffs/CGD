@@ -899,7 +899,7 @@
         const hayCarpeta = !!fsDirectoryHandle;
         if (hayCarpeta) {
             container.innerHTML = `
-                <button id="desvincularCarpetaBtn"><i class="fas fa-folder-minus"></i> Desvincular carpeta</button>
+                <button id="desvincularCarpetaBtn"><i class="fas fa-unlink"></i> Desvincular carpeta</button>
                 <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> Exportar a Excel</button>
             `;
             document.getElementById('desvincularCarpetaBtn').addEventListener('click', async () => {
