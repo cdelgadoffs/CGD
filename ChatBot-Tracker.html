@@ -9,120 +9,498 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Comfortaa', sans-serif; transition: background 0.3s, color 0.3s; }
         body.dark { background: radial-gradient(circle at 20% 30%, #1a1a1c, #0b0b0e); color: #e0e0e0; }
         body.light { background: #f0f2f5; color: #1a1a2e; }
+
         .app-layout { display: flex; min-height: 100vh; }
+
         .sidebar {
-            width: 300px;
+            width: 60px;
             background: #0e0e10;
             border-right: 1px solid #2e2e32;
-            padding: 1.5rem 1rem;
+            padding: 1.5rem 0.5rem;
             position: fixed;
             height: 100vh;
-            overflow-y: auto;
+            overflow: hidden;
+            transition: width 0.25s ease, background 0.3s, border-color 0.3s;
+            z-index: 100;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.3s ease, background 0.3s;
-            z-index: 100;
+            white-space: nowrap;
         }
         body.light .sidebar { background: #ffffff; border-right: 1px solid #d0d7de; }
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; max-width: 100%; }
+
+        /* ---- ESTADO CONTRAÍDO (sin hover y sin fijar) ---- */
+        .sidebar:not(:hover):not(.sidebar-fixed) {
+            width: 60px;
         }
-        .sidebar-header { text-align: center; margin-bottom: 1.5rem; border-bottom: 1px solid; padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        /* Encabezado: solo el ícono de comentarios, centrado */
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header {
+            justify-content: center;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header .title-text,
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header #fixSidebarBtn,
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header #themeToggle {
+            display: none;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header h2 {
+            font-size: 0;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header h2 i {
+            font-size: 1.6rem;
+        }
+
+        /* Ocultar textos de navegación, protección, acciones, etc. */
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a span,
+        .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4 span,
+        .sidebar:not(:hover):not(.sidebar-fixed) .checkbox-item span,
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-actions button span,
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer div span:not(.fs-dot),
+        .sidebar:not(:hover):not(.sidebar-fixed) .fs-status span:not(.fs-dot),
+        .sidebar:not(:hover):not(.sidebar-fixed) .folder-location {
+            display: none;
+        }
+
+        /* Centrar elementos flex (todos) */
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a,
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-actions button,
+        .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4,
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer {
+            justify-content: center;
+            align-items: center;
+        }
+        /* Ajustes para centrar íconos sin padding lateral ni gap */
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a {
+            padding: 0.7rem 0;
+            gap: 0;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4 {
+            gap: 0;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .checkbox-grid {
+            display: none;
+        }
+
+        /* Punto de estado: más grande y centrado */
+        .sidebar:not(:hover):not(.sidebar-fixed) .fs-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .fs-dot {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        /* ---- ESTADO EXPANDIDO (hover o fijado) ---- */
+        .sidebar:hover,
+        .sidebar.sidebar-fixed {
+            width: 280px;
+            overflow-y: auto;
+        }
+        /* Header: con espacio entre título y botones */
+        .sidebar:hover .sidebar-header,
+        .sidebar.sidebar-fixed .sidebar-header {
+            justify-content: space-between;
+        }
+        .sidebar:hover .sidebar-header h2,
+        .sidebar.sidebar-fixed .sidebar-header h2 {
+            font-size: 1.2rem;
+        }
+        .sidebar:hover .sidebar-header h2 i,
+        .sidebar.sidebar-fixed .sidebar-header h2 i {
+            font-size: 1.2rem;
+        }
+        .sidebar:hover .sidebar-header .title-text,
+        .sidebar.sidebar-fixed .sidebar-header .title-text,
+        .sidebar:hover .sidebar-header #fixSidebarBtn,
+        .sidebar.sidebar-fixed .sidebar-header #fixSidebarBtn,
+        .sidebar:hover .sidebar-header #themeToggle,
+        .sidebar.sidebar-fixed .sidebar-header #themeToggle {
+            display: inline-block;
+        }
+
+        /* Mostrar textos */
+        .sidebar:hover .sidebar-nav a span,
+        .sidebar.sidebar-fixed .sidebar-nav a span,
+        .sidebar:hover .protection-section h4 span,
+        .sidebar.sidebar-fixed .protection-section h4 span,
+        .sidebar:hover .checkbox-item span,
+        .sidebar.sidebar-fixed .checkbox-item span,
+        .sidebar:hover .sidebar-actions button span,
+        .sidebar.sidebar-fixed .sidebar-actions button span,
+        .sidebar:hover .sidebar-footer div span,
+        .sidebar.sidebar-fixed .sidebar-footer div span,
+        .sidebar:hover .fs-status span:not(.fs-dot),
+        .sidebar.sidebar-fixed .fs-status span:not(.fs-dot),
+        .sidebar:hover .folder-location,
+        .sidebar.sidebar-fixed .folder-location {
+            display: inline;
+        }
+
+        /* ---- ALINEACIONES DIFERENCIADAS ---- */
+        /* Navegación y protección: alineación a la izquierda */
+        .sidebar:hover .sidebar-nav a,
+        .sidebar.sidebar-fixed .sidebar-nav a,
+        .sidebar:hover .protection-section h4,
+        .sidebar.sidebar-fixed .protection-section h4 {
+            justify-content: flex-start;
+        }
+        /* Restaurar padding y gap en expandido para navegación */
+        .sidebar:hover .sidebar-nav a,
+        .sidebar.sidebar-fixed .sidebar-nav a {
+            padding: 0.7rem 1rem;
+            gap: 0.8rem;
+        }
+        .sidebar:hover .protection-section h4,
+        .sidebar.sidebar-fixed .protection-section h4 {
+            gap: 0.5rem;
+        }
+        /* El grid de checkboxes en protección se muestra normalmente */
+        .sidebar:hover .checkbox-grid,
+        .sidebar.sidebar-fixed .checkbox-grid {
+            display: grid;
+        }
+
+        /* Acciones y footer: centrados */
+        .sidebar:hover .sidebar-actions button,
+        .sidebar.sidebar-fixed .sidebar-actions button,
+        .sidebar:hover .sidebar-footer,
+        .sidebar.sidebar-fixed .sidebar-footer,
+        .sidebar:hover .fs-status,
+        .sidebar.sidebar-fixed .fs-status {
+            justify-content: center;
+            align-items: center;
+        }
+        .sidebar:hover .sidebar-footer,
+        .sidebar.sidebar-fixed .sidebar-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar:hover .fs-status,
+        .sidebar.sidebar-fixed .fs-status {
+            display: flex;
+            gap: 0.4rem;
+        }
+        .sidebar:hover .fs-dot,
+        .sidebar.sidebar-fixed .fs-dot {
+            width: 8px;
+            height: 8px;
+            margin: 0;
+        }
+
+        /* ---- Estilos comunes ---- */
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
         body.dark .sidebar-header { border-color: #2e2e32; }
         body.light .sidebar-header { border-color: #d0d7de; }
-        .sidebar-header h2 { font-size: 1.2rem; color: #ff8c42; }
-        .theme-toggle { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #ff8c42; font-family: 'Comfortaa', sans-serif; transition: color 0.2s; }
+        .sidebar-header h2 { font-size: 1.2rem; color: #ff8c42; margin: 0; }
+        .sidebar-header .theme-toggle {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #ff8c42;
+            transition: color 0.2s;
+            padding: 0 0.2rem;
+        }
         .theme-toggle:hover { color: #ffb347; }
-        .sidebar-nav { list-style: none; flex-grow: 1; }
+        #fixSidebarBtn { font-size: 1.1rem; padding: 0 0.2rem; }
+        #fixSidebarBtn .fa-thumbtack { transition: transform 0.3s ease; }
+        #fixSidebarBtn .fa-thumbtack.fa-rotate-90 { transform: rotate(90deg); }
+
+        .sidebar-nav { list-style: none; flex-grow: 1; padding: 0; }
         .sidebar-nav li { margin: 0.5rem 0; }
-        .sidebar-nav a { display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 1rem; text-decoration: none; border-radius: 4px; transition: 0.2s; font-size: 0.9rem; font-family: 'Comfortaa', sans-serif; }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.7rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            font-family: 'Comfortaa', sans-serif;
+            overflow: hidden;
+        }
         body.dark .sidebar-nav a { color: #ccc; }
         body.light .sidebar-nav a { color: #333; }
-        .sidebar-nav a i { width: 24px; color: #ff8c42; }
-        .sidebar-nav a:hover, .sidebar-nav a.active { background: #1f1f23; color: #ff8c42; border-left: 5px solid #ff8c42; }
-        body.light .sidebar-nav a:hover, body.light .sidebar-nav a.active { background: #e9ecef; }
-        .protection-section { margin: 1rem 0; border-top: 1px solid; padding-top: 1rem; }
+        .sidebar-nav a i { width: 24px; color: #ff8c42; flex-shrink: 0; }
+        .sidebar-nav a span { margin-left: 0.2rem; }
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #1f1f23;
+            color: #ff8c42;
+            border-left: 5px solid #ff8c42;
+        }
+        body.light .sidebar-nav a:hover,
+        body.light .sidebar-nav a.active { background: #e9ecef; }
+
+        .protection-section {
+            margin: 1rem 0;
+            border-top: 1px solid;
+            padding-top: 1rem;
+        }
         body.dark .protection-section { border-color: #2e2e32; }
         body.light .protection-section { border-color: #d0d7de; }
-        .protection-section h4 { font-size: 0.8rem; margin-bottom: 0.6rem; color: #ff8c42; display: flex; align-items: center; gap: 0.5rem; font-family: 'Comfortaa', sans-serif; }
-        .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
-        .checkbox-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-family: 'Comfortaa', sans-serif; }
-        body.dark .checkbox-item { color: #ccc; }
-        body.light .checkbox-item { color: #333; }
-        .checkbox-item input[type="checkbox"] { accent-color: #025927; width: 14px; height: 14px; margin: 0; transform: scale(0.95); }
-        .sidebar-actions { margin-top: 1rem; border-top: 1px solid; padding-top: 1rem; }
-        body.dark .sidebar-actions { border-color: #2e2e32; }
-        body.light .sidebar-actions { border-color: #d0d7de; }
-        .sidebar-actions button, .sidebar-actions label { 
-            display: block; width: 100%; padding: 0.6rem; margin-bottom: 0.6rem; text-align: center; cursor: pointer; border-radius: 2px; font-size: 0.85rem; transition: all 0.2s; 
+        .protection-section h4 {
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+            color: #ff8c42;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-family: 'Comfortaa', sans-serif;
         }
-        body.dark .sidebar-actions button, body.dark .sidebar-actions label { background: #1f1f23; color: #ccc; border: 1px solid #3a3a40; }
-        body.light .sidebar-actions button, body.light .sidebar-actions label { background: #f8f9fa; color: #212529; border: 1px solid #ced4da; }
-        .sidebar-actions button:hover, .sidebar-actions label:hover { border-color: #ff8c42; color: #ff8c42; }
-        .sidebar-footer { font-size: 0.7rem; text-align: center; border-top: 1px solid; padding-top: 1rem; margin-top: 1rem; font-family: 'Comfortaa', sans-serif; }
+        .protection-section h4 i { flex-shrink: 0; }
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            font-family: 'Comfortaa', sans-serif;
+            overflow: hidden;
+        }
+        body.dark .checkbox-item { color: #ccc; }
+        body.light .checkbox-item { color: #333; }
+        .checkbox-item input[type="checkbox"] {
+            accent-color: #025927;
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            transform: scale(0.95);
+            flex-shrink: 0;
+        }
+        .checkbox-item span { white-space: nowrap; }
+
+        .sidebar-actions {
+            margin-top: 1rem;
+            border-top: 1px solid;
+            padding-top: 1rem;
+        }
+        body.dark .sidebar-actions { border-color: #2e2e32; }
+        body.light .sidebar-actions { border-color: #d0d7de; }
+        .sidebar-actions button,
+        .sidebar-actions label {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            font-family: 'Comfortaa', sans-serif;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        body.dark .sidebar-actions button,
+        body.dark .sidebar-actions label {
+            background: #1f1f23;
+            color: #ccc;
+            border-color: #3a3a40;
+        }
+        body.light .sidebar-actions button,
+        body.light .sidebar-actions label {
+            background: #f8f9fa;
+            color: #212529;
+            border-color: #ced4da;
+        }
+        .sidebar-actions button i,
+        .sidebar-actions label i { flex-shrink: 0; width: 20px; }
+        .sidebar-actions button:hover,
+        .sidebar-actions label:hover { border-color: #ff8c42; color: #ff8c42; }
+
+        .sidebar-footer {
+            font-size: 0.7rem;
+            text-align: center;
+            border-top: 1px solid;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-family: 'Comfortaa', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         body.dark .sidebar-footer { color: #6a6a70; border-color: #2c2c30; }
         body.light .sidebar-footer { color: #6c757d; border-color: #dee2e6; }
-        .fs-status { font-size: 0.7rem; margin-top: 0.4rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-family: 'Comfortaa', sans-serif; }
-        .fs-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .fs-status {
+            font-size: 0.7rem;
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'Comfortaa', sans-serif;
+        }
+        .fs-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+            transition: width 0.2s, height 0.2s;
+        }
         .fs-dot.inactive { background: #555; }
         .fs-dot.active { background: #66bb6a; box-shadow: 0 0 4px #66bb6a; }
         .fs-dot.error { background: #ef5350; }
         .folder-location {
             font-size: 0.6rem;
             text-align: center;
-            margin-top: 0;
+            margin-top: 0.2rem;
             padding: 0;
             line-height: 1.2;
             color: #a0a0a8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        body.light .folder-location {
-            color: #6c757d;
-        }
-        .reconnect-banner {
+        body.light .folder-location { color: #6c757d; }
+
+        /* ---- Móviles ---- */
+        .mobile-menu-btn {
             position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            background: #2c2c30;
-            border-left: 4px solid #ff8c42;
-            border-radius: 8px;
-            padding: 0.7rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-size: 0.8rem;
-        }
-        body.light .reconnect-banner {
-            background: #ffffff;
-            border: 1px solid #dee2e6;
-        }
-        .reconnect-banner button {
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
             background: #ff8c42;
+            color: #0b0b0e;
             border: none;
-            padding: 0.3rem 0.8rem;
+            padding: 0.6rem;
             border-radius: 4px;
             cursor: pointer;
+            display: none;
+            font-size: 1.2rem;
             font-family: 'Comfortaa', sans-serif;
-            font-weight: 500;
+            transition: background 0.2s;
         }
-        .reconnect-banner button:hover {
-            background: #ffb347;
-        }
-        .mobile-menu-btn { position: fixed; top: 1rem; left: 1rem; z-index: 101; background: #ff8c42; color: #0b0b0e; border: none; padding: 0.6rem; border-radius: 4px; cursor: pointer; display: none; font-size: 1.2rem; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; }
         .mobile-menu-btn:hover { background: #ffb347; }
-        @media (max-width: 768px) { .mobile-menu-btn { display: block; } }
-        .main-content { flex: 1; margin-left: 300px; padding: 2rem; max-width: calc(100% - 300px); }
-        @media (max-width: 768px) { .main-content { margin-left: 0; padding-top: 4rem; } }
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .sidebar {
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                overflow-y: auto;
+                white-space: normal;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar.sidebar-fixed { width: 280px; }
+            .main-content { margin-left: 0; max-width: 100%; padding-top: 4rem; }
+            .sidebar:hover ~ .main-content,
+            .sidebar:hover + .main-content { margin-left: 0; max-width: 100%; }
+            .sidebar.sidebar-fixed ~ .main-content,
+            .sidebar.sidebar-fixed + .main-content { margin-left: 0; max-width: 100%; }
+            /* En móvil, siempre expandido cuando abierto */
+            .sidebar:not(:hover):not(.sidebar-fixed) {
+                width: 280px;
+                transform: translateX(-100%);
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) {
+                transform: translateX(0);
+                width: 280px;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-header {
+                justify-content: space-between;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-header .title-text,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-header #fixSidebarBtn,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-header #themeToggle {
+                display: inline-block;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-header h2 {
+                font-size: 1.2rem;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-header h2 i {
+                font-size: 1.2rem;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-nav a span,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .protection-section h4 span,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .checkbox-item span,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-actions button span,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-footer div span,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .fs-status span:not(.fs-dot),
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .folder-location {
+                display: inline;
+            }
+            /* En móvil, alinear navegación y protección a la izquierda, el resto centrado */
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-nav a,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .protection-section h4 {
+                justify-content: flex-start;
+                padding: 0.7rem 1rem;
+                gap: 0.8rem;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .protection-section h4 {
+                gap: 0.5rem;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-actions button,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-footer,
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .fs-status {
+                justify-content: center;
+                align-items: center;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .sidebar-footer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .checkbox-grid {
+                display: grid;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .fs-status {
+                display: flex;
+                gap: 0.4rem;
+            }
+            .sidebar.open:not(:hover):not(.sidebar-fixed) .fs-dot {
+                width: 8px;
+                height: 8px;
+                margin: 0;
+            }
+        }
+
+        /* ---- Contenido principal ---- */
+        .main-content {
+            flex: 1;
+            margin-left: 60px;
+            padding: 2rem;
+            max-width: calc(100% - 60px);
+            transition: margin-left 0.25s ease, max-width 0.25s ease;
+        }
+        .sidebar:not(.sidebar-fixed):hover + .main-content {
+            margin-left: 280px;
+            max-width: calc(100% - 280px);
+        }
+        .sidebar.sidebar-fixed + .main-content {
+            margin-left: 280px;
+            max-width: calc(100% - 280px);
+        }
+
+        /* ---- Resto de estilos sin cambios ---- */
         .section-card { border-radius: 12px; padding: 1.8rem; margin-bottom: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: background 0.3s, border 0.3s; }
         body.dark .section-card { background: #141416; border: 1px solid #2e2e32; }
         body.light .section-card { background: #ffffff; border: 1px solid #dee2e6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -162,9 +540,7 @@
         .clear-field-inside { right: 0.5rem; }
         .copy-field-inside { right: 2rem; }
         .clear-field-inside:hover, .copy-field-inside:hover { color: #ff8c42; }
-        input, textarea, select { 
-            padding: 0.8rem; font-family: 'Comfortaa', sans-serif; font-size: 0.9rem; border-radius: 8px; transition: 0.2s; width: 100%; 
-        }
+        input, textarea, select { padding: 0.8rem; font-family: 'Comfortaa', sans-serif; font-size: 0.9rem; border-radius: 8px; transition: 0.2s; width: 100%; }
         .required-field { background: rgba(255, 140, 66, 0.08) !important; }
         select {
             padding-right: 2rem;
@@ -184,10 +560,7 @@
         body.light .pregunta-item-form { background: #f8f9fa; border-color: #dee2e6; }
         .pregunta-item-form label { font-size: 1rem; margin-bottom: 0.5rem; display: block; color: #ff8c42; font-weight: bold; font-family: 'Comfortaa', sans-serif; display: flex; align-items: center; gap: 0.4rem; }
         .pregunta-item-form label i.fa-shield-alt { font-size: 0.85rem; vertical-align: middle; }
-        .btn-sm { 
-            padding: 0.5rem 1.2rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; margin-right: 0.8rem; margin-top: 0.5rem; border: 1px solid; 
-            font-family: 'Comfortaa', sans-serif;
-        }
+        .btn-sm { padding: 0.5rem 1.2rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; margin-right: 0.8rem; margin-top: 0.5rem; border: 1px solid; font-family: 'Comfortaa', sans-serif; }
         body.dark .btn-sm { background: #2c2c30; border-color: #3a3a40; color: #e0e0e0; }
         body.light .btn-sm { background: #e9ecef; border-color: #ced4da; color: #212529; }
         body.dark .btn-sm:hover, body.light .btn-sm:hover { background: #ff8c42; color: #0b0b0e; border-color: #ff8c42; }
@@ -201,16 +574,7 @@
         .toggle-icon:hover { color: #ff8c42; }
         .clasificacion-badge { background: #ff8c42; color: #0b0b0e; font-size: 0.8rem; padding: 4px 12px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 0.8rem; transition: background 0.2s; font-family: 'Comfortaa', sans-serif; }
         .clasificacion-badge.validado { background: #558b2f; color: white; }
-        .respuesta-preview { 
-            font-size: 0.9rem; line-height: 1.4; margin: 0.5rem 0 0.8rem 0; padding: 0.8rem; border-radius: 8px; 
-            font-family: 'Comfortaa', sans-serif;
-            background: rgba(255, 140, 66, 0.15); 
-            border-left: 3px solid #ff8c42;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
+        .respuesta-preview { font-size: 0.9rem; line-height: 1.4; margin: 0.5rem 0 0.8rem 0; padding: 0.8rem; border-radius: 8px; font-family: 'Comfortaa', sans-serif; background: rgba(255, 140, 66, 0.15); border-left: 3px solid #ff8c42; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
         body.dark .respuesta-preview { background: rgba(255, 140, 66, 0.1); }
         body.light .respuesta-preview { background: rgba(255, 140, 66, 0.08); }
         .respuesta-texto { flex: 1; }
@@ -247,11 +611,37 @@
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: #ff8c42; display: block; margin-bottom: 0.3rem; font-family: 'Comfortaa', sans-serif; }
         .search-wrapper { position: relative; display: flex; align-items: center; }
         .search-wrapper input { padding-right: 2.2rem; font-family: 'Comfortaa', sans-serif; }
-        .clear-search { 
-            position: absolute; right: 0.5rem; background: transparent; border: none; cursor: pointer; color: #aaa; font-size: 1rem; padding: 0.2rem; 
-            font-family: 'Comfortaa', sans-serif; transition: color 0.2s;
-        }
+        .clear-search { position: absolute; right: 0.5rem; background: transparent; border: none; cursor: pointer; color: #aaa; font-size: 1rem; padding: 0.2rem; font-family: 'Comfortaa', sans-serif; transition: color 0.2s; }
         .clear-search:hover { color: #ff8c42; }
+        .reconnect-banner {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: #2c2c30;
+            border-left: 4px solid #ff8c42;
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 0.8rem;
+        }
+        body.light .reconnect-banner {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+        }
+        .reconnect-banner button {
+            background: #ff8c42;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: 500;
+        }
+        .reconnect-banner button:hover { background: #ffb347; }
     </style>
 </head>
 <body class="dark">
@@ -260,38 +650,43 @@
     <div class="sidebar" id="sidebar">
         <div>
             <div class="sidebar-header">
-                <h2><i class="fas fa-comments"></i> ChatBot</h2>
-                <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+                <h2><i class="fas fa-comments"></i> <span class="title-text">ChatBot</span></h2>
+                <div style="display: flex; gap: 0.3rem;">
+                    <button id="fixSidebarBtn" class="theme-toggle" title="Fijar/desfijar barra lateral">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+                </div>
             </div>
             <ul class="sidebar-nav">
-                <li><a href="#" data-section="generador"><i class="fas fa-edit"></i> Generador</a></li>
-                <li><a href="#" data-section="registros"><i class="fas fa-database"></i> Registros guardados</a></li>
+                <li><a href="#" data-section="generador"><i class="fas fa-edit"></i> <span>Generador</span></a></li>
+                <li><a href="#" data-section="registros"><i class="fas fa-database"></i> <span>Registros guardados</span></a></li>
             </ul>
             <div class="protection-section">
-                <h4><i class="fas fa-shield-alt"></i> Proteger campos</h4>
+                <h4><i class="fas fa-shield-alt"></i> <span>Proteger campos</span></h4>
                 <div class="checkbox-grid" id="checkboxesContainer"></div>
             </div>
         </div>
         <div>
             <div class="sidebar-actions" id="sidebarActions"></div>
             <div class="sidebar-footer">
-                <div><i class="fas fa-database"></i> LocalStorage automático</div>
+                <div><i class="fas fa-database"></i> <span>LocalStorage automático</span></div>
                 <div class="fs-status" id="fsStatus">
                     <span class="fs-dot inactive" id="fsDot"></span>
                     <span id="fsStatusText">Sin carpeta vinculada</span>
                 </div>
-                <div id="folderLocation" class="folder-location" style="display: none;"></div>
+                <div id="folderLocation" class="folder-location"></div>
             </div>
         </div>
     </div>
-    <div class="main-content">
+    <div class="main-content" id="mainContent">
         <div id="contenidoDinamico"></div>
     </div>
 </div>
 <div id="reconnectBanner" class="reconnect-banner" style="display: none;"></div>
 
 <script>
-    
+    // ========== DATOS Y ESTADO ==========
     let appData = {
         grupos: [],
         borrador: {
@@ -307,7 +702,7 @@
     let currentSection = "generador";
     const contenidoDinamico = document.getElementById('contenidoDinamico');
 
-   
+    // ========== TEMA ==========
     let currentTheme = localStorage.getItem('chatbotTheme') || 'dark';
     function applyTheme(theme) {
         document.body.classList.remove('dark', 'light');
@@ -318,6 +713,35 @@
     }
     function toggleTheme() { currentTheme = currentTheme === 'dark' ? 'light' : 'dark'; applyTheme(currentTheme); }
 
+    // ========== SIDEBAR FIXED ==========
+    let sidebarFixed = localStorage.getItem('sidebarFixed') === 'true';
+    function applySidebarFixed(fixed) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+        if (fixed) {
+            sidebar.classList.add('sidebar-fixed');
+        } else {
+            sidebar.classList.remove('sidebar-fixed');
+        }
+        const btn = document.getElementById('fixSidebarBtn');
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (fixed) {
+                icon.className = 'fas fa-thumbtack fa-rotate-90';
+                btn.title = 'Desfijar barra lateral';
+            } else {
+                icon.className = 'fas fa-thumbtack';
+                btn.title = 'Fijar barra lateral';
+            }
+        }
+        localStorage.setItem('sidebarFixed', String(fixed));
+    }
+    function toggleSidebarFixed() {
+        sidebarFixed = !sidebarFixed;
+        applySidebarFixed(sidebarFixed);
+    }
+
+    // ========== LOCALSTORAGE ==========
     function guardarLocalStorage() {
         localStorage.setItem('chatbotData', JSON.stringify({
             grupos: appData.grupos,
@@ -344,6 +768,7 @@
     }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
 
+    // ========== FUNCIONES DE CAMPO Y GRUPOS ==========
     function limpiarCampo(nombreCampo, ignoreProtection = false, inputElement = null) {
         if (!ignoreProtection && appData.protectedFields[nombreCampo]) {
             alert(`El campo "${nombreCampo}" está protegido. No se puede borrar con el botón global.`);
@@ -474,6 +899,7 @@
         }
     }
 
+    // ========== CHECKBOXES DE PROTECCIÓN ==========
     function renderCheckboxes() {
         const container = document.getElementById('checkboxesContainer');
         if (!container) return;
@@ -501,6 +927,7 @@
         });
     }
 
+    // ========== FILTROS Y RENDERIZADO DE REGISTROS ==========
     let currentSearchText = "";
     let currentClasificacionFilter = "todos";
     let registrosDynamicContainer = null;
@@ -622,6 +1049,7 @@
         document.querySelectorAll('.eliminar-grupo').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) eliminarGrupo(parseInt(idx)); }));
     }
 
+    // ========== RENDERIZADO DE SECCIONES ==========
     function renderizarGenerador() {
         const b = appData.borrador;
         const editando = appData.editandoIndex !== null;
@@ -688,11 +1116,12 @@
         renderCheckboxes();
     }
 
+    // ========== NAVEGACIÓN ==========
     function initNavigation() {
         document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const section = link.getAttribute('data-section'); if (section) { currentSection = section; renderizarSeccion(section); if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open'); } }); });
     }
 
-    
+    // ========== FILE SYSTEM ==========
     let fsDirectoryHandle = null;
     let fsFileName = null;
     const FS_STORE_NAME = 'fileSystemHandles';
@@ -847,7 +1276,6 @@
         }
     }
 
-    
     function cargarRespaldo() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -892,6 +1320,7 @@
         renderizarSidebarActions();
     };
 
+    // ========== ACCIONES DE LA BARRA LATERAL ==========
     function renderizarSidebarActions() {
         const container = document.getElementById('sidebarActions');
         if (!container) return;
@@ -899,8 +1328,8 @@
         const hayCarpeta = !!fsDirectoryHandle;
         if (hayCarpeta) {
             container.innerHTML = `
-                <button id="desvincularCarpetaBtn"><i class="fas fa-unlink"></i> Desvincular carpeta</button>
-                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+                <button id="desvincularCarpetaBtn"><i class="fas fa-unlink"></i> <span>Desvincular carpeta</span></button>
+                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> <span>Exportar a Excel</span></button>
             `;
             document.getElementById('desvincularCarpetaBtn').addEventListener('click', async () => {
                 if (!confirm('¿Desvincular la carpeta local? El guardado automático en disco se desactivará.')) return;
@@ -920,10 +1349,10 @@
             }
         } else {
             container.innerHTML = `
-                <button id="vincularCarpetaBtn"><i class="fas fa-folder-open"></i> Vincular carpeta local</button>
-                <button id="cargarRespaldoBtn"><i class="fas fa-upload"></i> Cargar respaldo</button>
-                <button id="limpiarHistorialBtn"><i class="fas fa-trash-alt"></i> Restablecer historial</button>
-                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+                <button id="vincularCarpetaBtn"><i class="fas fa-folder-open"></i> <span>Vincular carpeta local</span></button>
+                <button id="cargarRespaldoBtn"><i class="fas fa-upload"></i> <span>Cargar respaldo</span></button>
+                <button id="limpiarHistorialBtn"><i class="fas fa-trash-alt"></i> <span>Restablecer historial</span></button>
+                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> <span>Exportar a Excel</span></button>
             `;
             document.getElementById('vincularCarpetaBtn').addEventListener('click', async () => {
                 await vincularCarpeta();
@@ -937,6 +1366,7 @@
         }
     }
 
+    // ========== EVENTOS GLOBALES ==========
     function initGlobalEvents() {
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
@@ -944,11 +1374,15 @@
         document.addEventListener('click', (e) => { if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) sidebar.classList.remove('open'); });
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+        const fixBtn = document.getElementById('fixSidebarBtn');
+        if (fixBtn) fixBtn.addEventListener('click', toggleSidebarFixed);
     }
 
+    // ========== INICIO ==========
     async function iniciar() {
         cargarLocalStorage();
         applyTheme(currentTheme);
+        applySidebarFixed(sidebarFixed);
         initNavigation();
         initGlobalEvents();
         try { await restaurarCarpetaDesdeIndexedDB(); } catch(e) {}
