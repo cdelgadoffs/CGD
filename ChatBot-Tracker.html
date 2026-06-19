@@ -406,7 +406,7 @@
         .input-group label i.fa-shield-alt { font-size: 0.75rem; margin-top: 0; line-height: 1; vertical-align: middle; display: inline-block; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper input, .input-wrapper textarea { width: 100%; padding-right: 4.5rem; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; }
-        .input-wrapper textarea { padding-right: 4.5rem; }
+        .input-wrapper textarea { padding-right: 4.5rem; resize: none; overflow: hidden; min-height: 3rem; }
         .clear-field-inside, .copy-field-inside {
             position: absolute;
             top: 50%;
@@ -653,6 +653,11 @@
         guardarLocalStorage();
     }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
+
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
 
     function limpiarCampo(nombreCampo, ignoreProtection = false, inputElement = null) {
         if (!ignoreProtection && appData.protectedFields[nombreCampo]) {
@@ -994,8 +999,25 @@
     function renderizarSeccion(seccion) {
         if (seccion === "generador") {
             contenidoDinamico.innerHTML = renderizarGenerador();
+            const textareas = contenidoDinamico.querySelectorAll('textarea');
+            textareas.forEach(ta => {
+                autoResizeTextarea(ta);
+                ta.addEventListener('input', function() {
+                    appData.borrador[this.id] = this.value;
+                    guardarLocalStorage();
+                    autoResizeTextarea(this);
+                });
+            });
             const campos = ['direccion','respuesta','clasificacion','tema','palabras_clave','abreviaciones','pregunta1','pregunta2','pregunta3'];
-            campos.forEach(campo => { const el = document.getElementById(campo); if (el) el.addEventListener('input', (e) => { appData.borrador[campo] = e.target.value; guardarLocalStorage(); }); });
+            campos.forEach(campo => {
+                const el = document.getElementById(campo);
+                if (el && el.tagName !== 'TEXTAREA') {
+                    el.addEventListener('input', (e) => {
+                        appData.borrador[campo] = e.target.value;
+                        guardarLocalStorage();
+                    });
+                }
+            });
             document.querySelectorAll('.clear-field-inside').forEach(btn => { btn.addEventListener('click', (e) => { const field = btn.getAttribute('data-field'); if (field) { const inputElement = document.getElementById(field); limpiarCampo(field, true, inputElement); } }); });
             document.querySelectorAll('.copy-field-inside').forEach(btn => { btn.addEventListener('click', (e) => { const field = btn.getAttribute('data-field-copy'); if (field) { const inputElement = document.getElementById(field); if (inputElement) { navigator.clipboard.writeText(inputElement.value).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); } } }); });
             document.getElementById('guardarGrupoBtn').addEventListener('click', guardarGrupo);
