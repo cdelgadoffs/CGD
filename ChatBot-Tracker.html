@@ -16,6 +16,7 @@
 
         .app-layout { display: flex; min-height: 100vh; }
 
+        /* ===== Sidebar ===== */
         .sidebar {
             width: 60px;
             background: #0e0e10;
@@ -33,23 +34,13 @@
         }
         body.light .sidebar { background: #ffffff; border-right: 1px solid #d0d7de; }
 
-        .sidebar:not(:hover):not(.sidebar-fixed) {
-            width: 60px;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header {
-            justify-content: center;
-        }
+        .sidebar:not(:hover):not(.sidebar-fixed) { width: 60px; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header { justify-content: center; }
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header .title-text,
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header #fixSidebarBtn,
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header #themeToggle {
-            display: none;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header h2 {
-            font-size: 0;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header h2 i {
-            font-size: 1.6rem;
-        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header #themeToggle { display: none; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header h2 { font-size: 0; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-header h2 i { font-size: 1.6rem; }
 
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a span,
         .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4 span,
@@ -57,52 +48,20 @@
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-actions button span,
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer div span:not(.fs-dot),
         .sidebar:not(:hover):not(.sidebar-fixed) .fs-status span:not(.fs-dot),
-        .sidebar:not(:hover):not(.sidebar-fixed) .folder-location {
-            display: none;
-        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .folder-location { display: none; }
 
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a,
         .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-actions button,
         .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4,
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer {
-            justify-content: center;
-            align-items: center;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a {
-            padding: 0.7rem 0;
-            gap: 0;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4 {
-            gap: 0;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .checkbox-grid {
-            display: none;
-        }
-
-        .sidebar:not(:hover):not(.sidebar-fixed) .fs-status {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) .fs-dot {
-            width: 14px;
-            height: 14px;
-            margin: 0;
-            flex-shrink: 0;
-        }
-
-        .sidebar:not(:hover):not(.sidebar-fixed) #shieldIconOnly {
-            display: none;
-        }
-        .sidebar:not(:hover):not(.sidebar-fixed) #shieldIconOnly.visible {
-            display: inline-block;
-        }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer { justify-content: center; align-items: center; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-nav a { padding: 0.7rem 0; gap: 0; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .protection-section h4 { gap: 0; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .sidebar-footer { display: flex; flex-direction: column; align-items: center; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .checkbox-grid { display: none; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .fs-status { display: flex; justify-content: center; align-items: center; gap: 0; }
+        .sidebar:not(:hover):not(.sidebar-fixed) .fs-dot { width: 14px; height: 14px; margin: 0; flex-shrink: 0; }
+        .sidebar:not(:hover):not(.sidebar-fixed) #shieldIconOnly { display: none; }
+        .sidebar:not(:hover):not(.sidebar-fixed) #shieldIconOnly.visible { display: inline-block; }
 
         .sidebar:hover,
         .sidebar.sidebar-fixed {
@@ -110,25 +69,17 @@
             overflow-y: auto;
         }
         .sidebar:hover .sidebar-header,
-        .sidebar.sidebar-fixed .sidebar-header {
-            justify-content: space-between;
-        }
+        .sidebar.sidebar-fixed .sidebar-header { justify-content: space-between; }
         .sidebar:hover .sidebar-header h2,
-        .sidebar.sidebar-fixed .sidebar-header h2 {
-            font-size: 1.2rem;
-        }
+        .sidebar.sidebar-fixed .sidebar-header h2 { font-size: 1.2rem; }
         .sidebar:hover .sidebar-header h2 i,
-        .sidebar.sidebar-fixed .sidebar-header h2 i {
-            font-size: 1.2rem;
-        }
+        .sidebar.sidebar-fixed .sidebar-header h2 i { font-size: 1.2rem; }
         .sidebar:hover .sidebar-header .title-text,
         .sidebar.sidebar-fixed .sidebar-header .title-text,
         .sidebar:hover .sidebar-header #fixSidebarBtn,
         .sidebar.sidebar-fixed .sidebar-header #fixSidebarBtn,
         .sidebar:hover .sidebar-header #themeToggle,
-        .sidebar.sidebar-fixed .sidebar-header #themeToggle {
-            display: inline-block;
-        }
+        .sidebar.sidebar-fixed .sidebar-header #themeToggle { display: inline-block; }
 
         .sidebar:hover .sidebar-nav a span,
         .sidebar.sidebar-fixed .sidebar-nav a span,
@@ -143,56 +94,31 @@
         .sidebar:hover .fs-status span:not(.fs-dot),
         .sidebar.sidebar-fixed .fs-status span:not(.fs-dot),
         .sidebar:hover .folder-location,
-        .sidebar.sidebar-fixed .folder-location {
-            display: inline;
-        }
+        .sidebar.sidebar-fixed .folder-location { display: inline; }
 
         .sidebar:hover .sidebar-nav a,
         .sidebar.sidebar-fixed .sidebar-nav a,
         .sidebar:hover .protection-section h4,
-        .sidebar.sidebar-fixed .protection-section h4 {
-            justify-content: flex-start;
-        }
+        .sidebar.sidebar-fixed .protection-section h4 { justify-content: flex-start; }
         .sidebar:hover .sidebar-nav a,
-        .sidebar.sidebar-fixed .sidebar-nav a {
-            padding: 0.7rem 1rem;
-            gap: 0.8rem;
-        }
+        .sidebar.sidebar-fixed .sidebar-nav a { padding: 0.7rem 1rem; gap: 0.8rem; }
         .sidebar:hover .protection-section h4,
-        .sidebar.sidebar-fixed .protection-section h4 {
-            gap: 0.5rem;
-        }
+        .sidebar.sidebar-fixed .protection-section h4 { gap: 0.5rem; }
         .sidebar:hover .checkbox-grid,
-        .sidebar.sidebar-fixed .checkbox-grid {
-            display: grid;
-        }
+        .sidebar.sidebar-fixed .checkbox-grid { display: grid; }
 
         .sidebar:hover .sidebar-actions button,
         .sidebar.sidebar-fixed .sidebar-actions button,
         .sidebar:hover .sidebar-footer,
         .sidebar.sidebar-fixed .sidebar-footer,
         .sidebar:hover .fs-status,
-        .sidebar.sidebar-fixed .fs-status {
-            justify-content: center;
-            align-items: center;
-        }
+        .sidebar.sidebar-fixed .fs-status { justify-content: center; align-items: center; }
         .sidebar:hover .sidebar-footer,
-        .sidebar.sidebar-fixed .sidebar-footer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .sidebar.sidebar-fixed .sidebar-footer { display: flex; flex-direction: column; align-items: center; }
         .sidebar:hover .fs-status,
-        .sidebar.sidebar-fixed .fs-status {
-            display: flex;
-            gap: 0.4rem;
-        }
+        .sidebar.sidebar-fixed .fs-status { display: flex; gap: 0.4rem; }
         .sidebar:hover .fs-dot,
-        .sidebar.sidebar-fixed .fs-dot {
-            width: 8px;
-            height: 8px;
-            margin: 0;
-        }
+        .sidebar.sidebar-fixed .fs-dot { width: 8px; height: 8px; margin: 0; }
 
         .sidebar-header {
             display: flex;
@@ -374,7 +300,7 @@
         }
         body.light .folder-location { color: #6c757d; }
 
-        /* Estilo para el marcador de duda */
+        /* ===== Estilos de registros ===== */
         .grupo-item.duda {
             background: rgba(255, 0, 0, 0.12) !important;
             border-left: 4px solid #ff4444 !important;
@@ -383,7 +309,7 @@
             background: rgba(255, 0, 0, 0.07) !important;
         }
 
-        /* Modal de selección de campos - Mejorado */
+        /* ===== Modales ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -395,6 +321,7 @@
             align-items: center;
         }
         .modal-overlay.active { display: flex; }
+
         .modal-box {
             background: #1a1a1e;
             border: 1px solid #2e2e32;
@@ -412,6 +339,7 @@
             border: 1px solid #dee2e6;
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
+
         .modal-box h3 {
             color: #ff8c42;
             font-size: 1.3rem;
@@ -487,6 +415,108 @@
         body.light .modal-actions .btn-cancel { color: #555; border-color: #ced4da; }
         body.light .modal-actions .btn-cancel:hover { background: #e9ecef; color: #212529; }
 
+        /* ===== Modal de división (pantalla completa) ===== */
+        .split-modal .modal-box {
+            max-width: 95vw;
+            width: 95vw;
+            max-height: 90vh;
+            padding: 1.8rem 2rem;
+        }
+
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .split-panel {
+            border: 1px solid #2e2e32;
+            border-radius: 12px;
+            padding: 1.2rem;
+            background: rgba(255,255,255,0.02);
+            max-height: 65vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        body.light .split-panel { border-color: #dee2e6; background: rgba(0,0,0,0.01); }
+
+        .split-panel h4 {
+            color: #ff8c42;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-family: 'Comfortaa', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Estructura de grid para los paneles de división */
+        .split-panel .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem 1.2rem;
+        }
+        .split-panel .full-width {
+            grid-column: span 2;
+        }
+
+        .split-panel .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin-bottom: 0.2rem;
+        }
+        .split-panel .input-group label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: #ff8c42;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-family: 'Comfortaa', sans-serif;
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+        .split-panel .input-group input,
+        .split-panel .input-group textarea {
+            padding: 0.4rem 0.6rem;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            width: 100%;
+            background: #1a1a1e;
+            border: 1px solid #2e2e32;
+            color: #e0e0e0;
+            transition: 0.2s;
+            resize: vertical;
+            min-height: 2.2rem;
+        }
+        body.light .split-panel .input-group input,
+        body.light .split-panel .input-group textarea {
+            background: #f8f9fa;
+            border-color: #ced4da;
+            color: #212529;
+        }
+        .split-panel .input-group input:focus,
+        .split-panel .input-group textarea:focus {
+            outline: none;
+            border-color: #ff8c42;
+            box-shadow: 0 0 0 2px rgba(255,140,66,0.2);
+        }
+        .split-panel .input-group textarea {
+            resize: vertical;
+            min-height: 2.5rem;
+            overflow-y: hidden;
+        }
+        .split-panel .input-wrapper {
+            position: relative;
+        }
+        .split-panel .clear-field-inside,
+        .split-panel .copy-field-inside {
+            display: none;
+        }
+
+        /* ===== Estilos generales de contenido ===== */
         .main-content {
             flex: 1;
             margin-left: 60px;
@@ -517,6 +547,7 @@
         .input-group { display: flex; flex-direction: column; gap: 0.4rem; position: relative; margin-bottom: 0.5rem; }
         .input-group label { font-size: 0.75rem; text-transform: uppercase; color: #ff8c42; font-weight: 600; letter-spacing: 0.5px; font-family: 'Comfortaa', sans-serif; display: flex; align-items: center; gap: 0.4rem; }
         .input-group label i.fa-shield-alt { font-size: 0.75rem; margin-top: 0; line-height: 1; vertical-align: middle; display: inline-block; }
+        .input-group label .duda-flag { color: #ff4444; font-size: 0.7rem; margin-left: 0.2rem; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper input, .input-wrapper textarea { width: 100%; padding-right: 4.5rem; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; }
         .input-wrapper textarea { padding-right: 4.5rem; resize: none; overflow: hidden; min-height: 3rem; }
@@ -561,6 +592,7 @@
         body.light .pregunta-item-form { background: #f8f9fa; border-color: #dee2e6; }
         .pregunta-item-form label { font-size: 1rem; margin-bottom: 0.5rem; display: block; color: #ff8c42; font-weight: bold; font-family: 'Comfortaa', sans-serif; display: flex; align-items: center; gap: 0.4rem; }
         .pregunta-item-form label i.fa-shield-alt { font-size: 0.85rem; vertical-align: middle; }
+        .pregunta-item-form label .duda-flag { color: #ff4444; font-size: 0.8rem; margin-left: 0.2rem; }
         .btn-sm { padding: 0.5rem 1.2rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; margin-right: 0.8rem; margin-top: 0.5rem; border: 1px solid; font-family: 'Comfortaa', sans-serif; }
         body.dark .btn-sm { background: #2c2c30; border-color: #3a3a40; color: #e0e0e0; }
         body.light .btn-sm { background: #e9ecef; border-color: #ced4da; color: #212529; }
@@ -688,7 +720,7 @@
     </div>
 </div>
 
-<!-- Modal para seleccionar campos de duda (mejorado) -->
+<!-- Modal para seleccionar campos de duda -->
 <div class="modal-overlay" id="dudaModal">
     <div class="modal-box">
         <h3><i class="fas fa-flag"></i> Selecciona los campos con duda</h3>
@@ -702,9 +734,35 @@
     </div>
 </div>
 
+<!-- Modal para dividir registro (pantalla completa) -->
+<div class="modal-overlay split-modal" id="splitModal">
+    <div class="modal-box">
+        <h3><i class="fas fa-cut"></i> Dividir registro</h3>
+        <div class="split-container">
+            <!-- Panel izquierdo: registro original editable -->
+            <div class="split-panel">
+                <h4><i class="fas fa-arrow-left"></i> Registro original</h4>
+                <div id="splitLeftContainer" class="form-grid"></div>
+            </div>
+            <!-- Panel derecho: nuevo registro vacío -->
+            <div class="split-panel">
+                <h4><i class="fas fa-arrow-right"></i> Nuevo registro</h4>
+                <div id="splitRightContainer" class="form-grid"></div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="splitCancelBtn">Cancelar</button>
+            <button class="btn-confirm" id="splitConfirmBtn">Guardar división</button>
+        </div>
+    </div>
+</div>
+
 <div id="reconnectBanner" class="reconnect-banner" style="display: none;"></div>
 
 <script>
+    // =========================================================================
+    //  DATOS GLOBALES
+    // =========================================================================
     let appData = {
         grupos: [],
         borrador: {
@@ -720,6 +778,9 @@
     let currentSection = "generador";
     const contenidoDinamico = document.getElementById('contenidoDinamico');
 
+    // =========================================================================
+    //  TEMA Y SIDEBAR
+    // =========================================================================
     let currentTheme = localStorage.getItem('chatbotTheme') || 'dark';
     function applyTheme(theme) {
         document.body.classList.remove('dark', 'light');
@@ -734,11 +795,8 @@
     function applySidebarFixed(fixed) {
         const sidebar = document.getElementById('sidebar');
         if (!sidebar) return;
-        if (fixed) {
-            sidebar.classList.add('sidebar-fixed');
-        } else {
-            sidebar.classList.remove('sidebar-fixed');
-        }
+        if (fixed) sidebar.classList.add('sidebar-fixed');
+        else sidebar.classList.remove('sidebar-fixed');
         const btn = document.getElementById('fixSidebarBtn');
         if (btn) {
             const icon = btn.querySelector('i');
@@ -757,6 +815,9 @@
         applySidebarFixed(sidebarFixed);
     }
 
+    // =========================================================================
+    //  PERSISTENCIA
+    // =========================================================================
     function guardarLocalStorage() {
         localStorage.setItem('chatbotData', JSON.stringify({
             grupos: appData.grupos,
@@ -774,13 +835,11 @@
                     appData.grupos = parsed.grupos;
                     appData.grupos.forEach(g => {
                         if (g.validado === undefined) g.validado = false;
-                        // Convertir duda antigua (booleano) a nuevo formato
                         if (g.duda === undefined) {
                             g.duda = { activo: false, campos: [] };
                         } else if (typeof g.duda === 'boolean') {
                             g.duda = { activo: g.duda, campos: [] };
                         }
-                        // Asegurar que existe el objeto
                         if (!g.duda || typeof g.duda !== 'object') {
                             g.duda = { activo: false, campos: [] };
                         }
@@ -796,6 +855,9 @@
     }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
 
+    // =========================================================================
+    //  FUNCIONES DE FORMULARIO
+    // =========================================================================
     function autoResizeTextarea(el) {
         el.style.height = 'auto';
         el.style.height = el.scrollHeight + 'px';
@@ -828,6 +890,7 @@
         guardarLocalStorage();
     }
     function resetearModoEdicion() { appData.editandoIndex = null; guardarLocalStorage(); }
+
     function guardarGrupo() {
         const b = appData.borrador;
         if (!b.direccion.trim() || !b.respuesta.trim() || !b.pregunta1.trim() || !b.pregunta2.trim() || !b.pregunta3.trim()) {
@@ -896,27 +959,24 @@
             renderizarSeccion(currentSection);
         }
     }
-
     function moverGrupo(index, direccion) {
-        const nuevosGrupos = [...appData.grupos];
+        const nuevos = [...appData.grupos];
         const nuevoIndex = direccion === 'up' ? index - 1 : index + 1;
-        if (nuevoIndex < 0 || nuevoIndex >= nuevosGrupos.length) return;
-        [nuevosGrupos[index], nuevosGrupos[nuevoIndex]] = [nuevosGrupos[nuevoIndex], nuevosGrupos[index]];
-        appData.grupos = nuevosGrupos;
+        if (nuevoIndex < 0 || nuevoIndex >= nuevos.length) return;
+        [nuevos[index], nuevos[nuevoIndex]] = [nuevos[nuevoIndex], nuevos[index]];
+        appData.grupos = nuevos;
         guardarLocalStorage();
-        if (currentSection === "registros") {
-            renderizarSeccion("registros");
-        }
+        if (currentSection === "registros") renderizarSeccion("registros");
     }
 
     function exportarChatbotExcel() {
         const vector = [];
-        for (const grupo of appData.grupos) {
-            const base = { direccion: grupo.direccion, respuesta: grupo.respuesta, clasificacion: grupo.clasificacion, tema: grupo.tema, palabras_clave: grupo.palabras_clave, abreviaciones: grupo.abreviaciones };
-            for (let i = 0; i < grupo.preguntas.length; i++) vector.push({ ...base, pregunta: grupo.preguntas[i] });
+        for (const g of appData.grupos) {
+            const base = { direccion: g.direccion, respuesta: g.respuesta, clasificacion: g.clasificacion, tema: g.tema, palabras_clave: g.palabras_clave, abreviaciones: g.abreviaciones };
+            for (let i=0; i<g.preguntas.length; i++) vector.push({ ...base, pregunta: g.preguntas[i] });
         }
         if (!vector.length) { alert("No hay grupos guardados."); return; }
-        const headers = ["direccion", "pregunta", "respuesta", "clasificacion", "tema", "palabras_clave", "abreviaciones"];
+        const headers = ["direccion","pregunta","respuesta","clasificacion","tema","palabras_clave","abreviaciones"];
         const wsData = [headers];
         for (const item of vector) wsData.push([item.direccion, item.pregunta, item.respuesta, item.clasificacion, item.tema, item.palabras_clave.join(", "), item.abreviaciones.join(", ")]);
         const ws = XLSX.utils.aoa_to_sheet(wsData);
@@ -938,53 +998,40 @@
         const shield = document.getElementById('shieldIconOnly');
         if (!shield) return;
         const hayProtegidos = Object.values(appData.protectedFields).some(v => v === true);
-        if (hayProtegidos) {
-            shield.classList.add('visible');
-        } else {
-            shield.classList.remove('visible');
-        }
+        shield.classList.toggle('visible', hayProtegidos);
     }
 
     function renderCheckboxes() {
         const container = document.getElementById('checkboxesContainer');
         if (!container) return;
         const fields = [
-            { id: 'direccion', label: 'Dirección' }, 
-            { id: 'respuesta', label: 'Respuesta' },
-            { id: 'clasificacion', label: 'Clasificación' }, 
-            { id: 'pregunta1', label: 'Pregunta 1' },
-            { id: 'tema', label: 'Tema' }, 
-            { id: 'pregunta2', label: 'Pregunta 2' },
-            { id: 'abreviaciones', label: 'Abreviaciones' },
-            { id: 'pregunta3', label: 'Pregunta 3' },
-            { id: 'palabras_clave', label: 'Palabras clave' } 
+            { id:'direccion', label:'Dirección' }, { id:'respuesta', label:'Respuesta' },
+            { id:'clasificacion', label:'Clasificación' }, { id:'pregunta1', label:'Pregunta 1' },
+            { id:'tema', label:'Tema' }, { id:'pregunta2', label:'Pregunta 2' },
+            { id:'abreviaciones', label:'Abreviaciones' }, { id:'pregunta3', label:'Pregunta 3' },
+            { id:'palabras_clave', label:'Palabras clave' }
         ];
-        container.innerHTML = fields.map(f => `<label class="checkbox-item"><input type="checkbox" data-field="${f.id}" ${appData.protectedFields[f.id] ? 'checked' : ''}><span>${f.label}</span></label>`).join('');
+        container.innerHTML = fields.map(f =>
+            `<label class="checkbox-item">
+                <input type="checkbox" data-field="${f.id}" ${appData.protectedFields[f.id] ? 'checked' : ''}>
+                <span>${f.label}</span>
+            </label>`
+        ).join('');
         container.querySelectorAll('input[type="checkbox"]').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 const field = chk.getAttribute('data-field');
                 appData.protectedFields[field] = chk.checked;
                 guardarLocalStorage();
                 actualizarVisibilidadEscudo();
-                if (currentSection === "generador") {
-                    renderizarSeccion("generador");
-                }
+                if (currentSection === "generador") renderizarSeccion("generador");
             });
         });
         actualizarVisibilidadEscudo();
     }
 
-    let currentSearchText = "";
-    let currentClasificacionFilter = "todos";
-    let registrosDynamicContainer = null;
-
-    function actualizarStatsBadges(total, filtrados) {
-        const statsContainer = document.querySelector('.stats-badges');
-        if (!statsContainer) return;
-        statsContainer.innerHTML = `<div class="stat-badge">Total: ${total}</div><div class="stat-badge">Filtrados: ${filtrados}</div>`;
-    }
-
-    // --- Modal de Duda (mejorado) ---
+    // =========================================================================
+    //  MODAL DE DUDA
+    // =========================================================================
     let modalTargetIndex = null;
 
     function mostrarModalDuda(index) {
@@ -992,23 +1039,18 @@
         const grupo = appData.grupos[index];
         if (!grupo) return;
         const campos = [
-            { id: 'direccion', label: 'Dirección' },
-            { id: 'respuesta', label: 'Respuesta' },
-            { id: 'clasificacion', label: 'Clasificación' },
-            { id: 'tema', label: 'Tema' },
-            { id: 'palabras_clave', label: 'Palabras clave' },
-            { id: 'abreviaciones', label: 'Abreviaciones' },
-            { id: 'pregunta1', label: 'Pregunta 1' },
-            { id: 'pregunta2', label: 'Pregunta 2' },
-            { id: 'pregunta3', label: 'Pregunta 3' }
+            { id:'direccion', label:'Dirección' }, { id:'respuesta', label:'Respuesta' },
+            { id:'clasificacion', label:'Clasificación' }, { id:'tema', label:'Tema' },
+            { id:'palabras_clave', label:'Palabras clave' }, { id:'abreviaciones', label:'Abreviaciones' },
+            { id:'pregunta1', label:'Pregunta 1' }, { id:'pregunta2', label:'Pregunta 2' }, { id:'pregunta3', label:'Pregunta 3' }
         ];
         const container = document.getElementById('dudaCamposContainer');
-        container.innerHTML = campos.map(c => `
-            <label>
+        container.innerHTML = campos.map(c =>
+            `<label>
                 <input type="checkbox" value="${c.id}" ${grupo.duda.campos.includes(c.id) ? 'checked' : ''}>
                 ${c.label}
-            </label>
-        `).join('');
+            </label>`
+        ).join('');
         document.getElementById('dudaModal').classList.add('active');
     }
 
@@ -1036,113 +1078,180 @@
         if (e.target === e.currentTarget) cerrarModalDuda();
     });
 
-    // --- Fin Modal ---
+    // =========================================================================
+    //  MODAL DE DIVISIÓN (CON ESTRUCTURA MEJORADA Y CAMPOS OBLIGATORIOS)
+    // =========================================================================
+    let splitTargetIndex = null;
 
-    function aplicarFiltrosYRenderizar() {
-        if (!registrosDynamicContainer) return;
-        const grupos = appData.grupos;
-        if (!grupos.length) {
-            registrosDynamicContainer.innerHTML = `<div class="empty-state">No hay grupos. Crea uno en "Generador".</div>`;
-            actualizarStatsBadges(0, 0);
+    function mostrarSplitModal(index) {
+        splitTargetIndex = index;
+        const grupo = appData.grupos[index];
+        if (!grupo) {
+            console.error('Grupo no encontrado para índice:', index);
             return;
         }
-        const clasificaciones = [...new Set(grupos.map(g => g.clasificacion).filter(c => c && c.trim() !== ""))].sort();
-        let filtered = grupos.filter(grupo => {
-            if (currentClasificacionFilter !== "todos" && grupo.clasificacion !== currentClasificacionFilter) return false;
-            if (currentSearchText.trim() === "") return true;
-            const searchLower = currentSearchText.toLowerCase();
-            const preguntasMatch = grupo.preguntas.some(p => p.toLowerCase().includes(searchLower));
-            const respuestaMatch = grupo.respuesta.toLowerCase().includes(searchLower);
-            const direccionMatch = grupo.direccion.toLowerCase().includes(searchLower);
-            const clasificacionMatch = grupo.clasificacion.toLowerCase().includes(searchLower);
-            const temaMatch = grupo.tema.toLowerCase().includes(searchLower);
-            const keywordsMatch = grupo.palabras_clave.some(k => k.toLowerCase().includes(searchLower));
-            return preguntasMatch || respuestaMatch || direccionMatch || clasificacionMatch || temaMatch || keywordsMatch;
-        });
-        actualizarStatsBadges(grupos.length, filtered.length);
-        
-        let html = `
-            <div class="filter-bar">
-                <div class="filter-group">
-                    <label>Buscar (pregunta/respuesta)</label>
-                    <div class="search-wrapper">
-                        <input type="text" id="searchTextInput" placeholder="Escribe y presiona Enter" value="${escapeHtml(currentSearchText)}">
-                        <button class="clear-search" id="clearSearchBtn" title="Limpiar búsqueda"><i class="fas fa-times-circle"></i></button>
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <label>Filtrar por clasificación</label>
-                    <select id="clasificacionSelect">
-                        <option value="todos" ${currentClasificacionFilter === "todos" ? 'selected' : ''}>Todas</option>
-                        ${clasificaciones.map(c => `<option value="${escapeHtml(c)}" ${currentClasificacionFilter === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
-                    </select>
-                </div>
-            </div>
-            <div id="resultadosContainer"></div>
-        `;
-        registrosDynamicContainer.innerHTML = html;
-        const resultadosContainer = document.getElementById('resultadosContainer');
-        if (filtered.length === 0) {
-            resultadosContainer.innerHTML = `<div class="empty-state">No hay grupos que coincidan con los filtros.</div>`;
-        } else {
-            let gruposHtml = '';
-            filtered.forEach(grupo => {
-                const idx = appData.grupos.findIndex(g => g === grupo);
-                const validado = grupo.validado ? 'validado' : '';
-                const dudaActiva = grupo.duda && grupo.duda.activo;
-                const dudaClass = dudaActiva ? 'duda' : '';
-                const flagColor = dudaActiva ? '#ff4444' : '#aaa';
-                gruposHtml += `
-                    <div class="grupo-item ${dudaClass}" data-grupo-idx="${idx}">
-                        <div class="grupo-header">
-                            <i class="fas fa-chevron-right toggle-icon" style="cursor:pointer;"></i>
-                            <div class="action-buttons" style="display: flex; gap: 0.3rem;">
-                                <button class="btn-icon mover-up" data-index="${idx}" title="Mover arriba"><i class="fas fa-arrow-up"></i></button>
-                                <button class="btn-icon mover-down" data-index="${idx}" title="Mover abajo"><i class="fas fa-arrow-down"></i></button>
-                                <button class="btn-icon toggle-validado" data-idx="${idx}" title="${grupo.validado ? 'Desmarcar como confirmado' : 'Marcar como confirmado'}">
-                                    <i class="fas ${grupo.validado ? 'fa-times-circle' : 'fa-check-circle'}"></i>
-                                </button>
-                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="Marcar/desmarcar campos con duda">
-                                    <i class="fas fa-flag" style="color: ${flagColor};"></i>
-                                </button>
-                                <button class="btn-icon editar-grupo" data-index="${idx}" title="Editar"><i class="fas fa-edit"></i></button>
-                                <button class="btn-icon eliminar-grupo" data-index="${idx}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
-                            </div>
-                        </div>
-                        <div class="clasificacion-badge ${validado}">${escapeHtml(grupo.tema) || 'Sin tema'}</div>
-                        <div class="respuesta-preview">
-                            <span class="respuesta-texto">${escapeHtml(grupo.respuesta)}</span>
-                            <button class="copy-respuesta-btn" data-respuesta="${escapeHtml(grupo.respuesta)}" title="Copiar respuesta"><i class="fas fa-copy"></i></button>
-                        </div>
-                        <div class="grupo-details" style="display: none;">
-                            <div class="meta-chips">
-                                ${renderChip('Dirección', grupo.direccion, grupo.duda, 'direccion')}
-                                ${renderChip('Clasificación', grupo.clasificacion, grupo.duda, 'clasificacion')}
-                                ${renderChip('Tema', grupo.tema, grupo.duda, 'tema')}
-                                ${renderChip('Palabras clave', grupo.palabras_clave.join(', '), grupo.duda, 'palabras_clave')}
-                                ${renderChip('Abreviaciones', grupo.abreviaciones.join(', '), grupo.duda, 'abreviaciones')}
-                            </div>
-                            <div class="preguntas-list">
-                                <strong><i class="fas fa-list"></i> Preguntas asociadas:</strong>
-                                <div style="margin-top: 0.5rem;">
-                                    ${renderPreguntaItem('Crítica', grupo.preguntas[0], grupo.duda, 'pregunta1')}
-                                    ${renderPreguntaItem('Inferencial', grupo.preguntas[1], grupo.duda, 'pregunta2')}
-                                    ${renderPreguntaItem('Literal', grupo.preguntas[2], grupo.duda, 'pregunta3')}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            resultadosContainer.innerHTML = gruposHtml;
-            attachGruposEvents();
+
+        // Normalizar el grupo para que tenga los campos esperados
+        const grupoNormalizado = {
+            direccion: grupo.direccion || '',
+            respuesta: grupo.respuesta || '',
+            clasificacion: grupo.clasificacion || '',
+            tema: grupo.tema || '',
+            palabras_clave: Array.isArray(grupo.palabras_clave) ? grupo.palabras_clave.join(', ') : (grupo.palabras_clave || ''),
+            abreviaciones: Array.isArray(grupo.abreviaciones) ? grupo.abreviaciones.join(', ') : (grupo.abreviaciones || ''),
+            pregunta1: grupo.preguntas && grupo.preguntas[0] ? grupo.preguntas[0] : '',
+            pregunta2: grupo.preguntas && grupo.preguntas[1] ? grupo.preguntas[1] : '',
+            pregunta3: grupo.preguntas && grupo.preguntas[2] ? grupo.preguntas[2] : ''
+        };
+
+        // Llenar panel izquierdo (original normalizado)
+        const leftContainer = document.getElementById('splitLeftContainer');
+        if (!leftContainer) {
+            console.error('Contenedor splitLeftContainer no encontrado');
+            return;
         }
-        const searchInput = document.getElementById('searchTextInput');
-        const clearBtn = document.getElementById('clearSearchBtn');
-        const clasifSelect = document.getElementById('clasificacionSelect');
-        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchText = searchInput.value; aplicarFiltrosYRenderizar(); } });
-        if (clearBtn) clearBtn.addEventListener('click', () => { currentSearchText = ""; aplicarFiltrosYRenderizar(); });
-        if (clasifSelect) clasifSelect.addEventListener('change', (e) => { currentClasificacionFilter = e.target.value; aplicarFiltrosYRenderizar(); });
+        leftContainer.innerHTML = generarFormularioSplit(grupoNormalizado, 'left');
+
+        // Panel derecho vacío
+        const vacio = {
+            direccion: '', respuesta: '', clasificacion: '', tema: '',
+            palabras_clave: '', abreviaciones: '',
+            pregunta1: '', pregunta2: '', pregunta3: ''
+        };
+        const rightContainer = document.getElementById('splitRightContainer');
+        if (!rightContainer) {
+            console.error('Contenedor splitRightContainer no encontrado');
+            return;
+        }
+        rightContainer.innerHTML = generarFormularioSplit(vacio, 'right');
+
+        // Activar auto-resize en todos los textareas de ambos paneles
+        document.querySelectorAll('.split-panel textarea').forEach(ta => {
+            autoResizeTextarea(ta);
+            ta.addEventListener('input', function() { autoResizeTextarea(this); });
+        });
+
+        document.getElementById('splitModal').classList.add('active');
+    }
+
+    function generarFormularioSplit(data, lado) {
+        // Lista de campos obligatorios
+        const camposRequeridos = ['direccion','respuesta','pregunta1','pregunta2','pregunta3'];
+
+        // Definir los campos en el orden deseado y con su tipo
+        const campos = [
+            { id: 'direccion',      label: 'Dirección',      tipo: 'text',     full: false },
+            { id: 'clasificacion',  label: 'Clasificación',  tipo: 'text',     full: false },
+            { id: 'tema',           label: 'Tema',           tipo: 'text',     full: false },
+            { id: 'abreviaciones',  label: 'Abreviaciones',  tipo: 'text',     full: false },
+            { id: 'palabras_clave', label: 'Palabras clave', tipo: 'text',     full: true  },
+            { id: 'respuesta',      label: 'Respuesta',      tipo: 'textarea', full: true  },
+            { id: 'pregunta1',      label: 'Pregunta 1 (Crítica)', tipo: 'textarea', full: true },
+            { id: 'pregunta2',      label: 'Pregunta 2 (Inferencial)', tipo: 'textarea', full: true },
+            { id: 'pregunta3',      label: 'Pregunta 3 (Literal)', tipo: 'textarea', full: true }
+        ];
+
+        let html = '';
+        for (const c of campos) {
+            const value = data[c.id] || '';
+            const isRequired = camposRequeridos.includes(c.id);
+            const requiredClass = isRequired ? 'required-field' : '';
+            const input = c.tipo === 'textarea'
+                ? `<textarea id="split_${lado}_${c.id}" rows="1" style="min-height:2.2rem;" class="${requiredClass}">${escapeHtml(value)}</textarea>`
+                : `<input type="text" id="split_${lado}_${c.id}" value="${escapeHtml(value)}" class="${requiredClass}">`;
+            const fullClass = c.full ? 'full-width' : '';
+            html += `
+                <div class="input-group ${fullClass}">
+                    <label>${c.label}</label>
+                    <div class="input-wrapper">${input}</div>
+                </div>
+            `;
+        }
+        return html;
+    }
+
+    function cerrarSplitModal() {
+        document.getElementById('splitModal').classList.remove('active');
+        splitTargetIndex = null;
+    }
+
+    function confirmarSplit() {
+        if (splitTargetIndex === null) return;
+        const leftData = obtenerDatosSplit('left');
+        const rightData = obtenerDatosSplit('right');
+
+        const camposRequeridos = ['direccion','respuesta','pregunta1','pregunta2','pregunta3'];
+        const validar = (d, lado) => {
+            for (const req of camposRequeridos) {
+                if (!d[req] || !d[req].trim()) {
+                    alert(`El campo "${req}" debe estar completo en el panel ${lado}.`);
+                    return false;
+                }
+            }
+            return true;
+        };
+        if (!validar(leftData, 'izquierdo')) return;
+        if (!validar(rightData, 'derecho')) return;
+
+        const proc = (str) => str.split(',').map(s => s.trim()).filter(s => s);
+
+        // Actualizar original
+        const original = appData.grupos[splitTargetIndex];
+        original.direccion = leftData.direccion.trim();
+        original.respuesta = leftData.respuesta.trim();
+        original.clasificacion = leftData.clasificacion.trim();
+        original.tema = leftData.tema.trim();
+        original.palabras_clave = proc(leftData.palabras_clave);
+        original.abreviaciones = proc(leftData.abreviaciones);
+        original.preguntas = [leftData.pregunta1.trim(), leftData.pregunta2.trim(), leftData.pregunta3.trim()];
+
+        // Crear nuevo
+        const nuevo = {
+            direccion: rightData.direccion.trim(),
+            respuesta: rightData.respuesta.trim(),
+            clasificacion: rightData.clasificacion.trim(),
+            tema: rightData.tema.trim(),
+            palabras_clave: proc(rightData.palabras_clave),
+            abreviaciones: proc(rightData.abreviaciones),
+            preguntas: [rightData.pregunta1.trim(), rightData.pregunta2.trim(), rightData.pregunta3.trim()],
+            validado: false,
+            duda: { activo: false, campos: [] }
+        };
+        appData.grupos.push(nuevo);
+
+        guardarLocalStorage();
+        cerrarSplitModal();
+        renderizarSeccion(currentSection);
+        alert('Registro dividido correctamente.');
+    }
+
+    function obtenerDatosSplit(lado) {
+        const ids = ['direccion','respuesta','clasificacion','tema','palabras_clave','abreviaciones','pregunta1','pregunta2','pregunta3'];
+        const data = {};
+        for (const id of ids) {
+            const el = document.getElementById(`split_${lado}_${id}`);
+            data[id] = el ? el.value : '';
+        }
+        return data;
+    }
+
+    document.getElementById('splitConfirmBtn').addEventListener('click', confirmarSplit);
+    document.getElementById('splitCancelBtn').addEventListener('click', cerrarSplitModal);
+    document.getElementById('splitModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) cerrarSplitModal();
+    });
+
+    // =========================================================================
+    //  RENDERIZADO DE REGISTROS
+    // =========================================================================
+    let currentSearchText = "";
+    let currentClasificacionFilter = "todos";
+    let registrosDynamicContainer = null;
+
+    function actualizarStatsBadges(total, filtrados) {
+        const statsContainer = document.querySelector('.stats-badges');
+        if (!statsContainer) return;
+        statsContainer.innerHTML = `<div class="stat-badge">Total: ${total}</div><div class="stat-badge">Filtrados: ${filtrados}</div>`;
     }
 
     function renderChip(label, value, dudaObj, fieldId) {
@@ -1170,69 +1279,307 @@
         `;
     }
 
-    function attachGruposEvents() {
-        document.querySelectorAll('.mover-up').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-index')); moverGrupo(idx, 'up'); }));
-        document.querySelectorAll('.mover-down').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-index')); moverGrupo(idx, 'down'); }));
-        document.querySelectorAll('.copy-respuesta-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const texto = btn.getAttribute('data-respuesta'); if (texto) navigator.clipboard.writeText(texto).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); }));
-        document.querySelectorAll('.toggle-validado').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-idx')); if (!isNaN(idx) && appData.grupos[idx]) { const grupo = appData.grupos[idx]; grupo.validado = !grupo.validado; guardarLocalStorage(); const grupoDiv = btn.closest('.grupo-item'); if (grupoDiv) { const badge = grupoDiv.querySelector('.clasificacion-badge'); if (badge) { if (grupo.validado) badge.classList.add('validado'); else badge.classList.remove('validado'); } const icon = btn.querySelector('i'); if (icon) { if (grupo.validado) { icon.classList.remove('fa-check-circle'); icon.classList.add('fa-times-circle'); btn.setAttribute('title', 'Desmarcar como confirmado'); } else { icon.classList.remove('fa-times-circle'); icon.classList.add('fa-check-circle'); btn.setAttribute('title', 'Marcar como confirmado'); } } } } }));
-        document.querySelectorAll('.toggle-duda').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const idx = parseInt(btn.getAttribute('data-idx'));
-                if (!isNaN(idx) && appData.grupos[idx]) {
-                    mostrarModalDuda(idx);
-                }
-            });
+    function aplicarFiltrosYRenderizar() {
+        if (!registrosDynamicContainer) return;
+        const grupos = appData.grupos;
+        if (!grupos.length) {
+            registrosDynamicContainer.innerHTML = `<div class="empty-state">No hay grupos. Crea uno en "Generador".</div>`;
+            actualizarStatsBadges(0,0);
+            return;
+        }
+        const clasificaciones = [...new Set(grupos.map(g => g.clasificacion).filter(c => c && c.trim() !== ""))].sort();
+        let filtered = grupos.filter(grupo => {
+            if (currentClasificacionFilter !== "todos" && grupo.clasificacion !== currentClasificacionFilter) return false;
+            if (currentSearchText.trim() === "") return true;
+            const search = currentSearchText.toLowerCase();
+            return grupo.preguntas.some(p => p.toLowerCase().includes(search)) ||
+                   grupo.respuesta.toLowerCase().includes(search) ||
+                   grupo.direccion.toLowerCase().includes(search) ||
+                   grupo.clasificacion.toLowerCase().includes(search) ||
+                   grupo.tema.toLowerCase().includes(search) ||
+                   grupo.palabras_clave.some(k => k.toLowerCase().includes(search));
         });
-        document.querySelectorAll('.copy-pregunta-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const texto = btn.getAttribute('data-pregunta'); if (texto) navigator.clipboard.writeText(texto).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); }));
-        document.querySelectorAll('.grupo-item').forEach(item => { const toggleIcon = item.querySelector('.toggle-icon'); const detailsDiv = item.querySelector('.grupo-details'); if (toggleIcon && detailsDiv) { const setState = (expanded) => { if (expanded) { detailsDiv.style.display = 'block'; toggleIcon.classList.remove('fa-chevron-right'); toggleIcon.classList.add('fa-chevron-down'); } else { detailsDiv.style.display = 'none'; toggleIcon.classList.remove('fa-chevron-down'); toggleIcon.classList.add('fa-chevron-right'); } }; setState(false); toggleIcon.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); item.addEventListener('click', (e) => { if (e.target.closest('.editar-grupo') || e.target.closest('.eliminar-grupo') || e.target.closest('.toggle-icon') || e.target.closest('.toggle-validado') || e.target.closest('.toggle-duda') || e.target.closest('.copy-pregunta-btn') || e.target.closest('.copy-respuesta-btn') || e.target.closest('.mover-up') || e.target.closest('.mover-down')) return; const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); } });
-        document.querySelectorAll('.editar-grupo').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) editarGrupo(parseInt(idx)); }));
-        document.querySelectorAll('.eliminar-grupo').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) eliminarGrupo(parseInt(idx)); }));
+        actualizarStatsBadges(grupos.length, filtered.length);
+
+        let html = `
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Buscar (pregunta/respuesta)</label>
+                    <div class="search-wrapper">
+                        <input type="text" id="searchTextInput" placeholder="Escribe y presiona Enter" value="${escapeHtml(currentSearchText)}">
+                        <button class="clear-search" id="clearSearchBtn" title="Limpiar búsqueda"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Filtrar por clasificación</label>
+                    <select id="clasificacionSelect">
+                        <option value="todos" ${currentClasificacionFilter==="todos"?'selected':''}>Todas</option>
+                        ${clasificaciones.map(c => `<option value="${escapeHtml(c)}" ${currentClasificacionFilter===c?'selected':''}>${escapeHtml(c)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div id="resultadosContainer"></div>
+        `;
+        registrosDynamicContainer.innerHTML = html;
+        const resultadosContainer = document.getElementById('resultadosContainer');
+        if (filtered.length === 0) {
+            resultadosContainer.innerHTML = `<div class="empty-state">No hay grupos que coincidan con los filtros.</div>`;
+        } else {
+            let gruposHtml = '';
+            filtered.forEach(grupo => {
+                const idx = appData.grupos.findIndex(g => g === grupo);
+                const validado = grupo.validado ? 'validado' : '';
+                const dudaActiva = grupo.duda && grupo.duda.activo;
+                const dudaClass = dudaActiva ? 'duda' : '';
+                const flagColor = dudaActiva ? '#ff4444' : '#aaa';
+                gruposHtml += `
+                    <div class="grupo-item ${dudaClass}" data-grupo-idx="${idx}">
+                        <div class="grupo-header">
+                            <i class="fas fa-chevron-right toggle-icon" style="cursor:pointer;"></i>
+                            <div class="action-buttons" style="display:flex; gap:0.3rem;">
+                                <button class="btn-icon mover-up" data-index="${idx}" title="Mover arriba"><i class="fas fa-arrow-up"></i></button>
+                                <button class="btn-icon mover-down" data-index="${idx}" title="Mover abajo"><i class="fas fa-arrow-down"></i></button>
+                                <button class="btn-icon toggle-validado" data-idx="${idx}" title="${grupo.validado?'Desmarcar como confirmado':'Marcar como confirmado'}">
+                                    <i class="fas ${grupo.validado?'fa-times-circle':'fa-check-circle'}"></i>
+                                </button>
+                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="Marcar/desmarcar campos con duda">
+                                    <i class="fas fa-flag" style="color:${flagColor};"></i>
+                                </button>
+                                <button class="btn-icon split-grupo" data-index="${idx}" title="Dividir este registro">
+                                    <i class="fas fa-cut"></i>
+                                </button>
+                                <button class="btn-icon editar-grupo" data-index="${idx}" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon eliminar-grupo" data-index="${idx}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="clasificacion-badge ${validado}">${escapeHtml(grupo.tema) || 'Sin tema'}</div>
+                        <div class="respuesta-preview">
+                            <span class="respuesta-texto">${escapeHtml(grupo.respuesta)}</span>
+                            <button class="copy-respuesta-btn" data-respuesta="${escapeHtml(grupo.respuesta)}" title="Copiar respuesta"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <div class="grupo-details" style="display:none;">
+                            <div class="meta-chips">
+                                ${renderChip('Dirección', grupo.direccion, grupo.duda, 'direccion')}
+                                ${renderChip('Clasificación', grupo.clasificacion, grupo.duda, 'clasificacion')}
+                                ${renderChip('Tema', grupo.tema, grupo.duda, 'tema')}
+                                ${renderChip('Palabras clave', grupo.palabras_clave.join(', '), grupo.duda, 'palabras_clave')}
+                                ${renderChip('Abreviaciones', grupo.abreviaciones.join(', '), grupo.duda, 'abreviaciones')}
+                            </div>
+                            <div class="preguntas-list">
+                                <strong><i class="fas fa-list"></i> Preguntas asociadas:</strong>
+                                <div style="margin-top:0.5rem;">
+                                    ${renderPreguntaItem('Crítica', grupo.preguntas[0], grupo.duda, 'pregunta1')}
+                                    ${renderPreguntaItem('Inferencial', grupo.preguntas[1], grupo.duda, 'pregunta2')}
+                                    ${renderPreguntaItem('Literal', grupo.preguntas[2], grupo.duda, 'pregunta3')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            resultadosContainer.innerHTML = gruposHtml;
+            attachGruposEvents();
+        }
+        // Filtros
+        const searchInput = document.getElementById('searchTextInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const clasifSelect = document.getElementById('clasificacionSelect');
+        if (searchInput) searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') { currentSearchText = searchInput.value; aplicarFiltrosYRenderizar(); }
+        });
+        if (clearBtn) clearBtn.addEventListener('click', () => { currentSearchText = ""; aplicarFiltrosYRenderizar(); });
+        if (clasifSelect) clasifSelect.addEventListener('change', (e) => {
+            currentClasificacionFilter = e.target.value;
+            aplicarFiltrosYRenderizar();
+        });
     }
 
+    // =========================================================================
+    //  EVENTOS DE GRUPOS
+    // =========================================================================
+    function attachGruposEvents() {
+        document.querySelectorAll('.mover-up').forEach(btn =>
+            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); moverGrupo(idx,'up'); })
+        );
+        document.querySelectorAll('.mover-down').forEach(btn =>
+            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); moverGrupo(idx,'down'); })
+        );
+        document.querySelectorAll('.copy-respuesta-btn').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const texto = btn.dataset.respuesta;
+                if (texto) navigator.clipboard.writeText(texto).then(() => {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => btn.innerHTML = original, 1000);
+                }).catch(console.error);
+            })
+        );
+        document.querySelectorAll('.toggle-validado').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.idx);
+                if (!isNaN(idx) && appData.grupos[idx]) {
+                    const grupo = appData.grupos[idx];
+                    grupo.validado = !grupo.validado;
+                    guardarLocalStorage();
+                    const grupoDiv = btn.closest('.grupo-item');
+                    if (grupoDiv) {
+                        const badge = grupoDiv.querySelector('.clasificacion-badge');
+                        if (badge) badge.classList.toggle('validado', grupo.validado);
+                        const icon = btn.querySelector('i');
+                        if (icon) {
+                            if (grupo.validado) {
+                                icon.className = 'fas fa-times-circle';
+                                btn.title = 'Desmarcar como confirmado';
+                            } else {
+                                icon.className = 'fas fa-check-circle';
+                                btn.title = 'Marcar como confirmado';
+                            }
+                        }
+                    }
+                }
+            })
+        );
+        document.querySelectorAll('.toggle-duda').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.idx);
+                if (!isNaN(idx) && appData.grupos[idx]) mostrarModalDuda(idx);
+            })
+        );
+        document.querySelectorAll('.split-grupo').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.index);
+                if (!isNaN(idx) && appData.grupos[idx]) {
+                    mostrarSplitModal(idx);
+                } else {
+                    console.warn('Índice inválido para división:', idx);
+                }
+            })
+        );
+        document.querySelectorAll('.copy-pregunta-btn').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const texto = btn.dataset.pregunta;
+                if (texto) navigator.clipboard.writeText(texto).then(() => {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => btn.innerHTML = original, 1000);
+                }).catch(console.error);
+            })
+        );
+        document.querySelectorAll('.grupo-item').forEach(item => {
+            const toggleIcon = item.querySelector('.toggle-icon');
+            const detailsDiv = item.querySelector('.grupo-details');
+            if (toggleIcon && detailsDiv) {
+                const setState = (expanded) => {
+                    detailsDiv.style.display = expanded ? 'block' : 'none';
+                    toggleIcon.className = expanded ? 'fas fa-chevron-down toggle-icon' : 'fas fa-chevron-right toggle-icon';
+                };
+                setState(false);
+                toggleIcon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setState(detailsDiv.style.display !== 'block');
+                });
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.editar-grupo') || e.target.closest('.eliminar-grupo') ||
+                        e.target.closest('.toggle-icon') || e.target.closest('.toggle-validado') ||
+                        e.target.closest('.toggle-duda') || e.target.closest('.split-grupo') ||
+                        e.target.closest('.copy-pregunta-btn') || e.target.closest('.copy-respuesta-btn') ||
+                        e.target.closest('.mover-up') || e.target.closest('.mover-down')) return;
+                    setState(detailsDiv.style.display !== 'block');
+                });
+            }
+        });
+        document.querySelectorAll('.editar-grupo').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = btn.dataset.index;
+                if (idx !== null) editarGrupo(parseInt(idx));
+            })
+        );
+        document.querySelectorAll('.eliminar-grupo').forEach(btn =>
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = btn.dataset.index;
+                if (idx !== null) eliminarGrupo(parseInt(idx));
+            })
+        );
+    }
+
+    // =========================================================================
+    //  RENDERIZADO DE SECCIONES
+    // =========================================================================
     function renderizarGenerador() {
         const b = appData.borrador;
         const editando = appData.editandoIndex !== null;
-        const requiredFields = ['direccion', 'respuesta', 'pregunta1', 'pregunta2', 'pregunta3'];
-        function campoConTache(label, nombre, tipo='text', rows=null, placeholder='', showCopy = false) {
+        const required = ['direccion','respuesta','pregunta1','pregunta2','pregunta3'];
+
+        // Función auxiliar para determinar si un campo tiene duda (solo cuando se edita)
+        function campoEnDuda(nombreCampo) {
+            if (editando && appData.grupos[appData.editandoIndex]) {
+                const grupo = appData.grupos[appData.editandoIndex];
+                return grupo.duda && grupo.duda.activo && grupo.duda.campos.includes(nombreCampo);
+            }
+            return false;
+        }
+
+        function campo(label, nombre, tipo='text', rows=null, placeholder='', showCopy=false) {
             const value = b[nombre] || '';
-            const inputId = nombre;
+            const id = nombre;
             const isTextarea = tipo === 'textarea';
             const isProtected = appData.protectedFields[nombre];
-            const isRequired = requiredFields.includes(nombre);
-            const labelHtml = `<label>${label}${isProtected ? ' <i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.75rem;"></i>' : ''}</label>`;
-            const inputHtml = isTextarea ? `<textarea id="${inputId}" rows="${rows}" placeholder="${escapeHtml(placeholder)}" ${isRequired ? 'class="required-field"' : ''}>${escapeHtml(value)}</textarea>` : `<input type="text" id="${inputId}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${isRequired ? 'class="required-field"' : ''}>`;
-            const copyButton = showCopy ? `<button type="button" class="copy-field-inside" data-field-copy="${nombre}" title="Copiar contenido"><i class="fas fa-copy"></i></button>` : '';
-            return `<div class="input-group">${labelHtml}<div class="input-wrapper">${inputHtml}<button type="button" class="clear-field-inside" data-field="${nombre}" title="Limpiar campo"><i class="fas fa-times-circle"></i></button>${copyButton}</div></div>`;
+            const isRequired = required.includes(nombre);
+            const tieneDuda = campoEnDuda(nombre);
+            const flagIcon = tieneDuda ? '<i class="fas fa-flag duda-flag"></i>' : '';
+            const labelHtml = `<label>${label}${isProtected ? ' <i class="fas fa-shield-alt" style="color:#ff8c42; font-size:0.75rem;"></i>' : ''}${flagIcon}</label>`;
+            const inputHtml = isTextarea
+                ? `<textarea id="${id}" rows="${rows}" placeholder="${escapeHtml(placeholder)}" ${isRequired?'class="required-field"':''}>${escapeHtml(value)}</textarea>`
+                : `<input type="text" id="${id}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${isRequired?'class="required-field"':''}>`;
+            const copyButton = showCopy ? `<button type="button" class="copy-field-inside" data-field-copy="${nombre}" title="Copiar"><i class="fas fa-copy"></i></button>` : '';
+            return `<div class="input-group">${labelHtml}<div class="input-wrapper">${inputHtml}<button type="button" class="clear-field-inside" data-field="${nombre}" title="Limpiar"><i class="fas fa-times-circle"></i></button>${copyButton}</div></div>`;
         }
+
         return `
             <div class="section-card">
-                <h2 class="section-title"><span><i class="fas fa-edit"></i> Nuevo registro de preguntas</span>${editando ? '<span class="edit-badge"><i class="fas fa-pen"></i> Editando registro</span>' : ''}</h2>
+                <h2 class="section-title"><span><i class="fas fa-edit"></i> Nuevo registro</span>${editando ? '<span class="edit-badge"><i class="fas fa-pen"></i> Editando</span>' : ''}</h2>
                 <div class="form-grid">
-                    ${campoConTache('Dirección', 'direccion', 'text', null, 'Clasificación global')}
-                    ${campoConTache('Clasificación', 'clasificacion', 'text', null, 'Clasificación generalizada')}
-                    ${campoConTache('Tema', 'tema', 'text', null, 'Calsificación particular')}
-                    ${campoConTache('Abreviaciones', 'abreviaciones', 'text', null, 'Clasificación contextual')}
-                    <div class="full-width">${campoConTache('Palabras clave', 'palabras_clave', 'text', null, 'Clasificación específica')}</div>
-                    <div class="full-width">${campoConTache('Respuesta principal', 'respuesta', 'textarea', 3, 'Respuesta principal del chatbot', true)}</div>
+                    ${campo('Dirección','direccion','text',null,'Clasificación global')}
+                    ${campo('Clasificación','clasificacion','text',null,'Clasificación generalizada')}
+                    ${campo('Tema','tema','text',null,'Clasificación particular')}
+                    ${campo('Abreviaciones','abreviaciones','text',null,'Clasificación contextual')}
+                    <div class="full-width">${campo('Palabras clave','palabras_clave','text',null,'Clasificación específica')}</div>
+                    <div class="full-width">${campo('Respuesta principal','respuesta','textarea',3,'Respuesta principal',true)}</div>
                 </div>
                 <div class="preguntas-horizontal">
-                    <div class="pregunta-item-form"><label>Pregunta 1 ${appData.protectedFields.pregunta1 ? '<i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.85rem;"></i>' : ''}</label><div class="input-wrapper"><textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${requiredFields.includes('pregunta1') ? 'required-field' : ''}">${escapeHtml(b.pregunta1)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta1"><i class="fas fa-times-circle"></i></button></div></div>
-                    <div class="pregunta-item-form"><label>Pregunta 2 ${appData.protectedFields.pregunta2 ? '<i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.85rem;"></i>' : ''}</label><div class="input-wrapper"><textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${requiredFields.includes('pregunta2') ? 'required-field' : ''}">${escapeHtml(b.pregunta2)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta2"><i class="fas fa-times-circle"></i></button></div></div>
-                    <div class="pregunta-item-form"><label>Pregunta 3 ${appData.protectedFields.pregunta3 ? '<i class="fas fa-shield-alt" style="color: #ff8c42; font-size: 0.85rem;"></i>' : ''}</label><div class="input-wrapper"><textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${requiredFields.includes('pregunta3') ? 'required-field' : ''}">${escapeHtml(b.pregunta3)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta3"><i class="fas fa-times-circle"></i></button></div></div>
+                    <div class="pregunta-item-form">
+                        <label>Pregunta 1 ${appData.protectedFields.pregunta1?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta1')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
+                        <div class="input-wrapper"><textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${required.includes('pregunta1')?'required-field':''}">${escapeHtml(b.pregunta1)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta1"><i class="fas fa-times-circle"></i></button></div>
+                    </div>
+                    <div class="pregunta-item-form">
+                        <label>Pregunta 2 ${appData.protectedFields.pregunta2?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta2')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
+                        <div class="input-wrapper"><textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${required.includes('pregunta2')?'required-field':''}">${escapeHtml(b.pregunta2)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta2"><i class="fas fa-times-circle"></i></button></div>
+                    </div>
+                    <div class="pregunta-item-form">
+                        <label>Pregunta 3 ${appData.protectedFields.pregunta3?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta3')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
+                        <div class="input-wrapper"><textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${required.includes('pregunta3')?'required-field':''}">${escapeHtml(b.pregunta3)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta3"><i class="fas fa-times-circle"></i></button></div>
+                    </div>
                 </div>
                 <div class="flex-buttons">
-                    <button class="btn-sm" id="guardarGrupoBtn"><i class="fas fa-save"></i> ${editando ? 'Actualizar registro' : 'Guardar registro'}</button>
-                    <button class="btn-sm" id="limpiarFormularioBtn"><i class="fas fa-eraser"></i> Limpiar formulario</button>
-                    ${editando ? '<button class="btn-sm" id="cancelarEdicionBtn"><i class="fas fa-times"></i> Cancelar edición</button>' : ''}
+                    <button class="btn-sm" id="guardarGrupoBtn"><i class="fas fa-save"></i> ${editando?'Actualizar':'Guardar'}</button>
+                    <button class="btn-sm" id="limpiarFormularioBtn"><i class="fas fa-eraser"></i> Limpiar</button>
+                    ${editando ? '<button class="btn-sm" id="cancelarEdicionBtn"><i class="fas fa-times"></i> Cancelar</button>' : ''}
                 </div>
             </div>
         `;
     }
 
     function renderizarRegistros() {
-        const grupos = appData.grupos;
-        if (!grupos.length) return `<div class="section-card"><h2 class="section-title"><i class="fas fa-database"></i> Registros guardados</h2><div class="stats-badges"></div><div class="empty-state">No hay grupos. Crea uno en "Generador".</div></div>`;
+        if (!appData.grupos.length) {
+            return `<div class="section-card"><h2 class="section-title"><i class="fas fa-database"></i> Registros guardados</h2><div class="stats-badges"></div><div class="empty-state">No hay grupos. Crea uno en "Generador".</div></div>`;
+        }
         return `<div class="section-card" id="registrosCard"><h2 class="section-title"><i class="fas fa-database"></i> Registros guardados</h2><div class="stats-badges"></div><div id="registrosDynamicContent"></div></div>`;
     }
 
@@ -1258,26 +1605,66 @@
                     });
                 }
             });
-            document.querySelectorAll('.clear-field-inside').forEach(btn => { btn.addEventListener('click', (e) => { const field = btn.getAttribute('data-field'); if (field) { const inputElement = document.getElementById(field); limpiarCampo(field, true, inputElement); } }); });
-            document.querySelectorAll('.copy-field-inside').forEach(btn => { btn.addEventListener('click', (e) => { const field = btn.getAttribute('data-field-copy'); if (field) { const inputElement = document.getElementById(field); if (inputElement) { navigator.clipboard.writeText(inputElement.value).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); } } }); });
+            document.querySelectorAll('.clear-field-inside').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const field = btn.dataset.field;
+                    if (field) {
+                        const input = document.getElementById(field);
+                        limpiarCampo(field, true, input);
+                    }
+                });
+            });
+            document.querySelectorAll('.copy-field-inside').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const field = btn.dataset.fieldCopy;
+                    if (field) {
+                        const input = document.getElementById(field);
+                        if (input) {
+                            navigator.clipboard.writeText(input.value).then(() => {
+                                const orig = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-check"></i>';
+                                setTimeout(() => btn.innerHTML = orig, 1000);
+                            }).catch(console.error);
+                        }
+                    }
+                });
+            });
             document.getElementById('guardarGrupoBtn').addEventListener('click', guardarGrupo);
             document.getElementById('limpiarFormularioBtn').addEventListener('click', limpiarFormularioManual);
             const cancelBtn = document.getElementById('cancelarEdicionBtn');
-            if (cancelBtn) cancelBtn.addEventListener('click', () => { resetearModoEdicion(); limpiarFormularioManual(); renderizarSeccion('generador'); });
+            if (cancelBtn) cancelBtn.addEventListener('click', () => {
+                resetearModoEdicion();
+                limpiarFormularioManual();
+                renderizarSeccion('generador');
+            });
         } else if (seccion === "registros") {
             contenidoDinamico.innerHTML = renderizarRegistros();
             registrosDynamicContainer = document.getElementById('registrosDynamicContent');
             if (registrosDynamicContainer) aplicarFiltrosYRenderizar();
         }
-        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.classList.remove('active'); if (link.getAttribute('data-section') === seccion) link.classList.add('active'); });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.classList.toggle('active', link.dataset.section === seccion);
+        });
         renderCheckboxes();
         actualizarVisibilidadEscudo();
     }
 
     function initNavigation() {
-        document.querySelectorAll('.sidebar-nav a').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const section = link.getAttribute('data-section'); if (section) { currentSection = section; renderizarSeccion(section); } }); });
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                if (section) {
+                    currentSection = section;
+                    renderizarSeccion(section);
+                }
+            });
+        });
     }
 
+    // =========================================================================
+    //  SISTEMA DE ARCHIVOS LOCAL
+    // =========================================================================
     let fsDirectoryHandle = null;
     let fsFileName = null;
     const FS_STORE_NAME = 'fileSystemHandles';
@@ -1286,7 +1673,7 @@
     function getFsFileName() {
         if (fsFileName) return fsFileName;
         const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
+        const pad = n => String(n).padStart(2,'0');
         const fecha = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
         fsFileName = `ChatBot_bd_${fecha}.json`;
         return fsFileName;
@@ -1382,11 +1769,9 @@
                 banner.innerHTML = `
                     <span><i class="fas fa-folder-open"></i> Carpeta vinculada anteriormente: ${handle.name || 'carpeta'}</span>
                     <button id="btnReconectar">Reconectar</button>
-                    <button id="btnDesvincular" style="background: #555;">✖</button>
+                    <button id="btnDesvincular" style="background:#555;">✖</button>
                 `;
-                const btnReconectar = document.getElementById('btnReconectar');
-                const btnDesvincular = document.getElementById('btnDesvincular');
-                if (btnReconectar) btnReconectar.onclick = async () => {
+                document.getElementById('btnReconectar').onclick = async () => {
                     if (await verificarPermisosHandle(handle)) {
                         fsDirectoryHandle = handle;
                         await guardarHandleIndexedDB(handle);
@@ -1398,9 +1783,7 @@
                         alert('No se pudo reconectar. Vuelve a vincular la carpeta manualmente.');
                     }
                 };
-                if (btnDesvincular) btnDesvincular.onclick = () => {
-                    banner.style.display = 'none';
-                };
+                document.getElementById('btnDesvincular').onclick = () => { banner.style.display = 'none'; };
             }
             return false;
         }
@@ -1412,7 +1795,7 @@
 
     async function vincularCarpeta() {
         if (!('showDirectoryPicker' in window)) {
-            alert('Tu navegador no soporta File System Access API.\nUsa Chrome o Edge actualizados.');
+            alert('Tu navegador no soporta File System Access API. Usa Chrome o Edge actualizados.');
             return;
         }
         try {
@@ -1422,8 +1805,7 @@
             getFsFileName();
             actualizarFsStatusUI('active', fsFileName);
             await escribirArchivoLocal();
-            const banner = document.getElementById('reconnectBanner');
-            if (banner) banner.style.display = 'none';
+            document.getElementById('reconnectBanner').style.display = 'none';
         } catch (err) {
             if (err.name !== 'AbortError') {
                 actualizarFsStatusUI('error');
@@ -1446,7 +1828,7 @@
                     if (!Array.isArray(contenido)) throw new Error('El archivo no contiene un array válido.');
                     for (let item of contenido) {
                         if (typeof item !== 'object' || !item.direccion || !item.respuesta || !Array.isArray(item.preguntas) || item.preguntas.length !== 3) {
-                            throw new Error('El archivo no tiene la estructura esperada (objetos con direccion, respuesta y preguntas[3]).');
+                            throw new Error('Estructura incorrecta (direccion, respuesta y preguntas[3] requeridos).');
                         }
                         if (item.duda === undefined) item.duda = { activo: false, campos: [] };
                         else if (typeof item.duda === 'boolean') item.duda = { activo: item.duda, campos: [] };
@@ -1457,10 +1839,8 @@
                     limpiarFormularioRespetandoProteccion();
                     resetearModoEdicion();
                     guardarLocalStorage();
-                    if (fsDirectoryHandle) {
-                        await escribirArchivoLocal();
-                    }
-                    alert(`Respaldo cargado correctamente. ${contenido.length} grupos restaurados.`);
+                    if (fsDirectoryHandle) await escribirArchivoLocal();
+                    alert(`Respaldo cargado. ${contenido.length} grupos restaurados.`);
                     renderizarSeccion(currentSection);
                 } catch (error) {
                     alert('Error al cargar el respaldo: ' + error.message);
@@ -1487,10 +1867,10 @@
         if (hayCarpeta) {
             container.innerHTML = `
                 <button id="desvincularCarpetaBtn"><i class="fas fa-unlink"></i> <span>Desvincular carpeta</span></button>
-                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> <span>Exportar a Excel</span></button>
+                <button id="exportarExcelBtn" ${!hayGrupos?'disabled style="opacity:0.4;cursor:not-allowed;"':''}><i class="fas fa-file-excel"></i> <span>Exportar a Excel</span></button>
             `;
             document.getElementById('desvincularCarpetaBtn').addEventListener('click', async () => {
-                if (!confirm('¿Desvincular la carpeta local? El guardado automático en disco se desactivará.')) return;
+                if (!confirm('¿Desvincular la carpeta local? El guardado automático se desactivará.')) return;
                 fsDirectoryHandle = null;
                 fsFileName = null;
                 const request = indexedDB.open(FS_DB_NAME, 1);
@@ -1502,15 +1882,13 @@
                 actualizarFsStatusUI('inactive');
                 renderizarSidebarActions();
             });
-            if (hayGrupos) {
-                document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
-            }
+            if (hayGrupos) document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
         } else {
             container.innerHTML = `
                 <button id="vincularCarpetaBtn"><i class="fas fa-folder-open"></i> <span>Vincular carpeta local</span></button>
                 <button id="cargarRespaldoBtn"><i class="fas fa-upload"></i> <span>Cargar respaldo</span></button>
                 <button id="limpiarHistorialBtn"><i class="fas fa-trash-alt"></i> <span>Restablecer historial</span></button>
-                <button id="exportarExcelBtn" ${!hayGrupos ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-file-excel"></i> <span>Exportar a Excel</span></button>
+                <button id="exportarExcelBtn" ${!hayGrupos?'disabled style="opacity:0.4;cursor:not-allowed;"':''}><i class="fas fa-file-excel"></i> <span>Exportar a Excel</span></button>
             `;
             document.getElementById('vincularCarpetaBtn').addEventListener('click', async () => {
                 await vincularCarpeta();
@@ -1518,17 +1896,13 @@
             });
             document.getElementById('cargarRespaldoBtn').addEventListener('click', cargarRespaldo);
             document.getElementById('limpiarHistorialBtn').addEventListener('click', limpiarTodoHistorial);
-            if (hayGrupos) {
-                document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
-            }
+            if (hayGrupos) document.getElementById('exportarExcelBtn').addEventListener('click', exportarChatbotExcel);
         }
     }
 
     function initGlobalEvents() {
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
-        const fixBtn = document.getElementById('fixSidebarBtn');
-        if (fixBtn) fixBtn.addEventListener('click', toggleSidebarFixed);
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        document.getElementById('fixSidebarBtn').addEventListener('click', toggleSidebarFixed);
     }
 
     async function iniciar() {
