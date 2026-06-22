@@ -374,6 +374,15 @@
         }
         body.light .folder-location { color: #6c757d; }
 
+        /* Estilo para el marcador de duda */
+        .grupo-item.duda {
+            background: rgba(255, 0, 0, 0.12) !important;
+            border-left: 4px solid #ff4444 !important;
+        }
+        body.light .grupo-item.duda {
+            background: rgba(255, 0, 0, 0.07) !important;
+        }
+
         .main-content {
             flex: 1;
             margin-left: 60px;
@@ -643,7 +652,10 @@
                 const parsed = JSON.parse(saved);
                 if (parsed.grupos) {
                     appData.grupos = parsed.grupos;
-                    appData.grupos.forEach(g => { if (g.validado === undefined) g.validado = false; });
+                    appData.grupos.forEach(g => {
+                        if (g.validado === undefined) g.validado = false;
+                        if (g.duda === undefined) g.duda = false;
+                    });
                 }
                 if (parsed.borrador) appData.borrador = parsed.borrador;
                 if (parsed.editandoIndex !== undefined) appData.editandoIndex = parsed.editandoIndex;
@@ -702,11 +714,13 @@
             palabras_clave: palabrasClave,
             abreviaciones: abreviaciones,
             preguntas: [b.pregunta1.trim(), b.pregunta2.trim(), b.pregunta3.trim()],
-            validado: false
+            validado: false,
+            duda: false
         };
         if (appData.editandoIndex !== null) {
             if (confirm("¿Actualizar este registro?")) {
                 nuevoGrupo.validado = appData.grupos[appData.editandoIndex].validado || false;
+                nuevoGrupo.duda = appData.grupos[appData.editandoIndex].duda || false;
                 appData.grupos[appData.editandoIndex] = nuevoGrupo;
                 resetearModoEdicion();
                 limpiarFormularioRespetandoProteccion();
@@ -890,8 +904,9 @@
             filtered.forEach(grupo => {
                 const idx = appData.grupos.findIndex(g => g === grupo);
                 const validado = grupo.validado ? 'validado' : '';
+                const dudaClass = grupo.duda ? 'duda' : '';
                 gruposHtml += `
-                    <div class="grupo-item" data-grupo-idx="${idx}">
+                    <div class="grupo-item ${dudaClass}" data-grupo-idx="${idx}">
                         <div class="grupo-header">
                             <i class="fas fa-chevron-right toggle-icon" style="cursor:pointer;"></i>
                             <div class="action-buttons" style="display: flex; gap: 0.3rem;">
@@ -899,6 +914,9 @@
                                 <button class="btn-icon mover-down" data-index="${idx}" title="Mover abajo"><i class="fas fa-arrow-down"></i></button>
                                 <button class="btn-icon toggle-validado" data-idx="${idx}" title="${grupo.validado ? 'Desmarcar como confirmado' : 'Marcar como confirmado'}">
                                     <i class="fas ${grupo.validado ? 'fa-times-circle' : 'fa-check-circle'}"></i>
+                                </button>
+                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="Marcar/desmarcar como duda">
+                                    <i class="fas fa-flag" style="color: ${grupo.duda ? '#ff4444' : '#aaa'};"></i>
                                 </button>
                                 <button class="btn-icon editar-grupo" data-index="${idx}" title="Editar"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon eliminar-grupo" data-index="${idx}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
@@ -944,8 +962,32 @@
         document.querySelectorAll('.mover-down').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-index')); moverGrupo(idx, 'down'); }));
         document.querySelectorAll('.copy-respuesta-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const texto = btn.getAttribute('data-respuesta'); if (texto) navigator.clipboard.writeText(texto).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); }));
         document.querySelectorAll('.toggle-validado').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-idx')); if (!isNaN(idx) && appData.grupos[idx]) { const grupo = appData.grupos[idx]; grupo.validado = !grupo.validado; guardarLocalStorage(); const grupoDiv = btn.closest('.grupo-item'); if (grupoDiv) { const badge = grupoDiv.querySelector('.clasificacion-badge'); if (badge) { if (grupo.validado) badge.classList.add('validado'); else badge.classList.remove('validado'); } const icon = btn.querySelector('i'); if (icon) { if (grupo.validado) { icon.classList.remove('fa-check-circle'); icon.classList.add('fa-times-circle'); btn.setAttribute('title', 'Desmarcar como confirmado'); } else { icon.classList.remove('fa-times-circle'); icon.classList.add('fa-check-circle'); btn.setAttribute('title', 'Marcar como confirmado'); } } } } }));
+        
+        // Evento para el botón de duda
+        document.querySelectorAll('.toggle-duda').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (!isNaN(idx) && appData.grupos[idx]) {
+                    const grupo = appData.grupos[idx];
+                    grupo.duda = !grupo.duda;
+                    guardarLocalStorage();
+                    // Actualizar UI
+                    const grupoDiv = btn.closest('.grupo-item');
+                    if (grupoDiv) {
+                        if (grupo.duda) grupoDiv.classList.add('duda');
+                        else grupoDiv.classList.remove('duda');
+                    }
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.style.color = grupo.duda ? '#ff4444' : '#aaa';
+                    }
+                }
+            });
+        });
+
         document.querySelectorAll('.copy-pregunta-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const texto = btn.getAttribute('data-pregunta'); if (texto) navigator.clipboard.writeText(texto).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); }));
-        document.querySelectorAll('.grupo-item').forEach(item => { const toggleIcon = item.querySelector('.toggle-icon'); const detailsDiv = item.querySelector('.grupo-details'); if (toggleIcon && detailsDiv) { const setState = (expanded) => { if (expanded) { detailsDiv.style.display = 'block'; toggleIcon.classList.remove('fa-chevron-right'); toggleIcon.classList.add('fa-chevron-down'); } else { detailsDiv.style.display = 'none'; toggleIcon.classList.remove('fa-chevron-down'); toggleIcon.classList.add('fa-chevron-right'); } }; setState(false); toggleIcon.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); item.addEventListener('click', (e) => { if (e.target.closest('.editar-grupo') || e.target.closest('.eliminar-grupo') || e.target.closest('.toggle-icon') || e.target.closest('.toggle-validado') || e.target.closest('.copy-pregunta-btn') || e.target.closest('.copy-respuesta-btn') || e.target.closest('.mover-up') || e.target.closest('.mover-down')) return; const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); } });
+        document.querySelectorAll('.grupo-item').forEach(item => { const toggleIcon = item.querySelector('.toggle-icon'); const detailsDiv = item.querySelector('.grupo-details'); if (toggleIcon && detailsDiv) { const setState = (expanded) => { if (expanded) { detailsDiv.style.display = 'block'; toggleIcon.classList.remove('fa-chevron-right'); toggleIcon.classList.add('fa-chevron-down'); } else { detailsDiv.style.display = 'none'; toggleIcon.classList.remove('fa-chevron-down'); toggleIcon.classList.add('fa-chevron-right'); } }; setState(false); toggleIcon.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); item.addEventListener('click', (e) => { if (e.target.closest('.editar-grupo') || e.target.closest('.eliminar-grupo') || e.target.closest('.toggle-icon') || e.target.closest('.toggle-validado') || e.target.closest('.toggle-duda') || e.target.closest('.copy-pregunta-btn') || e.target.closest('.copy-respuesta-btn') || e.target.closest('.mover-up') || e.target.closest('.mover-down')) return; const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); } });
         document.querySelectorAll('.editar-grupo').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) editarGrupo(parseInt(idx)); }));
         document.querySelectorAll('.eliminar-grupo').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) eliminarGrupo(parseInt(idx)); }));
     }
@@ -1208,9 +1250,11 @@
                         if (typeof item !== 'object' || !item.direccion || !item.respuesta || !Array.isArray(item.preguntas) || item.preguntas.length !== 3) {
                             throw new Error('El archivo no tiene la estructura esperada (objetos con direccion, respuesta y preguntas[3]).');
                         }
+                        // Asegurar campos nuevos
+                        if (item.duda === undefined) item.duda = false;
+                        if (item.validado === undefined) item.validado = false;
                     }
                     appData.grupos = contenido;
-                    appData.grupos.forEach(g => { if (g.validado === undefined) g.validado = false; });
                     limpiarFormularioRespetandoProteccion();
                     resetearModoEdicion();
                     guardarLocalStorage();
