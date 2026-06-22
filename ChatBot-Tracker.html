@@ -383,6 +383,110 @@
             background: rgba(255, 0, 0, 0.07) !important;
         }
 
+        /* Modal de selección de campos - Mejorado */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #1a1a1e;
+            border: 1px solid #2e2e32;
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            max-width: 520px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        body.light .modal-box {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .modal-box h3 {
+            color: #ff8c42;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Comfortaa', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-bottom: 1px solid #2e2e32;
+            padding-bottom: 0.8rem;
+        }
+        body.light .modal-box h3 { border-bottom-color: #dee2e6; }
+
+        .modal-field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem 1.2rem;
+            margin: 0 0 1.5rem 0;
+            padding: 0.2rem 0;
+        }
+        .modal-field-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            font-family: 'Comfortaa', sans-serif;
+            cursor: pointer;
+            padding: 0.2rem 0;
+            transition: color 0.2s;
+        }
+        body.dark .modal-field-group label { color: #d0d0d0; }
+        body.light .modal-field-group label { color: #333; }
+        .modal-field-group label:hover { color: #ff8c42; }
+        .modal-field-group input[type="checkbox"] {
+            accent-color: #ff8c42;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            border-top: 1px solid #2e2e32;
+            padding-top: 1.2rem;
+        }
+        body.light .modal-actions { border-top-color: #dee2e6; }
+        .modal-actions button {
+            padding: 0.6rem 2rem;
+            border-radius: 10px;
+            border: 1px solid;
+            cursor: pointer;
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .modal-actions .btn-confirm {
+            background: #ff8c42;
+            border-color: #ff8c42;
+            color: #0b0b0e;
+        }
+        .modal-actions .btn-confirm:hover { background: #ffb347; transform: translateY(-1px); }
+        .modal-actions .btn-cancel {
+            background: transparent;
+            border-color: #555;
+            color: #aaa;
+        }
+        .modal-actions .btn-cancel:hover { background: #2a2a2e; color: #fff; }
+        body.light .modal-actions .btn-cancel { color: #555; border-color: #ced4da; }
+        body.light .modal-actions .btn-cancel:hover { background: #e9ecef; color: #212529; }
+
         .main-content {
             flex: 1;
             margin-left: 60px;
@@ -488,6 +592,7 @@
         .chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.2rem; }
         .chip { background: #ff8c42; color: #0b0b0e; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; display: inline-block; font-family: 'Comfortaa', sans-serif; }
         .chip-text { background: transparent; color: inherit; font-size: 0.85rem; }
+        .chip-text .fa-flag { margin-left: 0.4rem; color: #ff4444; font-size: 0.7rem; }
         .preguntas-list { margin-top: 1rem; }
         .pregunta-item-chat { margin-bottom: 0.8rem; padding: 0.6rem 0.8rem; border-radius: 8px; display: flex; align-items: center; gap: 0.8rem; border: 1px solid; flex-wrap: wrap; font-family: 'Comfortaa', sans-serif; }
         body.dark .pregunta-item-chat { background: #0e0e10; border-color: #2a2a2e; color: #ccc; }
@@ -582,6 +687,21 @@
         <div id="contenidoDinamico"></div>
     </div>
 </div>
+
+<!-- Modal para seleccionar campos de duda (mejorado) -->
+<div class="modal-overlay" id="dudaModal">
+    <div class="modal-box">
+        <h3><i class="fas fa-flag"></i> Selecciona los campos con duda</h3>
+        <div class="modal-field-group" id="dudaCamposContainer">
+            <!-- Generado dinámicamente -->
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="modalCancelBtn">Cancelar</button>
+            <button class="btn-confirm" id="modalConfirmBtn">Aceptar</button>
+        </div>
+    </div>
+</div>
+
 <div id="reconnectBanner" class="reconnect-banner" style="display: none;"></div>
 
 <script>
@@ -654,7 +774,17 @@
                     appData.grupos = parsed.grupos;
                     appData.grupos.forEach(g => {
                         if (g.validado === undefined) g.validado = false;
-                        if (g.duda === undefined) g.duda = false;
+                        // Convertir duda antigua (booleano) a nuevo formato
+                        if (g.duda === undefined) {
+                            g.duda = { activo: false, campos: [] };
+                        } else if (typeof g.duda === 'boolean') {
+                            g.duda = { activo: g.duda, campos: [] };
+                        }
+                        // Asegurar que existe el objeto
+                        if (!g.duda || typeof g.duda !== 'object') {
+                            g.duda = { activo: false, campos: [] };
+                        }
+                        if (!Array.isArray(g.duda.campos)) g.duda.campos = [];
                     });
                 }
                 if (parsed.borrador) appData.borrador = parsed.borrador;
@@ -715,12 +845,13 @@
             abreviaciones: abreviaciones,
             preguntas: [b.pregunta1.trim(), b.pregunta2.trim(), b.pregunta3.trim()],
             validado: false,
-            duda: false
+            duda: { activo: false, campos: [] }
         };
         if (appData.editandoIndex !== null) {
             if (confirm("¿Actualizar este registro?")) {
-                nuevoGrupo.validado = appData.grupos[appData.editandoIndex].validado || false;
-                nuevoGrupo.duda = appData.grupos[appData.editandoIndex].duda || false;
+                const prev = appData.grupos[appData.editandoIndex];
+                nuevoGrupo.validado = prev.validado || false;
+                nuevoGrupo.duda = prev.duda || { activo: false, campos: [] };
                 appData.grupos[appData.editandoIndex] = nuevoGrupo;
                 resetearModoEdicion();
                 limpiarFormularioRespetandoProteccion();
@@ -853,6 +984,60 @@
         statsContainer.innerHTML = `<div class="stat-badge">Total: ${total}</div><div class="stat-badge">Filtrados: ${filtrados}</div>`;
     }
 
+    // --- Modal de Duda (mejorado) ---
+    let modalTargetIndex = null;
+
+    function mostrarModalDuda(index) {
+        modalTargetIndex = index;
+        const grupo = appData.grupos[index];
+        if (!grupo) return;
+        const campos = [
+            { id: 'direccion', label: 'Dirección' },
+            { id: 'respuesta', label: 'Respuesta' },
+            { id: 'clasificacion', label: 'Clasificación' },
+            { id: 'tema', label: 'Tema' },
+            { id: 'palabras_clave', label: 'Palabras clave' },
+            { id: 'abreviaciones', label: 'Abreviaciones' },
+            { id: 'pregunta1', label: 'Pregunta 1' },
+            { id: 'pregunta2', label: 'Pregunta 2' },
+            { id: 'pregunta3', label: 'Pregunta 3' }
+        ];
+        const container = document.getElementById('dudaCamposContainer');
+        container.innerHTML = campos.map(c => `
+            <label>
+                <input type="checkbox" value="${c.id}" ${grupo.duda.campos.includes(c.id) ? 'checked' : ''}>
+                ${c.label}
+            </label>
+        `).join('');
+        document.getElementById('dudaModal').classList.add('active');
+    }
+
+    function cerrarModalDuda() {
+        document.getElementById('dudaModal').classList.remove('active');
+        modalTargetIndex = null;
+    }
+
+    function confirmarDuda() {
+        if (modalTargetIndex === null) return;
+        const grupo = appData.grupos[modalTargetIndex];
+        if (!grupo) return;
+        const checkboxes = document.querySelectorAll('#dudaCamposContainer input[type="checkbox"]:checked');
+        const camposSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+        grupo.duda.activo = camposSeleccionados.length > 0;
+        grupo.duda.campos = camposSeleccionados;
+        guardarLocalStorage();
+        cerrarModalDuda();
+        renderizarSeccion(currentSection);
+    }
+
+    document.getElementById('modalConfirmBtn').addEventListener('click', confirmarDuda);
+    document.getElementById('modalCancelBtn').addEventListener('click', cerrarModalDuda);
+    document.getElementById('dudaModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) cerrarModalDuda();
+    });
+
+    // --- Fin Modal ---
+
     function aplicarFiltrosYRenderizar() {
         if (!registrosDynamicContainer) return;
         const grupos = appData.grupos;
@@ -904,7 +1089,9 @@
             filtered.forEach(grupo => {
                 const idx = appData.grupos.findIndex(g => g === grupo);
                 const validado = grupo.validado ? 'validado' : '';
-                const dudaClass = grupo.duda ? 'duda' : '';
+                const dudaActiva = grupo.duda && grupo.duda.activo;
+                const dudaClass = dudaActiva ? 'duda' : '';
+                const flagColor = dudaActiva ? '#ff4444' : '#aaa';
                 gruposHtml += `
                     <div class="grupo-item ${dudaClass}" data-grupo-idx="${idx}">
                         <div class="grupo-header">
@@ -915,8 +1102,8 @@
                                 <button class="btn-icon toggle-validado" data-idx="${idx}" title="${grupo.validado ? 'Desmarcar como confirmado' : 'Marcar como confirmado'}">
                                     <i class="fas ${grupo.validado ? 'fa-times-circle' : 'fa-check-circle'}"></i>
                                 </button>
-                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="Marcar/desmarcar como duda">
-                                    <i class="fas fa-flag" style="color: ${grupo.duda ? '#ff4444' : '#aaa'};"></i>
+                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="Marcar/desmarcar campos con duda">
+                                    <i class="fas fa-flag" style="color: ${flagColor};"></i>
                                 </button>
                                 <button class="btn-icon editar-grupo" data-index="${idx}" title="Editar"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon eliminar-grupo" data-index="${idx}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
@@ -929,17 +1116,18 @@
                         </div>
                         <div class="grupo-details" style="display: none;">
                             <div class="meta-chips">
-                                <div class="chip-group"><strong>Dirección</strong><div class="chip-list"><span class="chip-text">${escapeHtml(grupo.direccion) || '—'}</span></div></div>
-                                <div class="chip-group"><strong>Clasificación</strong><div class="chip-list"><span class="chip-text">${escapeHtml(grupo.clasificacion) || '—'}</span></div></div>
-                                <div class="chip-group"><strong>Palabras clave</strong><div class="chip-list">${grupo.palabras_clave.length ? grupo.palabras_clave.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('') : '<span class="chip-text">—</span>'}</div></div>
-                                <div class="chip-group"><strong>Abreviaciones</strong><div class="chip-list">${grupo.abreviaciones.length ? grupo.abreviaciones.map(a => `<span class="chip">${escapeHtml(a)}</span>`).join('') : '<span class="chip-text">—</span>'}</div></div>
+                                ${renderChip('Dirección', grupo.direccion, grupo.duda, 'direccion')}
+                                ${renderChip('Clasificación', grupo.clasificacion, grupo.duda, 'clasificacion')}
+                                ${renderChip('Tema', grupo.tema, grupo.duda, 'tema')}
+                                ${renderChip('Palabras clave', grupo.palabras_clave.join(', '), grupo.duda, 'palabras_clave')}
+                                ${renderChip('Abreviaciones', grupo.abreviaciones.join(', '), grupo.duda, 'abreviaciones')}
                             </div>
                             <div class="preguntas-list">
                                 <strong><i class="fas fa-list"></i> Preguntas asociadas:</strong>
                                 <div style="margin-top: 0.5rem;">
-                                    <div class="pregunta-item-chat"><span class="pregunta-tipo-badge">Crítica</span><span class="pregunta-texto">${escapeHtml(grupo.preguntas[0])}</span><button class="copy-pregunta-btn" data-pregunta="${escapeHtml(grupo.preguntas[0])}"><i class="fas fa-copy"></i></button></div>
-                                    <div class="pregunta-item-chat"><span class="pregunta-tipo-badge">Inferencial</span><span class="pregunta-texto">${escapeHtml(grupo.preguntas[1])}</span><button class="copy-pregunta-btn" data-pregunta="${escapeHtml(grupo.preguntas[1])}"><i class="fas fa-copy"></i></button></div>
-                                    <div class="pregunta-item-chat"><span class="pregunta-tipo-badge">Literal</span><span class="pregunta-texto">${escapeHtml(grupo.preguntas[2])}</span><button class="copy-pregunta-btn" data-pregunta="${escapeHtml(grupo.preguntas[2])}"><i class="fas fa-copy"></i></button></div>
+                                    ${renderPreguntaItem('Crítica', grupo.preguntas[0], grupo.duda, 'pregunta1')}
+                                    ${renderPreguntaItem('Inferencial', grupo.preguntas[1], grupo.duda, 'pregunta2')}
+                                    ${renderPreguntaItem('Literal', grupo.preguntas[2], grupo.duda, 'pregunta3')}
                                 </div>
                             </div>
                         </div>
@@ -957,35 +1145,45 @@
         if (clasifSelect) clasifSelect.addEventListener('change', (e) => { currentClasificacionFilter = e.target.value; aplicarFiltrosYRenderizar(); });
     }
 
+    function renderChip(label, value, dudaObj, fieldId) {
+        const tieneDuda = dudaObj && dudaObj.activo && dudaObj.campos.includes(fieldId);
+        const flagIcon = tieneDuda ? ' <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;"></i>' : '';
+        return `
+            <div class="chip-group">
+                <strong>${label}</strong>
+                <div class="chip-list">
+                    <span class="chip-text">${escapeHtml(value) || '—'}${flagIcon}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderPreguntaItem(tipo, texto, dudaObj, fieldId) {
+        const tieneDuda = dudaObj && dudaObj.activo && dudaObj.campos.includes(fieldId);
+        const flagIcon = tieneDuda ? ' <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;"></i>' : '';
+        return `
+            <div class="pregunta-item-chat">
+                <span class="pregunta-tipo-badge">${tipo}</span>
+                <span class="pregunta-texto">${escapeHtml(texto)}${flagIcon}</span>
+                <button class="copy-pregunta-btn" data-pregunta="${escapeHtml(texto)}"><i class="fas fa-copy"></i></button>
+            </div>
+        `;
+    }
+
     function attachGruposEvents() {
         document.querySelectorAll('.mover-up').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-index')); moverGrupo(idx, 'up'); }));
         document.querySelectorAll('.mover-down').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-index')); moverGrupo(idx, 'down'); }));
         document.querySelectorAll('.copy-respuesta-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const texto = btn.getAttribute('data-respuesta'); if (texto) navigator.clipboard.writeText(texto).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); }));
         document.querySelectorAll('.toggle-validado').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.getAttribute('data-idx')); if (!isNaN(idx) && appData.grupos[idx]) { const grupo = appData.grupos[idx]; grupo.validado = !grupo.validado; guardarLocalStorage(); const grupoDiv = btn.closest('.grupo-item'); if (grupoDiv) { const badge = grupoDiv.querySelector('.clasificacion-badge'); if (badge) { if (grupo.validado) badge.classList.add('validado'); else badge.classList.remove('validado'); } const icon = btn.querySelector('i'); if (icon) { if (grupo.validado) { icon.classList.remove('fa-check-circle'); icon.classList.add('fa-times-circle'); btn.setAttribute('title', 'Desmarcar como confirmado'); } else { icon.classList.remove('fa-times-circle'); icon.classList.add('fa-check-circle'); btn.setAttribute('title', 'Marcar como confirmado'); } } } } }));
-        
-        // Evento para el botón de duda
         document.querySelectorAll('.toggle-duda').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const idx = parseInt(btn.getAttribute('data-idx'));
                 if (!isNaN(idx) && appData.grupos[idx]) {
-                    const grupo = appData.grupos[idx];
-                    grupo.duda = !grupo.duda;
-                    guardarLocalStorage();
-                    // Actualizar UI
-                    const grupoDiv = btn.closest('.grupo-item');
-                    if (grupoDiv) {
-                        if (grupo.duda) grupoDiv.classList.add('duda');
-                        else grupoDiv.classList.remove('duda');
-                    }
-                    const icon = btn.querySelector('i');
-                    if (icon) {
-                        icon.style.color = grupo.duda ? '#ff4444' : '#aaa';
-                    }
+                    mostrarModalDuda(idx);
                 }
             });
         });
-
         document.querySelectorAll('.copy-pregunta-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const texto = btn.getAttribute('data-pregunta'); if (texto) navigator.clipboard.writeText(texto).then(() => { const originalIcon = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => { btn.innerHTML = originalIcon; }, 1000); }).catch(err => console.error('Error al copiar: ', err)); }));
         document.querySelectorAll('.grupo-item').forEach(item => { const toggleIcon = item.querySelector('.toggle-icon'); const detailsDiv = item.querySelector('.grupo-details'); if (toggleIcon && detailsDiv) { const setState = (expanded) => { if (expanded) { detailsDiv.style.display = 'block'; toggleIcon.classList.remove('fa-chevron-right'); toggleIcon.classList.add('fa-chevron-down'); } else { detailsDiv.style.display = 'none'; toggleIcon.classList.remove('fa-chevron-down'); toggleIcon.classList.add('fa-chevron-right'); } }; setState(false); toggleIcon.addEventListener('click', (e) => { e.stopPropagation(); const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); item.addEventListener('click', (e) => { if (e.target.closest('.editar-grupo') || e.target.closest('.eliminar-grupo') || e.target.closest('.toggle-icon') || e.target.closest('.toggle-validado') || e.target.closest('.toggle-duda') || e.target.closest('.copy-pregunta-btn') || e.target.closest('.copy-respuesta-btn') || e.target.closest('.mover-up') || e.target.closest('.mover-down')) return; const isExpanded = detailsDiv.style.display === 'block'; setState(!isExpanded); }); } });
         document.querySelectorAll('.editar-grupo').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = btn.getAttribute('data-index'); if (idx !== null) editarGrupo(parseInt(idx)); }));
@@ -1250,8 +1448,9 @@
                         if (typeof item !== 'object' || !item.direccion || !item.respuesta || !Array.isArray(item.preguntas) || item.preguntas.length !== 3) {
                             throw new Error('El archivo no tiene la estructura esperada (objetos con direccion, respuesta y preguntas[3]).');
                         }
-                        // Asegurar campos nuevos
-                        if (item.duda === undefined) item.duda = false;
+                        if (item.duda === undefined) item.duda = { activo: false, campos: [] };
+                        else if (typeof item.duda === 'boolean') item.duda = { activo: item.duda, campos: [] };
+                        if (!Array.isArray(item.duda.campos)) item.duda.campos = [];
                         if (item.validado === undefined) item.validado = false;
                     }
                     appData.grupos = contenido;
