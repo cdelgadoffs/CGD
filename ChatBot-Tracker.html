@@ -1353,8 +1353,15 @@
         `;
     }
 
+    function renderChipPalabrasClave(dudaObj) {
+        const campos = dudaObj && dudaObj.campos && typeof dudaObj.campos === 'object' && !Array.isArray(dudaObj.campos) ? dudaObj.campos : {};
+        const nota = campos['palabras_clave'];
+        const tieneDuda = nota !== undefined;
+        const flagIcon = tieneDuda ? ` <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;" title="${escapeHtml(nota)}"></i>` : '';
+        return flagIcon;
+    }
+
     function aplicarFiltrosYRenderizar() {
-        if (!registrosDynamicContainer) return;
         const grupos = appData.grupos;
         if (!grupos.length) {
             registrosDynamicContainer.innerHTML = `<div class="empty-state">No hay grupos. Crea uno en "Generador".</div>`;
@@ -1430,18 +1437,20 @@
                                 <button class="btn-icon eliminar-grupo" data-index="${idx}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
-                        <div class="clasificacion-badge ${validado}">${escapeHtml(grupo.tema) || 'Sin tema'}</div>
+                        <div class="clasificacion-badge ${validado}">${escapeHtml(grupo.tema) || 'Sin tema'}${'tema' in camposDuda ? ` <i class="fas fa-flag" style="color:#ff4444;font-size:0.65rem;vertical-align:middle;" title="${escapeHtml(camposDuda['tema'])}"></i>` : ''}</div>
                         <div class="respuesta-preview">
-                            <span class="respuesta-texto">${escapeHtml(grupo.respuesta)}</span>
+                            <span class="respuesta-texto">${escapeHtml(grupo.respuesta)}${'respuesta' in camposDuda ? ` <i class="fas fa-flag" style="color:#ff4444;font-size:0.7rem;margin-left:0.4rem;" title="${escapeHtml(camposDuda['respuesta'])}"></i>` : ''}</span>
                             <button class="copy-respuesta-btn" data-respuesta="${escapeHtml(grupo.respuesta)}" title="Copiar respuesta"><i class="fas fa-copy"></i></button>
                         </div>
                         <div class="grupo-details" style="display:none;">
                             <div class="meta-chips">
                                 ${renderChip('Dirección', grupo.direccion, grupo.duda, 'direccion')}
                                 ${renderChip('Clasificación', grupo.clasificacion, grupo.duda, 'clasificacion')}
-                                ${renderChip('Tema', grupo.tema, grupo.duda, 'tema')}
-                                ${renderChip('Palabras clave', grupo.palabras_clave.join(', '), grupo.duda, 'palabras_clave')}
                                 ${renderChip('Abreviaciones', grupo.abreviaciones.join(', '), grupo.duda, 'abreviaciones')}
+                                <div class="chip-group">
+                                    <strong>Palabras clave${renderChipPalabrasClave(grupo.duda)}</strong>
+                                    <div class="chip-list">${grupo.palabras_clave.length ? grupo.palabras_clave.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join('') : '<span class="chip-text">—</span>'}</div>
+                                </div>
                             </div>
                             <div class="preguntas-list">
                                 <strong><i class="fas fa-list"></i> Preguntas asociadas:</strong>
