@@ -785,7 +785,7 @@
             direccion: "", respuesta: "", clasificacion: "", tema: "", palabras_clave: "", abreviaciones: "",
             pregunta1: "", pregunta2: "", pregunta3: ""
         },
-        borradorDuda: { activo: false, campos: [] },
+        borradorDuda: { activo: false, campos: {} },
         editandoIndex: null,
         protectedFields: {
             direccion: false, respuesta: false, clasificacion: false, tema: false,
@@ -853,19 +853,30 @@
                     appData.grupos = parsed.grupos;
                     appData.grupos.forEach(g => {
                         if (g.validado === undefined) g.validado = false;
-                        if (g.duda === undefined) {
-                            g.duda = { activo: false, campos: [] };
-                        } else if (typeof g.duda === 'boolean') {
-                            g.duda = { activo: g.duda, campos: [] };
-                        }
                         if (!g.duda || typeof g.duda !== 'object') {
-                            g.duda = { activo: false, campos: [] };
+                            g.duda = { activo: false, campos: {} };
+                        } else if (typeof g.duda === 'boolean') {
+                            g.duda = { activo: g.duda, campos: {} };
                         }
-                        if (!Array.isArray(g.duda.campos)) g.duda.campos = [];
+                        // Migrar formato antiguo: array → objeto
+                        if (Array.isArray(g.duda.campos)) {
+                            const old = g.duda.campos;
+                            g.duda.campos = {};
+                            old.forEach(f => { g.duda.campos[f] = ''; });
+                        }
+                        if (!g.duda.campos || typeof g.duda.campos !== 'object') g.duda.campos = {};
                     });
                 }
                 if (parsed.borrador) appData.borrador = parsed.borrador;
-                if (parsed.borradorDuda) appData.borradorDuda = parsed.borradorDuda;
+                if (parsed.borradorDuda) {
+                    appData.borradorDuda = parsed.borradorDuda;
+                    if (Array.isArray(appData.borradorDuda.campos)) {
+                        const old = appData.borradorDuda.campos;
+                        appData.borradorDuda.campos = {};
+                        old.forEach(f => { appData.borradorDuda.campos[f] = ''; });
+                    }
+                    if (!appData.borradorDuda.campos || typeof appData.borradorDuda.campos !== 'object') appData.borradorDuda.campos = {};
+                }
                 if (parsed.editandoIndex !== undefined) appData.editandoIndex = parsed.editandoIndex;
                 if (parsed.protectedFields) appData.protectedFields = parsed.protectedFields;
             } catch(e) {}
@@ -906,7 +917,7 @@
         if (!p.pregunta1) appData.borrador.pregunta1 = "";
         if (!p.pregunta2) appData.borrador.pregunta2 = "";
         if (!p.pregunta3) appData.borrador.pregunta3 = "";
-        appData.borradorDuda = { activo: false, campos: [] };
+        appData.borradorDuda = { activo: false, campos: {} };
         guardarLocalStorage();
     }
     function resetearModoEdicion() { appData.editandoIndex = null; guardarLocalStorage(); }
@@ -919,7 +930,8 @@
         }
         const palabrasClave = b.palabras_clave.split(',').map(s => s.trim()).filter(s => s);
         const abreviaciones = b.abreviaciones.split(',').map(s => s.trim()).filter(s => s);
-        const dudaBorrador = appData.borradorDuda || { activo: false, campos: [] };
+        const dudaBorrador = appData.borradorDuda || { activo: false, campos: {} };
+        const dudaCamposObj = typeof dudaBorrador.campos === 'object' && !Array.isArray(dudaBorrador.campos) ? dudaBorrador.campos : {};
         const nuevoGrupo = {
             direccion: b.direccion.trim(),
             respuesta: b.respuesta.trim(),
@@ -929,13 +941,13 @@
             abreviaciones: abreviaciones,
             preguntas: [b.pregunta1.trim(), b.pregunta2.trim(), b.pregunta3.trim()],
             validado: false,
-            duda: { activo: dudaBorrador.campos.length > 0, campos: [...dudaBorrador.campos] }
+            duda: { activo: Object.keys(dudaCamposObj).length > 0, campos: { ...dudaCamposObj } }
         };
         if (appData.editandoIndex !== null) {
             if (confirm("¿Actualizar este registro?")) {
                 const prev = appData.grupos[appData.editandoIndex];
                 nuevoGrupo.validado = prev.validado || false;
-                nuevoGrupo.duda = { activo: dudaBorrador.campos.length > 0, campos: [...dudaBorrador.campos] };
+                nuevoGrupo.duda = { activo: Object.keys(dudaCamposObj).length > 0, campos: { ...dudaCamposObj } };
                 appData.grupos[appData.editandoIndex] = nuevoGrupo;
                 resetearModoEdicion();
                 limpiarFormularioRespetandoProteccion();
@@ -965,8 +977,8 @@
             pregunta3: grupo.preguntas[2]
         };
         appData.borradorDuda = grupo.duda
-            ? { activo: grupo.duda.activo, campos: [...(grupo.duda.campos || [])] }
-            : { activo: false, campos: [] };
+            ? { activo: grupo.duda.activo, campos: { ...(grupo.duda.campos || {}) } }
+            : { activo: false, campos: {} };
         appData.editandoIndex = index;
         guardarLocalStorage();
         currentSection = "generador";
@@ -1059,9 +1071,12 @@
     let modalTargetIndex = null;
 
     function mostrarModalDuda(index) {
-        modalTargetIndex = index;
         const grupo = appData.grupos[index];
         if (!grupo) return;
+        if (!grupo.duda || typeof grupo.duda !== 'object') grupo.duda = { activo: false, campos: {} };
+        if (typeof grupo.duda.campos !== 'object' || Array.isArray(grupo.duda.campos)) grupo.duda.campos = {};
+
+        modalTargetIndex = index;
         const campos = [
             { id:'direccion', label:'Dirección' }, { id:'respuesta', label:'Respuesta' },
             { id:'clasificacion', label:'Clasificación' }, { id:'pregunta1', label:'Pregunta 1' },
@@ -1072,7 +1087,7 @@
         const container = document.getElementById('dudaCamposContainer');
         container.innerHTML = campos.map(c =>
             `<label>
-                <input type="checkbox" value="${c.id}" ${grupo.duda.campos.includes(c.id) ? 'checked' : ''}>
+                <input type="checkbox" value="${c.id}" ${c.id in grupo.duda.campos ? 'checked' : ''}>
                 ${c.label}
             </label>`
         ).join('');
@@ -1088,12 +1103,42 @@
         if (modalTargetIndex === null) return;
         const grupo = appData.grupos[modalTargetIndex];
         if (!grupo) return;
-        const checkboxes = document.querySelectorAll('#dudaCamposContainer input[type="checkbox"]:checked');
-        const camposSeleccionados = Array.from(checkboxes).map(cb => cb.value);
-        grupo.duda.activo = camposSeleccionados.length > 0;
-        grupo.duda.campos = camposSeleccionados;
-        guardarLocalStorage();
+        if (!grupo.duda || typeof grupo.duda !== 'object') grupo.duda = { activo: false, campos: {} };
+        if (typeof grupo.duda.campos !== 'object' || Array.isArray(grupo.duda.campos)) grupo.duda.campos = {};
+
+        const checkboxes = document.querySelectorAll('#dudaCamposContainer input[type="checkbox"]');
+        const seleccionados = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+        const deseleccionados = Array.from(checkboxes).filter(cb => !cb.checked).map(cb => cb.value);
+
+        // Quitar banderas de campos desmarcados
+        deseleccionados.forEach(id => { delete grupo.duda.campos[id]; });
+
         cerrarModalDuda();
+
+        // Por cada campo seleccionado, pedir nota con prompt
+        for (const id of seleccionados) {
+            const labelMap = {
+                direccion:'Dirección', clasificacion:'Clasificación', tema:'Tema',
+                abreviaciones:'Abreviaciones', palabras_clave:'Palabras clave',
+                respuesta:'Respuesta', pregunta1:'Pregunta 1', pregunta2:'Pregunta 2', pregunta3:'Pregunta 3'
+            };
+            const notaActual = grupo.duda.campos[id];
+            const nota = prompt(
+                notaActual !== undefined
+                    ? `Duda en "${labelMap[id]}" (deja vacío para quitar la bandera):`
+                    : `Escribe la duda para "${labelMap[id]}":`,
+                notaActual !== undefined ? notaActual : ''
+            );
+            if (nota === null) continue; // cancelado = no modificar
+            if (nota.trim() === '') {
+                delete grupo.duda.campos[id];
+            } else {
+                grupo.duda.campos[id] = nota.trim();
+            }
+        }
+
+        grupo.duda.activo = Object.keys(grupo.duda.campos).length > 0;
+        guardarLocalStorage();
         renderizarSeccion(currentSection);
     }
 
@@ -1280,8 +1325,10 @@
     }
 
     function renderChip(label, value, dudaObj, fieldId) {
-        const tieneDuda = dudaObj && dudaObj.activo && dudaObj.campos.includes(fieldId);
-        const flagIcon = tieneDuda ? ' <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;"></i>' : '';
+        const campos = dudaObj && dudaObj.campos && typeof dudaObj.campos === 'object' && !Array.isArray(dudaObj.campos) ? dudaObj.campos : {};
+        const nota = campos[fieldId];
+        const tieneDuda = nota !== undefined;
+        const flagIcon = tieneDuda ? ` <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;" title="${escapeHtml(nota)}"></i>` : '';
         return `
             <div class="chip-group">
                 <strong>${label}</strong>
@@ -1293,8 +1340,10 @@
     }
 
     function renderPreguntaItem(tipo, texto, dudaObj, fieldId) {
-        const tieneDuda = dudaObj && dudaObj.activo && dudaObj.campos.includes(fieldId);
-        const flagIcon = tieneDuda ? ' <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;"></i>' : '';
+        const campos = dudaObj && dudaObj.campos && typeof dudaObj.campos === 'object' && !Array.isArray(dudaObj.campos) ? dudaObj.campos : {};
+        const nota = campos[fieldId];
+        const tieneDuda = nota !== undefined;
+        const flagIcon = tieneDuda ? ` <i class="fas fa-flag" style="color:#ff4444; font-size:0.7rem;" title="${escapeHtml(nota)}"></i>` : '';
         return `
             <div class="pregunta-item-chat">
                 <span class="pregunta-tipo-badge">${tipo}</span>
@@ -1357,6 +1406,10 @@
                 const dudaActiva = grupo.duda && grupo.duda.activo;
                 const dudaClass = dudaActiva ? 'duda' : '';
                 const flagColor = dudaActiva ? '#ff4444' : '#aaa';
+                const camposDuda = (grupo.duda && grupo.duda.campos && typeof grupo.duda.campos === 'object' && !Array.isArray(grupo.duda.campos)) ? grupo.duda.campos : {};
+                const dudaResumen = Object.keys(camposDuda).length > 0
+                    ? Object.entries(camposDuda).map(([k,v]) => `${k}: "${v}"`).join('\n')
+                    : 'Marcar campos con duda';
                 gruposHtml += `
                     <div class="grupo-item ${dudaClass}" data-grupo-idx="${idx}">
                         <div class="grupo-header">
@@ -1367,7 +1420,7 @@
                                 <button class="btn-icon toggle-validado" data-idx="${idx}" title="${grupo.validado?'Desmarcar como confirmado':'Marcar como confirmado'}">
                                     <i class="fas ${grupo.validado?'fa-times-circle':'fa-check-circle'}"></i>
                                 </button>
-                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="Marcar/desmarcar campos con duda">
+                                <button class="btn-icon toggle-duda" data-idx="${idx}" title="${escapeHtml(dudaResumen)}">
                                     <i class="fas fa-flag" style="color:${flagColor};"></i>
                                 </button>
                                 <button class="btn-icon split-grupo" data-index="${idx}" title="Dividir este registro">
@@ -1546,7 +1599,8 @@
         function campoEnDuda(nombreCampo) {
             if (editando && appData.grupos[appData.editandoIndex]) {
                 const grupo = appData.grupos[appData.editandoIndex];
-                return grupo.duda && grupo.duda.activo && grupo.duda.campos.includes(nombreCampo);
+                const campos = grupo.duda && grupo.duda.campos && typeof grupo.duda.campos === 'object' && !Array.isArray(grupo.duda.campos) ? grupo.duda.campos : {};
+                return nombreCampo in campos;
             }
             return false;
         }
@@ -1559,7 +1613,7 @@
             const isProtected = appData.protectedFields[nombre];
             const isRequired = required.includes(nombre);
             const tieneDuda = campoEnDuda(nombre);
-            const tieneDudaBorrador = appData.borradorDuda && appData.borradorDuda.campos.includes(nombre);
+            const tieneDudaBorrador = appData.borradorDuda && appData.borradorDuda.campos && (nombre in appData.borradorDuda.campos);
             const flagIcon = tieneDuda ? '<i class="fas fa-flag duda-flag"></i>' : '';
             const labelHtml = `<label>${label}${isProtected ? ' <i class="fas fa-shield-alt" style="color:#ff8c42; font-size:0.75rem;"></i>' : ''}${flagIcon}</label>`;
             const inputHtml = isTextarea
@@ -1568,7 +1622,11 @@
             const hasDudaFlag = dudaFields.includes(nombre);
             const btns = [];
             if (showCopy) btns.push(`<button type="button" class="copy-field-inside" data-field-copy="${nombre}" title="Copiar"><i class="fas fa-copy"></i></button>`);
-            if (hasDudaFlag) btns.push(`<button type="button" class="flag-btn ${tieneDudaBorrador?'active':''}" data-field-flag="${nombre}" title="Marcar con duda"><i class="fas fa-flag"></i></button>`);
+            if (hasDudaFlag) {
+                const notaBorrador = appData.borradorDuda && appData.borradorDuda.campos && appData.borradorDuda.campos[nombre];
+                const flagTitle = notaBorrador ? escapeHtml(notaBorrador) : 'Marcar con duda';
+                btns.push(`<button type="button" class="flag-btn ${tieneDudaBorrador?'active':''}" data-field-flag="${nombre}" title="${flagTitle}"><i class="fas fa-flag"></i></button>`);
+            }
             btns.push(`<button type="button" class="clear-field-inside" data-field="${nombre}" title="Limpiar"><i class="fas fa-times-circle"></i></button>`);
             return `<div class="input-group">${labelHtml}<div class="input-wrapper">${inputHtml}<div class="input-btn-group">${btns.join('')}</div></div></div>`;
         }
@@ -1587,15 +1645,15 @@
                 <div class="preguntas-horizontal">
                     <div class="pregunta-item-form">
                         <label>Pregunta 1 ${appData.protectedFields.pregunta1?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta1')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
-                        <div class="input-wrapper"><textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${required.includes('pregunta1')?'required-field':''}">${escapeHtml(b.pregunta1)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos.includes('pregunta1')?'active':''}" data-field-flag="pregunta1" title="Marcar con duda"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta1" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
+                        <div class="input-wrapper"><textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${required.includes('pregunta1')?'required-field':''}">${escapeHtml(b.pregunta1)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos&&appData.borradorDuda.campos['pregunta1']!==undefined?'active':''}" data-field-flag="pregunta1" title="${appData.borradorDuda&&appData.borradorDuda.campos&&appData.borradorDuda.campos['pregunta1']?escapeHtml(appData.borradorDuda.campos['pregunta1']):'Marcar con duda'}"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta1" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
                     </div>
                     <div class="pregunta-item-form">
                         <label>Pregunta 2 ${appData.protectedFields.pregunta2?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta2')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
-                        <div class="input-wrapper"><textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${required.includes('pregunta2')?'required-field':''}">${escapeHtml(b.pregunta2)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos.includes('pregunta2')?'active':''}" data-field-flag="pregunta2" title="Marcar con duda"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta2" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
+                        <div class="input-wrapper"><textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${required.includes('pregunta2')?'required-field':''}">${escapeHtml(b.pregunta2)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos&&appData.borradorDuda.campos['pregunta2']!==undefined?'active':''}" data-field-flag="pregunta2" title="${appData.borradorDuda&&appData.borradorDuda.campos&&appData.borradorDuda.campos['pregunta2']?escapeHtml(appData.borradorDuda.campos['pregunta2']):'Marcar con duda'}"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta2" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
                     </div>
                     <div class="pregunta-item-form">
                         <label>Pregunta 3 ${appData.protectedFields.pregunta3?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta3')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
-                        <div class="input-wrapper"><textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${required.includes('pregunta3')?'required-field':''}">${escapeHtml(b.pregunta3)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos.includes('pregunta3')?'active':''}" data-field-flag="pregunta3" title="Marcar con duda"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta3" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
+                        <div class="input-wrapper"><textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${required.includes('pregunta3')?'required-field':''}">${escapeHtml(b.pregunta3)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos&&appData.borradorDuda.campos['pregunta3']!==undefined?'active':''}" data-field-flag="pregunta3" title="${appData.borradorDuda&&appData.borradorDuda.campos&&appData.borradorDuda.campos['pregunta3']?escapeHtml(appData.borradorDuda.campos['pregunta3']):'Marcar con duda'}"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta3" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
                     </div>
                 </div>
                 <div class="flex-buttons">
@@ -1650,15 +1708,24 @@
                     e.preventDefault();
                     const field = btn.dataset.fieldFlag;
                     if (!field) return;
-                    if (!appData.borradorDuda) appData.borradorDuda = { activo: false, campos: [] };
-                    const idx = appData.borradorDuda.campos.indexOf(field);
-                    if (idx === -1) {
-                        appData.borradorDuda.campos.push(field);
+                    if (!appData.borradorDuda) appData.borradorDuda = { activo: false, campos: {} };
+                    if (typeof appData.borradorDuda.campos !== 'object' || Array.isArray(appData.borradorDuda.campos)) appData.borradorDuda.campos = {};
+                    const actual = appData.borradorDuda.campos[field];
+                    const tieneNota = actual !== undefined;
+                    const texto = prompt(
+                        tieneNota ? `Duda en "${field}" (deja vacío para quitar la bandera):` : `Escribe la duda para "${field}":`,
+                        tieneNota ? actual : ''
+                    );
+                    if (texto === null) return; // cancelado
+                    if (texto.trim() === '') {
+                        delete appData.borradorDuda.campos[field];
                     } else {
-                        appData.borradorDuda.campos.splice(idx, 1);
+                        appData.borradorDuda.campos[field] = texto.trim();
                     }
-                    appData.borradorDuda.activo = appData.borradorDuda.campos.length > 0;
-                    btn.classList.toggle('active', appData.borradorDuda.campos.includes(field));
+                    appData.borradorDuda.activo = Object.keys(appData.borradorDuda.campos).length > 0;
+                    const tieneAhora = field in appData.borradorDuda.campos;
+                    btn.classList.toggle('active', tieneAhora);
+                    btn.title = tieneAhora ? appData.borradorDuda.campos[field] : 'Marcar con duda';
                     guardarLocalStorage();
                 });
             });
