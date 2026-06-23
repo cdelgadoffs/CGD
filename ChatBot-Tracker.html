@@ -548,31 +548,48 @@
         .input-group label { font-size: 0.75rem; text-transform: uppercase; color: #ff8c42; font-weight: 600; letter-spacing: 0.5px; font-family: 'Comfortaa', sans-serif; display: flex; align-items: center; gap: 0.4rem; }
         .input-group label i.fa-shield-alt { font-size: 0.75rem; margin-top: 0; line-height: 1; vertical-align: middle; display: inline-block; }
         .input-group label .duda-flag { color: #ff4444; font-size: 0.7rem; margin-left: 0.2rem; }
-        .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input, .input-wrapper textarea { width: 100%; padding-right: 4.5rem; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; }
-        .input-wrapper textarea { padding-right: 4.5rem; resize: none; overflow: hidden; min-height: 3rem; }
-        .clear-field-inside, .copy-field-inside {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+        .input-wrapper { position: relative; display: flex; align-items: stretch; }
+        .input-wrapper input, .input-wrapper textarea { width: 100%; font-family: 'Comfortaa', sans-serif; transition: background 0.2s; border-radius: 8px 0 0 8px !important; border-right: none !important; flex: 1; }
+        .input-wrapper textarea { resize: none; overflow: hidden; min-height: 3rem; }
+        .input-btn-group {
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 8px 8px 0;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        body.dark .input-btn-group { background: #1f1f23; border: 1px solid #2e2e32; border-left: 1px solid #3a3a42; }
+        body.light .input-btn-group { background: #f8f9fa; border: 1px solid #ced4da; border-left: 1px solid #d0d7de; }
+        .input-btn-group button {
+            flex: 1;
             background: transparent;
             border: none;
             cursor: pointer;
-            color: #aaa;
-            font-size: 1rem;
-            padding: 0.2rem;
-            transition: color 0.2s;
-            font-family: 'Comfortaa', sans-serif;
-            z-index: 2;
+            color: #666;
+            font-size: 0.8rem;
+            padding: 0 0.55rem;
+            transition: color 0.15s, background 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.8rem;
         }
-        .input-wrapper textarea + .clear-field-inside,
-        .input-wrapper textarea + .copy-field-inside {
-            top: 0.8rem;
-            transform: none;
+        .input-btn-group button:not(:last-child) {
+            border-bottom: 1px solid;
         }
-        .clear-field-inside { right: 0.5rem; }
-        .copy-field-inside { right: 2rem; }
-        .clear-field-inside:hover, .copy-field-inside:hover { color: #ff8c42; }
+        body.dark .input-btn-group button:not(:last-child) { border-color: #2e2e32; }
+        body.light .input-btn-group button:not(:last-child) { border-color: #dee2e6; }
+        .input-btn-group button:hover { color: #ff8c42; }
+        body.dark .input-btn-group button:hover { background: #2a2a30; }
+        body.light .input-btn-group button:hover { background: #e9ecef; }
+        .input-btn-group button.flag-btn { color: #444; }
+        .input-btn-group button.flag-btn.active { color: #ff4444; }
+        .input-btn-group button.flag-btn:hover { color: #ff4444; }
+        body.dark .input-btn-group button.flag-btn:hover { background: rgba(255,68,68,0.08); }
+        body.light .input-btn-group button.flag-btn:hover { background: rgba(255,68,68,0.07); }
+        /* Keep focus ring on the input itself */
+        .input-wrapper input:focus, .input-wrapper textarea:focus { outline: none; border-color: #ff8c42; box-shadow: 0 0 0 2px rgba(255,140,66,0.2); }
+        .input-wrapper:focus-within .input-btn-group { border-color: #ff8c42; border-left-color: #ff8c42; }
         input, textarea, select { padding: 0.8rem; font-family: 'Comfortaa', sans-serif; font-size: 0.9rem; border-radius: 8px; transition: 0.2s; width: 100%; }
         .required-field { background: rgba(255, 140, 66, 0.08) !important; }
         select {
@@ -585,8 +602,7 @@
         }
         body.dark input, body.dark textarea, body.dark select { background: #1f1f23; border: 1px solid #2e2e32; color: #e0e0e0; }
         body.light input, body.light textarea, body.light select { background: #f8f9fa; border: 1px solid #ced4da; color: #212529; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: #ff8c42; box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2); }
-        .preguntas-horizontal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #ff8c42; box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.2); }        .preguntas-horizontal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
         .pregunta-item-form { border-radius: 12px; padding: 1rem; border: 1px solid; }
         body.dark .pregunta-item-form { background: #0e0e10; border-color: #2a2a2e; }
         body.light .pregunta-item-form { background: #f8f9fa; border-color: #dee2e6; }
@@ -769,6 +785,7 @@
             direccion: "", respuesta: "", clasificacion: "", tema: "", palabras_clave: "", abreviaciones: "",
             pregunta1: "", pregunta2: "", pregunta3: ""
         },
+        borradorDuda: { activo: false, campos: [] },
         editandoIndex: null,
         protectedFields: {
             direccion: false, respuesta: false, clasificacion: false, tema: false,
@@ -822,6 +839,7 @@
         localStorage.setItem('chatbotData', JSON.stringify({
             grupos: appData.grupos,
             borrador: appData.borrador,
+            borradorDuda: appData.borradorDuda,
             editandoIndex: appData.editandoIndex,
             protectedFields: appData.protectedFields
         }));
@@ -847,6 +865,7 @@
                     });
                 }
                 if (parsed.borrador) appData.borrador = parsed.borrador;
+                if (parsed.borradorDuda) appData.borradorDuda = parsed.borradorDuda;
                 if (parsed.editandoIndex !== undefined) appData.editandoIndex = parsed.editandoIndex;
                 if (parsed.protectedFields) appData.protectedFields = parsed.protectedFields;
             } catch(e) {}
@@ -887,6 +906,7 @@
         if (!p.pregunta1) appData.borrador.pregunta1 = "";
         if (!p.pregunta2) appData.borrador.pregunta2 = "";
         if (!p.pregunta3) appData.borrador.pregunta3 = "";
+        appData.borradorDuda = { activo: false, campos: [] };
         guardarLocalStorage();
     }
     function resetearModoEdicion() { appData.editandoIndex = null; guardarLocalStorage(); }
@@ -899,6 +919,7 @@
         }
         const palabrasClave = b.palabras_clave.split(',').map(s => s.trim()).filter(s => s);
         const abreviaciones = b.abreviaciones.split(',').map(s => s.trim()).filter(s => s);
+        const dudaBorrador = appData.borradorDuda || { activo: false, campos: [] };
         const nuevoGrupo = {
             direccion: b.direccion.trim(),
             respuesta: b.respuesta.trim(),
@@ -908,13 +929,13 @@
             abreviaciones: abreviaciones,
             preguntas: [b.pregunta1.trim(), b.pregunta2.trim(), b.pregunta3.trim()],
             validado: false,
-            duda: { activo: false, campos: [] }
+            duda: { activo: dudaBorrador.campos.length > 0, campos: [...dudaBorrador.campos] }
         };
         if (appData.editandoIndex !== null) {
             if (confirm("¿Actualizar este registro?")) {
                 const prev = appData.grupos[appData.editandoIndex];
                 nuevoGrupo.validado = prev.validado || false;
-                nuevoGrupo.duda = prev.duda || { activo: false, campos: [] };
+                nuevoGrupo.duda = { activo: dudaBorrador.campos.length > 0, campos: [...dudaBorrador.campos] };
                 appData.grupos[appData.editandoIndex] = nuevoGrupo;
                 resetearModoEdicion();
                 limpiarFormularioRespetandoProteccion();
@@ -943,6 +964,9 @@
             pregunta2: grupo.preguntas[1],
             pregunta3: grupo.preguntas[2]
         };
+        appData.borradorDuda = grupo.duda
+            ? { activo: grupo.duda.activo, campos: [...(grupo.duda.campos || [])] }
+            : { activo: false, campos: [] };
         appData.editandoIndex = index;
         guardarLocalStorage();
         currentSection = "generador";
@@ -1040,9 +1064,10 @@
         if (!grupo) return;
         const campos = [
             { id:'direccion', label:'Dirección' }, { id:'respuesta', label:'Respuesta' },
-            { id:'clasificacion', label:'Clasificación' }, { id:'tema', label:'Tema' },
-            { id:'palabras_clave', label:'Palabras clave' }, { id:'abreviaciones', label:'Abreviaciones' },
-            { id:'pregunta1', label:'Pregunta 1' }, { id:'pregunta2', label:'Pregunta 2' }, { id:'pregunta3', label:'Pregunta 3' }
+            { id:'clasificacion', label:'Clasificación' }, { id:'pregunta1', label:'Pregunta 1' },
+            { id:'tema', label:'Tema' }, { id:'pregunta2', label:'Pregunta 2' },
+            { id:'abreviaciones', label:'Abreviaciones' }, { id:'pregunta3', label:'Pregunta 3' },
+            { id:'palabras_clave', label:'Palabras clave' }
         ];
         const container = document.getElementById('dudaCamposContainer');
         container.innerHTML = campos.map(c =>
@@ -1526,6 +1551,7 @@
             return false;
         }
 
+        const dudaFields = ['respuesta','pregunta1','pregunta2','pregunta3'];
         function campo(label, nombre, tipo='text', rows=null, placeholder='', showCopy=false) {
             const value = b[nombre] || '';
             const id = nombre;
@@ -1533,13 +1559,18 @@
             const isProtected = appData.protectedFields[nombre];
             const isRequired = required.includes(nombre);
             const tieneDuda = campoEnDuda(nombre);
+            const tieneDudaBorrador = appData.borradorDuda && appData.borradorDuda.campos.includes(nombre);
             const flagIcon = tieneDuda ? '<i class="fas fa-flag duda-flag"></i>' : '';
             const labelHtml = `<label>${label}${isProtected ? ' <i class="fas fa-shield-alt" style="color:#ff8c42; font-size:0.75rem;"></i>' : ''}${flagIcon}</label>`;
             const inputHtml = isTextarea
                 ? `<textarea id="${id}" rows="${rows}" placeholder="${escapeHtml(placeholder)}" ${isRequired?'class="required-field"':''}>${escapeHtml(value)}</textarea>`
                 : `<input type="text" id="${id}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${isRequired?'class="required-field"':''}>`;
-            const copyButton = showCopy ? `<button type="button" class="copy-field-inside" data-field-copy="${nombre}" title="Copiar"><i class="fas fa-copy"></i></button>` : '';
-            return `<div class="input-group">${labelHtml}<div class="input-wrapper">${inputHtml}<button type="button" class="clear-field-inside" data-field="${nombre}" title="Limpiar"><i class="fas fa-times-circle"></i></button>${copyButton}</div></div>`;
+            const hasDudaFlag = dudaFields.includes(nombre);
+            const btns = [];
+            if (showCopy) btns.push(`<button type="button" class="copy-field-inside" data-field-copy="${nombre}" title="Copiar"><i class="fas fa-copy"></i></button>`);
+            if (hasDudaFlag) btns.push(`<button type="button" class="flag-btn ${tieneDudaBorrador?'active':''}" data-field-flag="${nombre}" title="Marcar con duda"><i class="fas fa-flag"></i></button>`);
+            btns.push(`<button type="button" class="clear-field-inside" data-field="${nombre}" title="Limpiar"><i class="fas fa-times-circle"></i></button>`);
+            return `<div class="input-group">${labelHtml}<div class="input-wrapper">${inputHtml}<div class="input-btn-group">${btns.join('')}</div></div></div>`;
         }
 
         return `
@@ -1556,15 +1587,15 @@
                 <div class="preguntas-horizontal">
                     <div class="pregunta-item-form">
                         <label>Pregunta 1 ${appData.protectedFields.pregunta1?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta1')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
-                        <div class="input-wrapper"><textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${required.includes('pregunta1')?'required-field':''}">${escapeHtml(b.pregunta1)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta1"><i class="fas fa-times-circle"></i></button></div>
+                        <div class="input-wrapper"><textarea id="pregunta1" rows="3" placeholder="Nivel Crítico" class="${required.includes('pregunta1')?'required-field':''}">${escapeHtml(b.pregunta1)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos.includes('pregunta1')?'active':''}" data-field-flag="pregunta1" title="Marcar con duda"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta1" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
                     </div>
                     <div class="pregunta-item-form">
                         <label>Pregunta 2 ${appData.protectedFields.pregunta2?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta2')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
-                        <div class="input-wrapper"><textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${required.includes('pregunta2')?'required-field':''}">${escapeHtml(b.pregunta2)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta2"><i class="fas fa-times-circle"></i></button></div>
+                        <div class="input-wrapper"><textarea id="pregunta2" rows="3" placeholder="Nivel Inferencial" class="${required.includes('pregunta2')?'required-field':''}">${escapeHtml(b.pregunta2)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos.includes('pregunta2')?'active':''}" data-field-flag="pregunta2" title="Marcar con duda"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta2" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
                     </div>
                     <div class="pregunta-item-form">
                         <label>Pregunta 3 ${appData.protectedFields.pregunta3?'<i class="fas fa-shield-alt" style="color:#ff8c42;font-size:0.85rem;"></i>':''}${campoEnDuda('pregunta3')?'<i class="fas fa-flag duda-flag"></i>':''}</label>
-                        <div class="input-wrapper"><textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${required.includes('pregunta3')?'required-field':''}">${escapeHtml(b.pregunta3)}</textarea><button type="button" class="clear-field-inside" data-field="pregunta3"><i class="fas fa-times-circle"></i></button></div>
+                        <div class="input-wrapper"><textarea id="pregunta3" rows="3" placeholder="Nivel Literal" class="${required.includes('pregunta3')?'required-field':''}">${escapeHtml(b.pregunta3)}</textarea><div class="input-btn-group"><button type="button" class="flag-btn ${appData.borradorDuda&&appData.borradorDuda.campos.includes('pregunta3')?'active':''}" data-field-flag="pregunta3" title="Marcar con duda"><i class="fas fa-flag"></i></button><button type="button" class="clear-field-inside" data-field="pregunta3" title="Limpiar"><i class="fas fa-times-circle"></i></button></div></div>
                     </div>
                 </div>
                 <div class="flex-buttons">
@@ -1612,6 +1643,23 @@
                         const input = document.getElementById(field);
                         limpiarCampo(field, true, input);
                     }
+                });
+            });
+            document.querySelectorAll('.flag-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const field = btn.dataset.fieldFlag;
+                    if (!field) return;
+                    if (!appData.borradorDuda) appData.borradorDuda = { activo: false, campos: [] };
+                    const idx = appData.borradorDuda.campos.indexOf(field);
+                    if (idx === -1) {
+                        appData.borradorDuda.campos.push(field);
+                    } else {
+                        appData.borradorDuda.campos.splice(idx, 1);
+                    }
+                    appData.borradorDuda.activo = appData.borradorDuda.campos.length > 0;
+                    btn.classList.toggle('active', appData.borradorDuda.campos.includes(field));
+                    guardarLocalStorage();
                 });
             });
             document.querySelectorAll('.copy-field-inside').forEach(btn => {
