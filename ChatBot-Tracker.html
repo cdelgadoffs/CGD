@@ -853,18 +853,7 @@
                     appData.grupos = parsed.grupos;
                     appData.grupos.forEach(g => {
                         if (g.validado === undefined) g.validado = false;
-                        if (!g.duda || typeof g.duda !== 'object') {
-                            g.duda = { activo: false, campos: {} };
-                        } else if (typeof g.duda === 'boolean') {
-                            g.duda = { activo: g.duda, campos: {} };
-                        }
-                        // Migrar formato antiguo: array → objeto
-                        if (Array.isArray(g.duda.campos)) {
-                            const old = g.duda.campos;
-                            g.duda.campos = {};
-                            old.forEach(f => { g.duda.campos[f] = ''; });
-                        }
-                        if (!g.duda.campos || typeof g.duda.campos !== 'object') g.duda.campos = {};
+                        normalizarGrupoDuda(g);
                     });
                 }
                 if (parsed.borrador) appData.borrador = parsed.borrador;
@@ -1182,18 +1171,25 @@
         }
         leftContainer.innerHTML = generarFormularioSplit(grupoNormalizado, 'left');
 
-        // Panel derecho vacío
-        const vacio = {
-            direccion: '', respuesta: '', clasificacion: '', tema: '',
-            palabras_clave: '', abreviaciones: '',
-            pregunta1: '', pregunta2: '', pregunta3: ''
+        // Panel derecho: pre-rellenar con los campos protegidos
+        const p = appData.protectedFields;
+        const derecho = {
+            direccion:    p.direccion    ? grupoNormalizado.direccion    : '',
+            respuesta:    p.respuesta    ? grupoNormalizado.respuesta    : '',
+            clasificacion: p.clasificacion ? grupoNormalizado.clasificacion : '',
+            tema:         p.tema         ? grupoNormalizado.tema         : '',
+            palabras_clave: p.palabras_clave ? grupoNormalizado.palabras_clave : '',
+            abreviaciones: p.abreviaciones ? grupoNormalizado.abreviaciones : '',
+            pregunta1:    p.pregunta1    ? grupoNormalizado.pregunta1    : '',
+            pregunta2:    p.pregunta2    ? grupoNormalizado.pregunta2    : '',
+            pregunta3:    p.pregunta3    ? grupoNormalizado.pregunta3    : ''
         };
         const rightContainer = document.getElementById('splitRightContainer');
         if (!rightContainer) {
             console.error('Contenedor splitRightContainer no encontrado');
             return;
         }
-        rightContainer.innerHTML = generarFormularioSplit(vacio, 'right');
+        rightContainer.innerHTML = generarFormularioSplit(derecho, 'right');
 
         // Activar auto-resize en todos los textareas de ambos paneles
         document.querySelectorAll('.split-panel textarea').forEach(ta => {
@@ -1353,6 +1349,24 @@
         `;
     }
 
+    function normalizarGrupoDuda(item) {
+        if (!item.duda || typeof item.duda !== 'object') {
+            item.duda = { activo: false, campos: {} };
+        } else if (typeof item.duda === 'boolean') {
+            item.duda = { activo: item.duda, campos: {} };
+        }
+        // Migrar formato antiguo array → objeto
+        if (Array.isArray(item.duda.campos)) {
+            const old = item.duda.campos;
+            item.duda.campos = {};
+            old.forEach(f => { item.duda.campos[f] = ''; });
+        }
+        if (!item.duda.campos || typeof item.duda.campos !== 'object') {
+            item.duda.campos = {};
+        }
+        item.duda.activo = Object.keys(item.duda.campos).length > 0;
+        return item;
+    }
     function renderChipPalabrasClave(dudaObj) {
         const campos = dudaObj && dudaObj.campos && typeof dudaObj.campos === 'object' && !Array.isArray(dudaObj.campos) ? dudaObj.campos : {};
         const nota = campos['palabras_clave'];
@@ -1954,9 +1968,7 @@
                         if (typeof item !== 'object' || !item.direccion || !item.respuesta || !Array.isArray(item.preguntas) || item.preguntas.length !== 3) {
                             throw new Error('Estructura incorrecta (direccion, respuesta y preguntas[3] requeridos).');
                         }
-                        if (item.duda === undefined) item.duda = { activo: false, campos: [] };
-                        else if (typeof item.duda === 'boolean') item.duda = { activo: item.duda, campos: [] };
-                        if (!Array.isArray(item.duda.campos)) item.duda.campos = [];
+                        normalizarGrupoDuda(item);
                         if (item.validado === undefined) item.validado = false;
                     }
                     appData.grupos = contenido;
