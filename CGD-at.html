@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actas de Sesiones del CGD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== ESTILOS (iguales a los que ya tenías, con algunos ajustes) ===== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',Roboto,sans-serif; background:#f0f4f8; color:#1a202c; padding:20px; }
+        .container { max-width:1200px; margin:0 auto; }
+
+        .header { background:#0b2a3b; color:white; padding:18px 30px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        .header h1 { font-weight:500; font-size:1.4rem; letter-spacing:0.5px; margin:0; }
+        .header-actions { display:flex; align-items:center; gap:15px; flex-wrap:wrap; }
+
+        .search-box { display:flex; align-items:center; background:white; border-radius:30px; padding:4px 16px; gap:8px; position:relative; }
+        .search-box input { border:none; padding:6px 0; font-size:0.9rem; background:transparent; outline:none; width:180px; color:#1a202c; }
+        .search-box i { color:#4a5568; font-size:0.9rem; }
+        .search-box .clear-btn { position:absolute; right:8px; background:none; border:none; color:#a0aec0; cursor:pointer; font-size:1rem; padding:0 4px; display:none; transition:color 0.2s; }
+        .search-box .clear-btn:hover { color:#e53e3e; }
+        .search-box .clear-btn.visible { display:block; }
+
+        .btn-primary { background:white; color:#0b2a3b; border:none; padding:8px 20px; border-radius:30px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .btn-primary:hover { background:#e2e8f0; transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,0.15); }
+        .btn-primary i { font-size:1rem; }
+        .btn-secondary { background:#edf2f7; color:#2d3748; border:none; padding:8px 18px; border-radius:30px; font-weight:600; cursor:pointer; transition:background 0.2s; font-size:0.9rem; }
+        .btn-secondary:hover { background:#e2e8f0; }
+        .btn-danger { background:#e53e3e; color:white; border:none; padding:8px 18px; border-radius:30px; font-weight:600; cursor:pointer; transition:background 0.2s; font-size:0.9rem; }
+        .btn-danger:hover { background:#c53030; }
+        .btn-small { padding:4px 12px; font-size:0.8rem; }
+        .btn-link { background:none; border:none; color:#2b6cb0; font-weight:600; cursor:pointer; text-decoration:underline; padding:0; font-size:0.9rem; }
+        .btn-link:hover { color:#0b2a3b; }
+        .btn-icon { background:none; border:none; cursor:pointer; color:#4a5568; font-size:1.1rem; transition:color 0.2s; padding:4px; }
+        .btn-icon:hover { color:#0b2a3b; }
+        .btn-icon.success { color:#48bb78; }
+
+        .mode-switch { display:flex; background:rgba(255,255,255,0.2); border-radius:30px; padding:4px; gap:4px; }
+        .mode-switch button { background:transparent; border:none; padding:6px 14px; border-radius:30px; font-weight:600; font-size:0.9rem; color:white; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:4px; }
+        .mode-switch button.active { background:white; color:#0b2a3b; }
+        .mode-switch button i { font-size:1rem; }
+
+        .status-indicator { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:rgba(255,255,255,0.8); }
+        .status-indicator .dot { width:10px; height:10px; border-radius:50%; background:#a0aec0; transition:background 0.3s; }
+        .status-indicator .dot.online { background:#48bb78; }
+
+        .card { background:white; border-radius:0 0 12px 12px; box-shadow:0 8px 30px rgba(0,0,0,0.06); padding:25px 30px; overflow-x:auto; }
+        .contrast-line { height:3px; background:#0b2a3b; width:100%; margin:0 0 25px 0; border-radius:2px; }
+
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; font-size:0.95rem; }
+        thead { background:#f7fafc; border-bottom:3px solid #0b2a3b; }
+        thead th { text-align:left; padding:14px 12px; font-weight:600; color:#0b2a3b; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.3px; }
+        tbody tr { border-bottom:1px solid #edf2f7; transition:background 0.1s; }
+        tbody tr:hover { background:#f7fafc; }
+        tbody td { padding:14px 12px; vertical-align:middle; }
+
+        .estado-badge { display:inline-block; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.3px; }
+        .estado-borrador { background:#edf2f7; color:#4a5568; }
+        .estado-firmado { background:#c6f6d5; color:#276749; }
+        .estado-archivado { background:#fed7d7; color:#9b2c2c; }
+
+        .acciones i { font-size:1.1rem; margin:0 4px; cursor:pointer; color:#4a5568; transition:color 0.2s, transform 0.1s; }
+        .acciones i:hover { color:#0b2a3b; transform:scale(1.15); }
+        .acciones i.fa-trash-alt:hover { color:#e53e3e; }
+
+        .empty-message { text-align:center; padding:40px 0; color:#718096; font-size:1.1rem; }
+
+        /* Modales */
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,42,59,0.5); backdrop-filter:blur(3px); z-index:1000; justify-content:center; align-items:center; padding:20px; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:white; max-width:700px; width:100%; border-radius:16px; box-shadow:0 30px 60px rgba(0,0,0,0.2); padding:30px 35px; position:relative; animation:fadeIn 0.25s ease; max-height:90vh; overflow-y:auto; }
+        .modal-wide { max-width:1100px; height:85vh; display:flex; flex-direction:column; }
+        .modal-wide .modal-body { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #0b2a3b; padding-bottom:12px; flex-shrink:0; }
+        .modal-header h2 { font-weight:500; color:#0b2a3b; }
+        .modal-header .close-btn { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#4a5568; transition:color 0.2s; }
+        .modal-header .close-btn:hover { color:#e53e3e; }
+
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#2d3748; }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:white; transition:border 0.2s; font-family:inherit; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:#2b6cb0; box-shadow:0 0 0 3px rgba(43,108,176,0.15); }
+        .form-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:25px; flex-shrink:0; }
+
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 30px; }
+        .form-grid .form-group { margin-bottom:18px; }
+        .form-grid .full-width { grid-column:1 / -1; }
+
+        /* Detalle sesión - info en fila horizontal */
+        .detalle-sesion-info { background:#f7fafc; padding:12px 20px; border-radius:12px; margin-bottom:15px; display:flex; flex-wrap:wrap; align-items:center; gap:20px 40px; flex-shrink:0; }
+        .detalle-sesion-info .info-item { display:flex; align-items:center; gap:6px; }
+        .detalle-sesion-info .info-item .label { font-size:0.7rem; text-transform:uppercase; color:#4a5568; font-weight:600; letter-spacing:0.3px; }
+        .detalle-sesion-info .info-item .value { font-size:0.95rem; font-weight:500; color:#1a202c; }
+        .detalle-sesion-info .info-item .value .estado-badge { font-size:0.65rem; }
+
+        .enlace-container { background:white; border-radius:8px; padding:6px 14px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; flex-shrink:0; margin-bottom:15px; }
+        .enlace-container .label { font-size:0.7rem; text-transform:uppercase; color:#4a5568; font-weight:600; letter-spacing:0.3px; }
+        .enlace-container .enlace-url { flex:1; min-width:0; font-size:0.85rem; color:#2b6cb0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .enlace-container .enlace-url a { color:#2b6cb0; text-decoration:none; }
+        .enlace-container .enlace-url a:hover { text-decoration:underline; }
+
+        .sub-header { display:flex; justify-content:space-between; align-items:center; margin:10px 0 12px 0; flex-shrink:0; }
+        .sub-header h3 { color:#0b2a3b; font-weight:500; font-size:1.1rem; }
+
+        .acuerdos-table-wrapper { flex:1; overflow-y:auto; border:1px solid #edf2f7; border-radius:8px; min-height:0; }
+        .acuerdos-table-wrapper table { border-collapse:collapse; }
+        .acuerdos-table-wrapper thead th { position:sticky; top:0; background:#f7fafc; z-index:2; border-bottom:2px solid #0b2a3b; }
+        .acuerdos-table-wrapper td:first-child, .acuerdos-table-wrapper th:first-child { min-width:150px; white-space:nowrap; }
+        .acuerdos-table-wrapper td:last-child, .acuerdos-table-wrapper th:last-child { text-align:right; min-width:80px; }
+        .acuerdos-table-wrapper td:nth-child(2) { width:100%; }
+
+        @media (max-width:700px) {
+            .header { flex-direction:column; align-items:stretch; text-align:center; }
+            .header h1 { font-size:1.2rem; }
+            .header-actions { justify-content:center; flex-wrap:wrap; }
+            .search-box input { width:120px; }
+            .card { padding:15px; }
+            .modal { padding:20px; }
+            .modal-wide { max-width:100%; height:auto; max-height:90vh; }
+            .detalle-sesion-info { flex-direction:column; align-items:flex-start; gap:8px; }
+            .form-grid { grid-template-columns:1fr; gap:0; }
+        }
+        @media (max-width:500px) {
+            table, thead, tbody, th, td, tr { display:block; }
+            thead { display:none; }
+            tbody tr { margin-bottom:15px; border:1px solid #e2e8f0; border-radius:8px; padding:10px; }
+            tbody td { display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px solid #f0f4f8; }
+            tbody td:last-child { border-bottom:none; }
+            tbody td::before { content:attr(data-label); font-weight:600; color:#0b2a3b; }
+            .acciones { justify-content:flex-end; }
+            .acuerdos-table-wrapper td:first-child, .acuerdos-table-wrapper th:first-child { min-width:auto; white-space:normal; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <h1>ACTAS DE SESIONES DEL CGD</h1>
+        <div class="header-actions">
+            <!-- Buscador -->
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="buscadorSesiones" placeholder="Buscar sesión...">
+                <button class="clear-btn" id="clearSearchBtn" title="Limpiar búsqueda">&times;</button>
+            </div>
+            <!-- Switch de modo -->
+            <div class="mode-switch" id="modeSwitch">
+                <button class="active" data-mode="view" title="Modo vista"><i class="fas fa-eye"></i></button>
+                <button data-mode="edit" title="Modo edición"><i class="fas fa-pencil-alt"></i></button>
+            </div>
+            <!-- Estado de conexión y sincronización -->
+            <div class="status-indicator">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">Local</span>
+                <button class="btn-icon" id="syncBtn" title="Sincronizar desde la nube" style="color:white;"><i class="fas fa-cloud-upload-alt"></i></button>
+            </div>
+            <!-- Botón nueva sesión (visible solo en modo edición) -->
+            <button class="btn-primary" id="btnNuevaSesion" style="display:none;"><i class="fas fa-plus-circle"></i> Nueva Sesión</button>
+        </div>
+    </header>
+
+    <div class="card">
+        <div class="contrast-line"></div>
+        <div class="table-wrapper">
+            <table id="tablaSesiones">
+                <thead><tr>
+                    <th>Nº Sesión</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th>Enlace</th><th style="text-align:right;">Acciones</th>
+                </tr></thead>
+                <tbody id="tbodySesiones"></tbody>
+            </table>
+        </div>
+        <div id="emptySesiones" class="empty-message">No hay sesiones registradas. ¡Crea una nueva!</div>
+    </div>
+</div>
+
+<!-- ===== MODALES ===== -->
+<!-- Modal Formulario Sesión -->
+<div class="modal-overlay" id="modalFormSesion">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="formSesionTitle">Nueva Sesión</h2>
+            <button class="close-btn" id="closeFormSesionBtn">&times;</button>
+        </div>
+        <form id="sesionForm" autocomplete="off">
+            <input type="hidden" id="editSesionId" value="">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="numeroSesion">Número de Sesión</label>
+                    <input type="text" id="numeroSesion" placeholder="Ej: 1" required>
+                </div>
+                <div class="form-group">
+                    <label for="fechaSesion">Fecha</label>
+                    <input type="date" id="fechaSesion" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipoSesion">Tipo de Sesión</label>
+                    <select id="tipoSesion" required>
+                        <option value="Ordinaria">Ordinaria</option>
+                        <option value="Extraordinaria">Extraordinaria</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="estadoSesion">Estado</label>
+                    <select id="estadoSesion">
+                        <option value="Borrador">Borrador</option>
+                        <option value="Firmado">Firmado</option>
+                        <option value="Archivado">Archivado</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="enlaceActa">Enlace del Acta (URL)</label>
+                    <input type="url" id="enlaceActa" placeholder="https://ejemplo.com/acta.pdf">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary" style="background:#0b2a3b; color:white; width:100%; justify-content:center;">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Detalle Sesión -->
+<div class="modal-overlay" id="modalDetalleSesion">
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <h2>Detalle de Sesión</h2>
+            <button class="close-btn" id="closeDetalleSesionBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="detalleSesionInfo" class="detalle-sesion-info"></div>
+            <div id="enlaceContainer" class="enlace-container"></div>
+            <div class="sub-header">
+                <h3><i class="fas fa-list-ul"></i> Acuerdos</h3>
+                <button class="btn-primary btn-small" id="btnNuevoAcuerdo" style="background:#0b2a3b; color:white; padding:6px 16px;">
+                    <i class="fas fa-plus"></i> Nuevo Acuerdo
+                </button>
+            </div>
+            <div class="acuerdos-table-wrapper">
+                <table class="table-acuerdos">
+                    <thead><tr><th>Código</th><th>Descripción</th><th style="text-align:right;">Acciones</th></tr></thead>
+                    <tbody id="tbodyAcuerdos"></tbody>
+                </table>
+            </div>
+            <div id="emptyAcuerdos" class="empty-message" style="padding:10px 0;">No hay acuerdos para esta sesión.</div>
+            <div class="form-actions" style="margin-top:15px;">
+                <button class="btn-secondary" id="cerrarDetalleBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Formulario Acuerdo -->
+<div class="modal-overlay" id="modalFormAcuerdo">
+    <div class="modal" style="max-width:600px;">
+        <div class="modal-header">
+            <h2 id="formAcuerdoTitle">Nuevo Acuerdo</h2>
+            <button class="close-btn" id="closeFormAcuerdoBtn">&times;</button>
+        </div>
+        <form id="acuerdoForm" autocomplete="off">
+            <input type="hidden" id="editAcuerdoId" value="">
+            <input type="hidden" id="acuerdoSesionId" value="">
+            <div class="form-group">
+                <label for="codigoAcuerdo">Código <span style="font-weight:normal;color:#718096;">(ej. CGD-2026-01)</span></label>
+                <input type="text" id="codigoAcuerdo" placeholder="CGD-2026-01" required>
+            </div>
+            <div class="form-group">
+                <label for="descripcionAcuerdo">Descripción</label>
+                <textarea id="descripcionAcuerdo" rows="3" placeholder="Descripción del acuerdo..." required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="cancelFormAcuerdoBtn">Cancelar</button>
+                <button type="submit" class="btn-primary" style="background:#0b2a3b; color:white;">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Confirmación Eliminar -->
+<div class="modal-overlay" id="modalConfirm">
+    <div class="modal" style="max-width:450px;">
+        <div class="modal-header">
+            <h2>Confirmar eliminación</h2>
+            <button class="close-btn" id="closeConfirmBtn">&times;</button>
+        </div>
+        <p id="confirmMsg" style="margin:15px 0 25px 0; font-size:1.05rem;">¿Está seguro de eliminar este elemento?</p>
+        <div class="form-actions">
+            <button class="btn-secondary" id="cancelConfirmBtn">Cancelar</button>
+            <button class="btn-danger" id="confirmDeleteBtn">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // ============================================================
+    // CONFIGURACIÓN DE JSONBIN.IO (CAMBIAR AQUÍ TUS CREDENCIALES)
+    // ============================================================
+    const JSONBIN_BIN_ID = '6a3eba06f5f4af5e29356cef';
+    const JSONBIN_API_KEY = '';
+    // ============================================================
+
+    const STORAGE_KEY = 'sesiones_acuerdos_data';
+    const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+    // Variables globales
+    let sesiones = [];
+    let nextSesionId = 1;
+    let modoActual = 'view';
+    let sesionActualId = null;
+    let online = false; // para estado de conexión
+
+    // ----- Funciones de persistencia -----
+    function getInitialData() {
+        return [
+            { id:1, numeroSesion:'1', tipoSesion:'Ordinaria', fecha:'2026-06-20', enlaceActa:'https://ejemplo.com/acta1.pdf', estado:'Firmado', acuerdos:[
+                { id:101, codigo:'CGD-2026-01', descripcion:'El Comité de Gobernanza Digital APRUEBA el orden del día de la Primera Sesión Extraordinaria 2026.' },
+                { id:102, codigo:'CGD-2026-02', descripcion:'Se designa a la Secretaría Técnica para la elaboración del informe.' }
+            ] },
+            { id:2, numeroSesion:'2', tipoSesion:'Extraordinaria', fecha:'2026-06-25', enlaceActa:'https://ejemplo.com/acta-muy-larga.pdf', estado:'Borrador', acuerdos:[
+                { id:201, codigo:'CGD-2026-03', descripcion:'Se aprueba el presupuesto para el segundo semestre.' }
+            ] }
+        ];
+    }
+
+    // Cargar datos desde localStorage
+    function cargarDesdeLocalStorage() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                sesiones = JSON.parse(stored);
+            } catch(e) {
+                sesiones = getInitialData();
+            }
+        } else {
+            sesiones = getInitialData();
+        }
+        actualizarNextId();
+        actualizarEstadoConexion(false);
+    }
+
+    function actualizarNextId() {
+        let max = 0;
+        sesiones.forEach(s => { if (s.id > max) max = s.id; });
+        sesiones.forEach(s => s.acuerdos.forEach(a => { if (a.id > max) max = a.id; }));
+        nextSesionId = max + 1;
+    }
+
+    function getNextAcuerdoId() {
+        let max = 0;
+        sesiones.forEach(s => s.acuerdos.forEach(a => { if (a.id > max) max = a.id; }));
+        return max + 1;
+    }
+
+    // Guardar en localStorage
+    function guardarLocalStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sesiones));
+    }
+
+    // Guardar en JSONBin (si está configurado y hay conexión)
+    async function guardarEnNube() {
+        if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'TU_BIN_ID_AQUI') {
+            actualizarEstadoConexion(false);
+            return false;
+        }
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            if (JSONBIN_API_KEY) headers['X-Master-Key'] = JSONBIN_API_KEY;
+            const resp = await fetch(API_URL, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(sesiones)
+            });
+            if (!resp.ok) throw new Error('Error al guardar en JSONBin');
+            actualizarEstadoConexion(true);
+            return true;
+        } catch(e) {
+            console.warn('No se pudo guardar en la nube:', e);
+            actualizarEstadoConexion(false);
+            return false;
+        }
+    }
+
+    // Cargar desde JSONBin
+    async function cargarDesdeNube() {
+        if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'TU_BIN_ID_AQUI') {
+            actualizarEstadoConexion(false);
+            return false;
+        }
+        try {
+            const headers = {};
+            if (JSONBIN_API_KEY) headers['X-Master-Key'] = JSONBIN_API_KEY;
+            const resp = await fetch(API_URL, { headers });
+            if (!resp.ok) throw new Error('Error al cargar desde JSONBin');
+            const data = await resp.json();
+            if (data.record && Array.isArray(data.record)) {
+                sesiones = data.record;
+                actualizarNextId();
+                actualizarEstadoConexion(true);
+                return true;
+            }
+            return false;
+        } catch(e) {
+            console.warn('No se pudo cargar desde la nube:', e);
+            actualizarEstadoConexion(false);
+            return false;
+        }
+    }
+
+    // Persistencia completa (intenta nube, siempre guarda local)
+    async function persistirCompleto() {
+        guardarLocalStorage();
+        await guardarEnNube();
+        // Actualizar indicador de estado
+        actualizarEstadoConexion(online);
+    }
+
+    // Actualizar indicador visual de conexión
+    function actualizarEstadoConexion(estado) {
+        online = estado;
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+        if (online) {
+            dot.className = 'dot online';
+            text.textContent = 'Nube';
+        } else {
+            dot.className = 'dot';
+            text.textContent = 'Local';
+        }
+    }
+
+    // ----- Funciones de interfaz (renderizado, eventos, etc.) -----
+    function renderizarSesiones(filtro = '') {
+        const tbody = document.getElementById('tbodySesiones');
+        const empty = document.getElementById('emptySesiones');
+        let data = sesiones;
+
+        if (filtro.trim() !== '') {
+            const f = filtro.toLowerCase().trim();
+            data = data.filter(s =>
+                s.numeroSesion.toLowerCase().includes(f) ||
+                s.tipoSesion.toLowerCase().includes(f) ||
+                s.fecha.includes(f) ||
+                s.estado.toLowerCase().includes(f)
+            );
+        }
+
+        if (data.length === 0) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        const esEdicion = (modoActual === 'edit');
+        tbody.innerHTML = data.map(s => {
+            let accionesHtml = '';
+            if (esEdicion) {
+                accionesHtml = `
+                    <i class="fas fa-eye" data-id="${s.id}" title="Ver acuerdos"></i>
+                    <i class="fas fa-edit" data-id="${s.id}" title="Editar sesión"></i>
+                    <i class="fas fa-trash-alt" data-id="${s.id}" title="Eliminar sesión"></i>
+                `;
+            } else {
+                accionesHtml = `<i class="fas fa-eye" data-id="${s.id}" title="Ver acuerdos"></i>`;
+            }
+            return `
+                <tr>
+                    <td data-label="Nº Sesión"><strong>${s.numeroSesion}</strong></td>
+                    <td data-label="Tipo">${s.tipoSesion}</td>
+                    <td data-label="Fecha">${s.fecha}</td>
+                    <td data-label="Estado"><span class="estado-badge estado-${s.estado.toLowerCase()}">${s.estado}</span></td>
+                    <td data-label="Enlace">
+                        ${s.enlaceActa ? `<button class="btn-link" onclick="window.open('${s.enlaceActa}','_blank')"><i class="fas fa-external-link-alt"></i> Ver acta</button>` : '—'}
+                    </td>
+                    <td data-label="Acciones" class="acciones" style="text-align:right;">${accionesHtml}</td>
+                </tr>
+            `;
+        }).join('');
+
+        tbody.querySelectorAll('.fa-eye').forEach(icon => {
+            icon.addEventListener('click', () => verDetalleSesion(parseInt(icon.dataset.id)));
+        });
+        if (esEdicion) {
+            tbody.querySelectorAll('.fa-edit').forEach(icon => {
+                icon.addEventListener('click', () => abrirFormSesion(parseInt(icon.dataset.id)));
+            });
+            tbody.querySelectorAll('.fa-trash-alt').forEach(icon => {
+                icon.addEventListener('click', () => confirmarEliminarSesion(parseInt(icon.dataset.id)));
+            });
+        }
+    }
+
+    // ----- Modales helpers -----
+    function abrirModal(id) { document.getElementById(id).classList.add('active'); }
+    function cerrarModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // ----- Formulario Sesión -----
+    function abrirFormSesion(id = null) {
+        const form = document.getElementById('sesionForm');
+        form.reset();
+        document.getElementById('editSesionId').value = '';
+        if (id) {
+            const sesion = sesiones.find(s => s.id === id);
+            if (!sesion) return;
+            document.getElementById('formSesionTitle').textContent = 'Editar Sesión';
+            document.getElementById('editSesionId').value = id;
+            document.getElementById('numeroSesion').value = sesion.numeroSesion;
+            document.getElementById('tipoSesion').value = sesion.tipoSesion;
+            document.getElementById('fechaSesion').value = sesion.fecha;
+            document.getElementById('enlaceActa').value = sesion.enlaceActa || '';
+            document.getElementById('estadoSesion').value = sesion.estado;
+        } else {
+            document.getElementById('formSesionTitle').textContent = 'Nueva Sesión';
+            document.getElementById('fechaSesion').value = new Date().toISOString().split('T')[0];
+            document.getElementById('estadoSesion').value = 'Borrador';
+            document.getElementById('tipoSesion').value = 'Ordinaria';
+        }
+        abrirModal('modalFormSesion');
+    }
+
+    async function guardarSesion(e) {
+        e.preventDefault();
+        const id = document.getElementById('editSesionId').value;
+        const numeroSesion = document.getElementById('numeroSesion').value.trim();
+        const tipoSesion = document.getElementById('tipoSesion').value;
+        const fecha = document.getElementById('fechaSesion').value;
+        const enlaceActa = document.getElementById('enlaceActa').value.trim();
+        const estado = document.getElementById('estadoSesion').value;
+
+        if (!numeroSesion || !fecha) {
+            alert('Por favor complete Nº Sesión y Fecha.');
+            return;
+        }
+
+        if (id) {
+            const index = sesiones.findIndex(s => s.id === parseInt(id));
+            if (index !== -1) {
+                sesiones[index] = { ...sesiones[index], numeroSesion, tipoSesion, fecha, enlaceActa, estado };
+            }
+        } else {
+            const nueva = { id: nextSesionId++, numeroSesion, tipoSesion, fecha, enlaceActa, estado, acuerdos: [] };
+            sesiones.push(nueva);
+        }
+        await persistirCompleto();
+        const filtro = document.getElementById('buscadorSesiones').value;
+        renderizarSesiones(filtro);
+        cerrarModal('modalFormSesion');
+    }
+
+    // ----- Detalle de sesión -----
+    function verDetalleSesion(id) {
+        const sesion = sesiones.find(s => s.id === id);
+        if (!sesion) return;
+        sesionActualId = id;
+
+        // Información general en fila horizontal
+        const infoDiv = document.getElementById('detalleSesionInfo');
+        infoDiv.innerHTML = `
+            <div class="info-item"><span class="label">Nº Sesión</span><span class="value">${sesion.numeroSesion}</span></div>
+            <div class="info-item"><span class="label">Tipo</span><span class="value">${sesion.tipoSesion}</span></div>
+            <div class="info-item"><span class="label">Fecha</span><span class="value">${sesion.fecha}</span></div>
+            <div class="info-item"><span class="label">Estado</span><span class="value"><span class="estado-badge estado-${sesion.estado.toLowerCase()}">${sesion.estado}</span></span></div>
+        `;
+
+        // Enlace
+        const enlaceDiv = document.getElementById('enlaceContainer');
+        if (sesion.enlaceActa) {
+            enlaceDiv.innerHTML = `
+                <span class="label">Enlace</span>
+                <span class="enlace-url" title="${sesion.enlaceActa}">
+                    <a href="${sesion.enlaceActa}" target="_blank">${sesion.enlaceActa}</a>
+                </span>
+                <button class="btn-icon" id="copiarEnlaceBtn" title="Copiar enlace"><i class="fas fa-copy"></i></button>
+            `;
+            const copyBtn = document.getElementById('copiarEnlaceBtn');
+            copyBtn.addEventListener('click', function() {
+                const url = sesion.enlaceActa;
+                copiarAlPortapapeles(url, this);
+            });
+        } else {
+            enlaceDiv.innerHTML = `
+                <span class="label">Enlace</span>
+                <span class="enlace-url" style="color:#718096;">No disponible</span>
+            `;
+        }
+
+        renderizarAcuerdos(sesion);
+        abrirModal('modalDetalleSesion');
+    }
+
+    function copiarAlPortapapeles(texto, elemento) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(texto).then(() => {
+                mostrarFeedbackCopia(elemento);
+            }).catch(() => {
+                copiarFallback(texto, elemento);
+            });
+        } else {
+            copiarFallback(texto, elemento);
+        }
+    }
+
+    function copiarFallback(texto, elemento) {
+        const input = document.createElement('input');
+        input.value = texto;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            mostrarFeedbackCopia(elemento);
+        } catch(e) {
+            alert('No se pudo copiar el enlace.');
+        }
+        document.body.removeChild(input);
+    }
+
+    function mostrarFeedbackCopia(elemento) {
+        const icon = elemento.querySelector('i');
+        const originalClass = icon.className;
+        icon.className = 'fas fa-check';
+        elemento.classList.add('success');
+        setTimeout(() => {
+            icon.className = originalClass;
+            elemento.classList.remove('success');
+        }, 1500);
+    }
+
+    function renderizarAcuerdos(sesion) {
+        const tbody = document.getElementById('tbodyAcuerdos');
+        const empty = document.getElementById('emptyAcuerdos');
+        const acuerdos = sesion.acuerdos || [];
+        const esEdicion = (modoActual === 'edit');
+
+        document.getElementById('btnNuevoAcuerdo').style.display = esEdicion ? 'inline-flex' : 'none';
+
+        if (acuerdos.length === 0) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        tbody.innerHTML = acuerdos.map(a => `
+            <tr>
+                <td data-label="Código"><strong>${a.codigo}</strong></td>
+                <td data-label="Descripción">${a.descripcion}</td>
+                <td data-label="Acciones" class="acciones" style="text-align:right;">
+                    ${esEdicion ? `
+                        <i class="fas fa-edit" data-acuerdo-id="${a.id}" title="Editar acuerdo"></i>
+                        <i class="fas fa-trash-alt" data-acuerdo-id="${a.id}" title="Eliminar acuerdo"></i>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+
+        if (esEdicion) {
+            tbody.querySelectorAll('.fa-edit').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const acuerdoId = parseInt(icon.dataset.acuerdoId);
+                    abrirFormAcuerdo(sesion.id, acuerdoId);
+                });
+            });
+            tbody.querySelectorAll('.fa-trash-alt').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const acuerdoId = parseInt(icon.dataset.acuerdoId);
+                    confirmarEliminarAcuerdo(sesion.id, acuerdoId);
+                });
+            });
+        }
+    }
+
+    // ----- Formulario Acuerdo -----
+    function abrirFormAcuerdo(sesionId, acuerdoId = null) {
+        const sesion = sesiones.find(s => s.id === sesionId);
+        if (!sesion) return;
+        document.getElementById('acuerdoSesionId').value = sesionId;
+        document.getElementById('editAcuerdoId').value = '';
+        document.getElementById('acuerdoForm').reset();
+
+        if (acuerdoId) {
+            const acuerdo = sesion.acuerdos.find(a => a.id === acuerdoId);
+            if (!acuerdo) return;
+            document.getElementById('formAcuerdoTitle').textContent = 'Editar Acuerdo';
+            document.getElementById('editAcuerdoId').value = acuerdoId;
+            document.getElementById('codigoAcuerdo').value = acuerdo.codigo;
+            document.getElementById('descripcionAcuerdo').value = acuerdo.descripcion;
+        } else {
+            document.getElementById('formAcuerdoTitle').textContent = 'Nuevo Acuerdo';
+        }
+        abrirModal('modalFormAcuerdo');
+    }
+
+    async function guardarAcuerdo(e) {
+        e.preventDefault();
+        const sesionId = parseInt(document.getElementById('acuerdoSesionId').value);
+        const acuerdoId = document.getElementById('editAcuerdoId').value;
+        const codigo = document.getElementById('codigoAcuerdo').value.trim();
+        const descripcion = document.getElementById('descripcionAcuerdo').value.trim();
+
+        if (!codigo || !descripcion) {
+            alert('Código y descripción son obligatorios.');
+            return;
+        }
+
+        const sesion = sesiones.find(s => s.id === sesionId);
+        if (!sesion) return;
+
+        if (acuerdoId) {
+            const index = sesion.acuerdos.findIndex(a => a.id === parseInt(acuerdoId));
+            if (index !== -1) {
+                sesion.acuerdos[index] = { ...sesion.acuerdos[index], codigo, descripcion };
+            }
+        } else {
+            const nuevo = { id: getNextAcuerdoId(), codigo, descripcion };
+            sesion.acuerdos.push(nuevo);
+        }
+        await persistirCompleto();
+        const filtro = document.getElementById('buscadorSesiones').value;
+        renderizarSesiones(filtro);
+        if (sesionActualId === sesionId) {
+            const sesionActual = sesiones.find(s => s.id === sesionId);
+            if (sesionActual) renderizarAcuerdos(sesionActual);
+        }
+        cerrarModal('modalFormAcuerdo');
+    }
+
+    // ----- Eliminar sesión -----
+    function confirmarEliminarSesion(id) {
+        const sesion = sesiones.find(s => s.id === id);
+        if (!sesion) return;
+        document.getElementById('confirmMsg').textContent = `¿Está seguro de eliminar la sesión Nº ${sesion.numeroSesion} y todos sus acuerdos?`;
+        document.getElementById('confirmDeleteBtn').dataset.action = 'sesion';
+        document.getElementById('confirmDeleteBtn').dataset.id = id;
+        abrirModal('modalConfirm');
+    }
+
+    async function ejecutarEliminarSesion(id) {
+        sesiones = sesiones.filter(s => s.id !== id);
+        await persistirCompleto();
+        const filtro = document.getElementById('buscadorSesiones').value;
+        renderizarSesiones(filtro);
+        if (sesionActualId === id) {
+            cerrarModal('modalDetalleSesion');
+            sesionActualId = null;
+        }
+    }
+
+    // ----- Eliminar acuerdo -----
+    function confirmarEliminarAcuerdo(sesionId, acuerdoId) {
+        const sesion = sesiones.find(s => s.id === sesionId);
+        if (!sesion) return;
+        const acuerdo = sesion.acuerdos.find(a => a.id === acuerdoId);
+        if (!acuerdo) return;
+        document.getElementById('confirmMsg').textContent = `¿Está seguro de eliminar el acuerdo "${acuerdo.codigo}"?`;
+        document.getElementById('confirmDeleteBtn').dataset.action = 'acuerdo';
+        document.getElementById('confirmDeleteBtn').dataset.sesionId = sesionId;
+        document.getElementById('confirmDeleteBtn').dataset.acuerdoId = acuerdoId;
+        abrirModal('modalConfirm');
+    }
+
+    async function ejecutarEliminarAcuerdo(sesionId, acuerdoId) {
+        const sesion = sesiones.find(s => s.id === sesionId);
+        if (!sesion) return;
+        sesion.acuerdos = sesion.acuerdos.filter(a => a.id !== acuerdoId);
+        await persistirCompleto();
+        const filtro = document.getElementById('buscadorSesiones').value;
+        renderizarSesiones(filtro);
+        if (sesionActualId === sesionId) {
+            const sesionActual = sesiones.find(s => s.id === sesionId);
+            if (sesionActual) renderizarAcuerdos(sesionActual);
+        }
+    }
+
+    // ----- Inicialización -----
+    async function inicializar() {
+        // Intentar cargar desde la nube
+        const cargadoNube = await cargarDesdeNube();
+        if (!cargadoNube) {
+            // Fallback a localStorage
+            cargarDesdeLocalStorage();
+        } else {
+            // Si cargó de nube, guardar en localStorage para tener copia local
+            guardarLocalStorage();
+        }
+        // Renderizar
+        renderizarSesiones();
+        // Configurar modo inicial (vista)
+        modoActual = 'view';
+        document.getElementById('btnNuevaSesion').style.display = 'none';
+        // Eventos
+        configurarEventos();
+    }
+
+    function configurarEventos() {
+        // Switch de modo
+        const modeButtons = document.querySelectorAll('#modeSwitch button');
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                modeButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                modoActual = this.dataset.mode;
+                document.getElementById('btnNuevaSesion').style.display = (modoActual === 'edit') ? 'inline-flex' : 'none';
+                const filtro = document.getElementById('buscadorSesiones').value;
+                renderizarSesiones(filtro);
+                if (sesionActualId) {
+                    const sesion = sesiones.find(s => s.id === sesionActualId);
+                    if (sesion) renderizarAcuerdos(sesion);
+                }
+            });
+        });
+
+        // Buscador con tache
+        const searchInput = document.getElementById('buscadorSesiones');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        searchInput.addEventListener('input', function() {
+            const value = this.value;
+            if (value.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+            renderizarSesiones(value);
+        });
+        clearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            this.classList.remove('visible');
+            renderizarSesiones('');
+            searchInput.focus();
+        });
+
+        // Botón sincronizar (forzar carga desde nube)
+        document.getElementById('syncBtn').addEventListener('click', async function() {
+            const originalIcon = this.querySelector('i').className;
+            this.querySelector('i').className = 'fas fa-spinner fa-spin';
+            const exito = await cargarDesdeNube();
+            if (exito) {
+                guardarLocalStorage();
+                renderizarSesiones(document.getElementById('buscadorSesiones').value);
+                if (sesionActualId) {
+                    const sesion = sesiones.find(s => s.id === sesionActualId);
+                    if (sesion) {
+                        verDetalleSesion(sesion.id); // refresca detalle
+                    }
+                }
+                alert('Datos sincronizados desde la nube correctamente.');
+            } else {
+                alert('No se pudo sincronizar desde la nube. Revisa tu conexión o las credenciales de JSONBin.');
+            }
+            this.querySelector('i').className = originalIcon;
+        });
+
+        // Botón nueva sesión
+        document.getElementById('btnNuevaSesion').addEventListener('click', () => abrirFormSesion());
+
+        // Formulario sesión
+        document.getElementById('sesionForm').addEventListener('submit', guardarSesion);
+        document.getElementById('closeFormSesionBtn').addEventListener('click', () => cerrarModal('modalFormSesion'));
+
+        // Detalle sesión
+        document.getElementById('closeDetalleSesionBtn').addEventListener('click', () => cerrarModal('modalDetalleSesion'));
+        document.getElementById('cerrarDetalleBtn').addEventListener('click', () => cerrarModal('modalDetalleSesion'));
+        document.getElementById('btnNuevoAcuerdo').addEventListener('click', () => {
+            if (sesionActualId && modoActual === 'edit') {
+                abrirFormAcuerdo(sesionActualId);
+            }
+        });
+
+        // Formulario acuerdo
+        document.getElementById('acuerdoForm').addEventListener('submit', guardarAcuerdo);
+        document.getElementById('closeFormAcuerdoBtn').addEventListener('click', () => cerrarModal('modalFormAcuerdo'));
+        document.getElementById('cancelFormAcuerdoBtn').addEventListener('click', () => cerrarModal('modalFormAcuerdo'));
+
+        // Confirmación eliminar
+        document.getElementById('closeConfirmBtn').addEventListener('click', () => cerrarModal('modalConfirm'));
+        document.getElementById('cancelConfirmBtn').addEventListener('click', () => cerrarModal('modalConfirm'));
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            const action = this.dataset.action;
+            if (action === 'sesion') {
+                const id = parseInt(this.dataset.id);
+                ejecutarEliminarSesion(id);
+            } else if (action === 'acuerdo') {
+                const sesionId = parseInt(this.dataset.sesionId);
+                const acuerdoId = parseInt(this.dataset.acuerdoId);
+                ejecutarEliminarAcuerdo(sesionId, acuerdoId);
+            }
+            cerrarModal('modalConfirm');
+        });
+
+        // Cerrar con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+    }
+
+    // Iniciar
+    inicializar();
+
+})();
+</script>
+</body>
+</html>
