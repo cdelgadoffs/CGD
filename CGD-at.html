@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actas de Sesiones del CGD</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/cdelgadoffs/CGD/36a1655067bd5796051a6bbc9f26d22d449d4ceb/cdelgado.PNG">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ===== ESTILOS ===== */
@@ -177,7 +178,7 @@
                 <tbody id="tbodySesiones"></tbody>
             </table>
         </div>
-        <div id="emptySesiones" class="empty-message">No hay sesiones registradas. ¡Crea una nueva!</div>
+        <div id="emptySesiones" class="empty-message">No hay sesiones registradas.</div>
     </div>
 </div>
 
@@ -411,10 +412,10 @@
             }
 
             actualizarEstadoConexion(true);
-            mostrarToast('Guardado en la nube ✅', 'success');
+            mostrarToast('Guardado', 'success');
             return true;
         } catch(e) {
-            console.error('❌ Error al guardar:', e);
+            console.error('Error al guardar:', e);
             actualizarEstadoConexion(false, e.message);
             mostrarToast(`Error al guardar: ${e.message}`, 'error');
             return false;
