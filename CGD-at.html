@@ -6,7 +6,7 @@
     <title>Actas de Sesiones del CGD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ===== ESTILOS (iguales a los que ya tenías, con algunos ajustes) ===== */
+        /* ===== ESTILOS ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',Roboto,sans-serif; background:#f0f4f8; color:#1a202c; padding:20px; }
         .container { max-width:1200px; margin:0 auto; }
@@ -44,6 +44,7 @@
         .status-indicator { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:rgba(255,255,255,0.8); }
         .status-indicator .dot { width:10px; height:10px; border-radius:50%; background:#a0aec0; transition:background 0.3s; }
         .status-indicator .dot.online { background:#48bb78; }
+        .status-indicator .dot.error { background:#e53e3e; }
 
         .card { background:white; border-radius:0 0 12px 12px; box-shadow:0 8px 30px rgba(0,0,0,0.06); padding:25px 30px; overflow-x:auto; }
         .contrast-line { height:3px; background:#0b2a3b; width:100%; margin:0 0 25px 0; border-radius:2px; }
@@ -112,6 +113,14 @@
         .acuerdos-table-wrapper td:last-child, .acuerdos-table-wrapper th:last-child { text-align:right; min-width:80px; }
         .acuerdos-table-wrapper td:nth-child(2) { width:100%; }
 
+        .toast {
+            position:fixed; bottom:20px; right:20px; background:#0b2a3b; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; z-index:2000; animation:slideUp 0.3s ease;
+        }
+        .toast.show { display:block; }
+        .toast.success { background:#276749; }
+        .toast.error { background:#9b2c2c; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
         @media (max-width:700px) {
             .header { flex-direction:column; align-items:stretch; text-align:center; }
             .header h1 { font-size:1.2rem; }
@@ -140,24 +149,20 @@
     <header class="header">
         <h1>ACTAS DE SESIONES DEL CGD</h1>
         <div class="header-actions">
-            <!-- Buscador -->
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="buscadorSesiones" placeholder="Buscar sesión...">
+                <input type="text" id="buscadorSesiones" placeholder="Buscar...">
                 <button class="clear-btn" id="clearSearchBtn" title="Limpiar búsqueda">&times;</button>
             </div>
-            <!-- Switch de modo -->
             <div class="mode-switch" id="modeSwitch">
                 <button class="active" data-mode="view" title="Modo vista"><i class="fas fa-eye"></i></button>
                 <button data-mode="edit" title="Modo edición"><i class="fas fa-pencil-alt"></i></button>
             </div>
-            <!-- Estado de conexión y sincronización -->
             <div class="status-indicator">
                 <span class="dot" id="statusDot"></span>
-                <span id="statusText">Local</span>
+                <span id="statusText">Cargando...</span>
                 <button class="btn-icon" id="syncBtn" title="Sincronizar desde la nube" style="color:white;"><i class="fas fa-cloud-upload-alt"></i></button>
             </div>
-            <!-- Botón nueva sesión (visible solo en modo edición) -->
             <button class="btn-primary" id="btnNuevaSesion" style="display:none;"><i class="fas fa-plus-circle"></i> Nueva Sesión</button>
         </div>
     </header>
@@ -189,7 +194,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="numeroSesion">Número de Sesión</label>
-                    <input type="text" id="numeroSesion" placeholder="Ej: 1" required>
+                    <input type="text" id="numeroSesion" placeholder="" required>
                 </div>
                 <div class="form-group">
                     <label for="fechaSesion">Fecha</label>
@@ -212,11 +217,13 @@
                 </div>
                 <div class="form-group full-width">
                     <label for="enlaceActa">Enlace del Acta (URL)</label>
-                    <input type="url" id="enlaceActa" placeholder="https://ejemplo.com/acta.pdf">
+                    <input type="url" id="enlaceActa" placeholder="https://">
                 </div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn-primary" style="background:#0b2a3b; color:white; width:100%; justify-content:center;">Guardar</button>
+                <button type="submit" class="btn-primary" style="background:#0b2a3b; color:white; width:100%; justify-content:center;" id="btnGuardarSesion">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
             </div>
         </form>
     </div>
@@ -263,16 +270,18 @@
             <input type="hidden" id="editAcuerdoId" value="">
             <input type="hidden" id="acuerdoSesionId" value="">
             <div class="form-group">
-                <label for="codigoAcuerdo">Código <span style="font-weight:normal;color:#718096;">(ej. CGD-2026-01)</span></label>
-                <input type="text" id="codigoAcuerdo" placeholder="CGD-2026-01" required>
+                <label for="codigoAcuerdo">Código <span style="font-weight:normal;color:#718096;"></span></label>
+                <input type="text" id="codigoAcuerdo" placeholder="CGD-20XX-XX" required>
             </div>
             <div class="form-group">
                 <label for="descripcionAcuerdo">Descripción</label>
-                <textarea id="descripcionAcuerdo" rows="3" placeholder="Descripción del acuerdo..." required></textarea>
+                <textarea id="descripcionAcuerdo" rows="3" placeholder="Descripción..." required></textarea>
             </div>
             <div class="form-actions">
                 <button type="button" class="btn-secondary" id="cancelFormAcuerdoBtn">Cancelar</button>
-                <button type="submit" class="btn-primary" style="background:#0b2a3b; color:white;">Guardar</button>
+                <button type="submit" class="btn-primary" style="background:#0b2a3b; color:white;" id="btnGuardarAcuerdo">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
             </div>
         </form>
     </div>
@@ -293,52 +302,123 @@
     </div>
 </div>
 
+<!-- Toast para notificaciones -->
+<div id="toast" class="toast"></div>
+
 <script>
 (function() {
     // ============================================================
-    // CONFIGURACIÓN DE JSONBIN.IO (CAMBIAR AQUÍ TUS CREDENCIALES)
+    // CONFIGURACIÓN DE JSONBIN.IO - ¡CAMBIAR AQUÍ!
     // ============================================================
-    const JSONBIN_BIN_ID = '6a3eba06f5f4af5e29356cef';
-    const JSONBIN_API_KEY = '';
+    const JSONBIN_BIN_ID    = '6a3ecca3f5f4af5e2935c195';
+    const JSONBIN_MASTER_KEY = '$2a$10$4e3QV3RCHmI1DxiFvCKILuwjNoghTJxTZY3XQslBwKVxidKIb86ja';
     // ============================================================
 
-    const STORAGE_KEY = 'sesiones_acuerdos_data';
     const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-    // Variables globales
     let sesiones = [];
     let nextSesionId = 1;
     let modoActual = 'view';
     let sesionActualId = null;
-    let online = false; // para estado de conexión
+    let online = false;
 
-    // ----- Funciones de persistencia -----
-    function getInitialData() {
-        return [
-            { id:1, numeroSesion:'1', tipoSesion:'Ordinaria', fecha:'2026-06-20', enlaceActa:'https://ejemplo.com/acta1.pdf', estado:'Firmado', acuerdos:[
-                { id:101, codigo:'CGD-2026-01', descripcion:'El Comité de Gobernanza Digital APRUEBA el orden del día de la Primera Sesión Extraordinaria 2026.' },
-                { id:102, codigo:'CGD-2026-02', descripcion:'Se designa a la Secretaría Técnica para la elaboración del informe.' }
-            ] },
-            { id:2, numeroSesion:'2', tipoSesion:'Extraordinaria', fecha:'2026-06-25', enlaceActa:'https://ejemplo.com/acta-muy-larga.pdf', estado:'Borrador', acuerdos:[
-                { id:201, codigo:'CGD-2026-03', descripcion:'Se aprueba el presupuesto para el segundo semestre.' }
-            ] }
-        ];
+    // ----- Toast (notificaciones) -----
+    function mostrarToast(mensaje, tipo = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = mensaje;
+        toast.className = `toast ${tipo} show`;
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3500);
     }
 
-    // Cargar datos desde localStorage
-    function cargarDesdeLocalStorage() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            try {
-                sesiones = JSON.parse(stored);
-            } catch(e) {
-                sesiones = getInitialData();
-            }
-        } else {
-            sesiones = getInitialData();
+
+    // ----- Funciones de persistencia -----
+    async function cargarDesdeNube() {
+        if (!JSONBIN_BIN_ID || !JSONBIN_MASTER_KEY) {
+            actualizarEstadoConexion(false, 'Falta config');
+            return false;
         }
-        actualizarNextId();
-        actualizarEstadoConexion(false);
+        try {
+            // GET: con ?meta=false JSONBin devuelve el contenido directamente (sin envoltura)
+            const resp = await fetch(`${API_URL}?meta=false`, {
+                headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
+            });
+            console.log(`📡 GET ${resp.status}`);
+
+            const data = await resp.json();
+            console.log('✅ Datos recibidos:', data);
+
+            if (!resp.ok) {
+                throw new Error(`HTTP ${resp.status}: ${data.message || resp.statusText}`);
+            }
+
+            // Con ?meta=false el body ES directamente el array (o el objeto que guardaste)
+            // Con /latest sin ese param, vendría { record: [...], metadata: {...} }
+            // Soportamos ambos casos por seguridad:
+            let registros = null;
+            if (Array.isArray(data)) {
+                registros = data;
+            } else if (data.record && Array.isArray(data.record)) {
+                registros = data.record;
+            }
+
+            if (registros !== null) {
+                sesiones = registros;
+                actualizarNextId();
+                actualizarEstadoConexion(true);
+                return true;
+            } else {
+                // Bin recién creado o vacío → sembrar datos iniciales
+                console.warn('⚠️ Bin vacío, sembrando datos iniciales...');
+                sesiones = getInitialData();
+                actualizarNextId();
+                await guardarEnNube();
+                actualizarEstadoConexion(true);
+                return true;
+            }
+        } catch(e) {
+            console.error('❌ Error al cargar:', e);
+            actualizarEstadoConexion(false, e.message);
+            sesiones = getInitialData();
+            actualizarNextId();
+            return false;
+        }
+    }
+
+    async function guardarEnNube() {
+        if (!JSONBIN_BIN_ID || !JSONBIN_MASTER_KEY) {
+            mostrarToast('Configuración incompleta', 'error');
+            return false;
+        }
+        try {
+            const resp = await fetch(API_URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': JSONBIN_MASTER_KEY,
+                    'X-Bin-Versioning': 'false'   // evita acumular versiones innecesarias
+                },
+                body: JSON.stringify(sesiones)
+            });
+
+            const data = await resp.json();
+            console.log(`📡 PUT ${resp.status}`, data);
+
+            if (!resp.ok) {
+                // JSONBin devuelve { message: "..." } en errores — lo mostramos exacto
+                throw new Error(data.message || `HTTP ${resp.status}`);
+            }
+
+            actualizarEstadoConexion(true);
+            mostrarToast('Guardado en la nube ✅', 'success');
+            return true;
+        } catch(e) {
+            console.error('❌ Error al guardar:', e);
+            actualizarEstadoConexion(false, e.message);
+            mostrarToast(`Error al guardar: ${e.message}`, 'error');
+            return false;
+        }
     }
 
     function actualizarNextId() {
@@ -354,80 +434,16 @@
         return max + 1;
     }
 
-    // Guardar en localStorage
-    function guardarLocalStorage() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sesiones));
-    }
-
-    // Guardar en JSONBin (si está configurado y hay conexión)
-    async function guardarEnNube() {
-        if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'TU_BIN_ID_AQUI') {
-            actualizarEstadoConexion(false);
-            return false;
-        }
-        try {
-            const headers = { 'Content-Type': 'application/json' };
-            if (JSONBIN_API_KEY) headers['X-Master-Key'] = JSONBIN_API_KEY;
-            const resp = await fetch(API_URL, {
-                method: 'PUT',
-                headers: headers,
-                body: JSON.stringify(sesiones)
-            });
-            if (!resp.ok) throw new Error('Error al guardar en JSONBin');
-            actualizarEstadoConexion(true);
-            return true;
-        } catch(e) {
-            console.warn('No se pudo guardar en la nube:', e);
-            actualizarEstadoConexion(false);
-            return false;
-        }
-    }
-
-    // Cargar desde JSONBin
-    async function cargarDesdeNube() {
-        if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'TU_BIN_ID_AQUI') {
-            actualizarEstadoConexion(false);
-            return false;
-        }
-        try {
-            const headers = {};
-            if (JSONBIN_API_KEY) headers['X-Master-Key'] = JSONBIN_API_KEY;
-            const resp = await fetch(API_URL, { headers });
-            if (!resp.ok) throw new Error('Error al cargar desde JSONBin');
-            const data = await resp.json();
-            if (data.record && Array.isArray(data.record)) {
-                sesiones = data.record;
-                actualizarNextId();
-                actualizarEstadoConexion(true);
-                return true;
-            }
-            return false;
-        } catch(e) {
-            console.warn('No se pudo cargar desde la nube:', e);
-            actualizarEstadoConexion(false);
-            return false;
-        }
-    }
-
-    // Persistencia completa (intenta nube, siempre guarda local)
-    async function persistirCompleto() {
-        guardarLocalStorage();
-        await guardarEnNube();
-        // Actualizar indicador de estado
-        actualizarEstadoConexion(online);
-    }
-
-    // Actualizar indicador visual de conexión
-    function actualizarEstadoConexion(estado) {
+    function actualizarEstadoConexion(estado, mensaje = '') {
         online = estado;
         const dot = document.getElementById('statusDot');
         const text = document.getElementById('statusText');
-        if (online) {
+        if (estado) {
             dot.className = 'dot online';
             text.textContent = 'Nube';
         } else {
-            dot.className = 'dot';
-            text.textContent = 'Local';
+            dot.className = 'dot error';
+            text.textContent = mensaje || 'Offline';
         }
     }
 
@@ -523,6 +539,10 @@
 
     async function guardarSesion(e) {
         e.preventDefault();
+        const btn = document.getElementById('btnGuardarSesion');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
         const id = document.getElementById('editSesionId').value;
         const numeroSesion = document.getElementById('numeroSesion').value.trim();
         const tipoSesion = document.getElementById('tipoSesion').value;
@@ -532,6 +552,8 @@
 
         if (!numeroSesion || !fecha) {
             alert('Por favor complete Nº Sesión y Fecha.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
             return;
         }
 
@@ -544,10 +566,15 @@
             const nueva = { id: nextSesionId++, numeroSesion, tipoSesion, fecha, enlaceActa, estado, acuerdos: [] };
             sesiones.push(nueva);
         }
-        await persistirCompleto();
-        const filtro = document.getElementById('buscadorSesiones').value;
-        renderizarSesiones(filtro);
-        cerrarModal('modalFormSesion');
+
+        const exito = await guardarEnNube();
+        if (exito) {
+            const filtro = document.getElementById('buscadorSesiones').value;
+            renderizarSesiones(filtro);
+            cerrarModal('modalFormSesion');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
     }
 
     // ----- Detalle de sesión -----
@@ -556,7 +583,6 @@
         if (!sesion) return;
         sesionActualId = id;
 
-        // Información general en fila horizontal
         const infoDiv = document.getElementById('detalleSesionInfo');
         infoDiv.innerHTML = `
             <div class="info-item"><span class="label">Nº Sesión</span><span class="value">${sesion.numeroSesion}</span></div>
@@ -565,7 +591,6 @@
             <div class="info-item"><span class="label">Estado</span><span class="value"><span class="estado-badge estado-${sesion.estado.toLowerCase()}">${sesion.estado}</span></span></div>
         `;
 
-        // Enlace
         const enlaceDiv = document.getElementById('enlaceContainer');
         if (sesion.enlaceActa) {
             enlaceDiv.innerHTML = `
@@ -612,7 +637,7 @@
             document.execCommand('copy');
             mostrarFeedbackCopia(elemento);
         } catch(e) {
-            alert('No se pudo copiar el enlace.');
+            mostrarToast('No se pudo copiar el enlace', 'error');
         }
         document.body.removeChild(input);
     }
@@ -695,6 +720,10 @@
 
     async function guardarAcuerdo(e) {
         e.preventDefault();
+        const btn = document.getElementById('btnGuardarAcuerdo');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
         const sesionId = parseInt(document.getElementById('acuerdoSesionId').value);
         const acuerdoId = document.getElementById('editAcuerdoId').value;
         const codigo = document.getElementById('codigoAcuerdo').value.trim();
@@ -702,11 +731,17 @@
 
         if (!codigo || !descripcion) {
             alert('Código y descripción son obligatorios.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
             return;
         }
 
         const sesion = sesiones.find(s => s.id === sesionId);
-        if (!sesion) return;
+        if (!sesion) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+            return;
+        }
 
         if (acuerdoId) {
             const index = sesion.acuerdos.findIndex(a => a.id === parseInt(acuerdoId));
@@ -717,14 +752,19 @@
             const nuevo = { id: getNextAcuerdoId(), codigo, descripcion };
             sesion.acuerdos.push(nuevo);
         }
-        await persistirCompleto();
-        const filtro = document.getElementById('buscadorSesiones').value;
-        renderizarSesiones(filtro);
-        if (sesionActualId === sesionId) {
-            const sesionActual = sesiones.find(s => s.id === sesionId);
-            if (sesionActual) renderizarAcuerdos(sesionActual);
+
+        const exito = await guardarEnNube();
+        if (exito) {
+            const filtro = document.getElementById('buscadorSesiones').value;
+            renderizarSesiones(filtro);
+            if (sesionActualId === sesionId) {
+                const sesionActual = sesiones.find(s => s.id === sesionId);
+                if (sesionActual) renderizarAcuerdos(sesionActual);
+            }
+            cerrarModal('modalFormAcuerdo');
         }
-        cerrarModal('modalFormAcuerdo');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
     }
 
     // ----- Eliminar sesión -----
@@ -739,12 +779,14 @@
 
     async function ejecutarEliminarSesion(id) {
         sesiones = sesiones.filter(s => s.id !== id);
-        await persistirCompleto();
-        const filtro = document.getElementById('buscadorSesiones').value;
-        renderizarSesiones(filtro);
-        if (sesionActualId === id) {
-            cerrarModal('modalDetalleSesion');
-            sesionActualId = null;
+        const exito = await guardarEnNube();
+        if (exito) {
+            const filtro = document.getElementById('buscadorSesiones').value;
+            renderizarSesiones(filtro);
+            if (sesionActualId === id) {
+                cerrarModal('modalDetalleSesion');
+                sesionActualId = null;
+            }
         }
     }
 
@@ -765,32 +807,28 @@
         const sesion = sesiones.find(s => s.id === sesionId);
         if (!sesion) return;
         sesion.acuerdos = sesion.acuerdos.filter(a => a.id !== acuerdoId);
-        await persistirCompleto();
-        const filtro = document.getElementById('buscadorSesiones').value;
-        renderizarSesiones(filtro);
-        if (sesionActualId === sesionId) {
-            const sesionActual = sesiones.find(s => s.id === sesionId);
-            if (sesionActual) renderizarAcuerdos(sesionActual);
+        const exito = await guardarEnNube();
+        if (exito) {
+            const filtro = document.getElementById('buscadorSesiones').value;
+            renderizarSesiones(filtro);
+            if (sesionActualId === sesionId) {
+                const sesionActual = sesiones.find(s => s.id === sesionId);
+                if (sesionActual) renderizarAcuerdos(sesionActual);
+            }
         }
     }
 
     // ----- Inicialización -----
     async function inicializar() {
-        // Intentar cargar desde la nube
-        const cargadoNube = await cargarDesdeNube();
-        if (!cargadoNube) {
-            // Fallback a localStorage
-            cargarDesdeLocalStorage();
+        const exito = await cargarDesdeNube();
+        if (exito) {
+            renderizarSesiones();
         } else {
-            // Si cargó de nube, guardar en localStorage para tener copia local
-            guardarLocalStorage();
+            renderizarSesiones();
+            mostrarToast('Cargados datos de ejemplo (sin conexión a la nube)', 'error');
         }
-        // Renderizar
-        renderizarSesiones();
-        // Configurar modo inicial (vista)
         modoActual = 'view';
         document.getElementById('btnNuevaSesion').style.display = 'none';
-        // Eventos
         configurarEventos();
     }
 
@@ -831,23 +869,22 @@
             searchInput.focus();
         });
 
-        // Botón sincronizar (forzar carga desde nube)
+        // Botón sincronizar
         document.getElementById('syncBtn').addEventListener('click', async function() {
             const originalIcon = this.querySelector('i').className;
             this.querySelector('i').className = 'fas fa-spinner fa-spin';
             const exito = await cargarDesdeNube();
             if (exito) {
-                guardarLocalStorage();
                 renderizarSesiones(document.getElementById('buscadorSesiones').value);
                 if (sesionActualId) {
                     const sesion = sesiones.find(s => s.id === sesionActualId);
                     if (sesion) {
-                        verDetalleSesion(sesion.id); // refresca detalle
+                        verDetalleSesion(sesion.id);
                     }
                 }
-                alert('Datos sincronizados desde la nube correctamente.');
+                mostrarToast('Datos sincronizados desde la nube ✅', 'success');
             } else {
-                alert('No se pudo sincronizar desde la nube. Revisa tu conexión o las credenciales de JSONBin.');
+                mostrarToast('No se pudo sincronizar ❌', 'error');
             }
             this.querySelector('i').className = originalIcon;
         });
