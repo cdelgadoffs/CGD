@@ -7,12 +7,159 @@
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/cdelgadoffs/CGD/36a1655067bd5796051a6bbc9f26d22d449d4ceb/cdelgado.PNG">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ===== ESTILOS ===== */
+        /* ===== ESTILOS (sin cambios) ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',Roboto,sans-serif; background:#f0f4f8; color:#1a202c; padding:20px; }
         .container { max-width:1200px; margin:0 auto; }
 
-        /* --- Pantalla de Login (fondo azul marino) --- */
+        .header { background:#0b2a3b; color:white; padding:18px 30px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        .header h1 { font-weight:500; font-size:1.4rem; letter-spacing:0.5px; margin:0; }
+        .header-actions { display:flex; align-items:center; gap:15px; flex-wrap:wrap; }
+
+        .search-box { display:flex; align-items:center; background:white; border-radius:30px; padding:4px 16px; gap:8px; position:relative; }
+        .search-box input { border:none; padding:6px 0; font-size:0.9rem; background:transparent; outline:none; width:180px; color:#1a202c; }
+        .search-box i { color:#4a5568; font-size:0.9rem; }
+        .search-box .clear-btn { position:absolute; right:8px; background:none; border:none; color:#a0aec0; cursor:pointer; font-size:1rem; padding:0 4px; display:none; transition:color 0.2s; }
+        .search-box .clear-btn:hover { color:#e53e3e; }
+        .search-box .clear-btn.visible { display:block; }
+
+        .btn-primary { background:white; color:#0b2a3b; border:none; padding:8px 20px; border-radius:30px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .btn-primary:hover { background:#e2e8f0; transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,0.15); }
+        .btn-primary i { font-size:1rem; }
+        .btn-secondary { background:#edf2f7; color:#2d3748; border:none; padding:8px 18px; border-radius:30px; font-weight:600; cursor:pointer; transition:background 0.2s; font-size:0.9rem; }
+        .btn-secondary:hover { background:#e2e8f0; }
+        .btn-danger { background:#e53e3e; color:white; border:none; padding:8px 18px; border-radius:30px; font-weight:600; cursor:pointer; transition:background 0.2s; font-size:0.9rem; }
+        .btn-danger:hover { background:#c53030; }
+        .btn-small { padding:4px 12px; font-size:0.8rem; }
+        .btn-link { background:none; border:none; color:#2b6cb0; font-weight:600; cursor:pointer; text-decoration:underline; padding:0; font-size:0.9rem; }
+        .btn-link:hover { color:#0b2a3b; }
+        .btn-icon { background:none; border:none; cursor:pointer; color:#4a5568; font-size:1.1rem; transition:color 0.2s; padding:4px; }
+        .btn-icon:hover { color:#0b2a3b; }
+        .btn-icon.success { color:#48bb78; }
+
+        .mode-switch { display:flex; background:rgba(255,255,255,0.2); border-radius:30px; padding:4px; gap:4px; }
+        .mode-switch button { background:transparent; border:none; padding:6px 14px; border-radius:30px; font-weight:600; font-size:0.9rem; color:white; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:4px; }
+        .mode-switch button.active { background:white; color:#0b2a3b; }
+        .mode-switch button i { font-size:1rem; }
+
+        .status-indicator { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:rgba(255,255,255,0.8); }
+        .status-indicator .dot { width:10px; height:10px; border-radius:50%; background:#a0aec0; transition:background 0.3s; }
+        .status-indicator .dot.online { background:#48bb78; }
+        .status-indicator .dot.error { background:#e53e3e; }
+
+        .card { background:white; border-radius:0 0 12px 12px; box-shadow:0 8px 30px rgba(0,0,0,0.06); padding:25px 30px; overflow-x:auto; }
+        .contrast-line { height:3px; background:#0b2a3b; width:100%; margin:0 0 25px 0; border-radius:2px; }
+
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; font-size:0.95rem; }
+        thead { background:#f7fafc; border-bottom:3px solid #0b2a3b; }
+        thead th { text-align:left; padding:14px 12px; font-weight:600; color:#0b2a3b; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.3px; }
+        tbody tr { border-bottom:1px solid #edf2f7; transition:background 0.1s; }
+        tbody tr:hover { background:#f7fafc; }
+        tbody td { padding:14px 12px; vertical-align:middle; }
+
+        .estado-badge { display:inline-block; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.3px; }
+        .estado-borrador { background:#edf2f7; color:#4a5568; }
+        .estado-firmado { background:#c6f6d5; color:#276749; }
+        .estado-archivado { background:#fed7d7; color:#9b2c2c; }
+
+        .acciones i { font-size:1.1rem; margin:0 4px; cursor:pointer; color:#4a5568; transition:color 0.2s, transform 0.1s; }
+        .acciones i:hover { color:#0b2a3b; transform:scale(1.15); }
+        .acciones i.fa-trash-alt:hover { color:#e53e3e; }
+
+        .empty-message { text-align:center; padding:40px 0; color:#718096; font-size:1.1rem; }
+
+        /* Modales */
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,42,59,0.5); backdrop-filter:blur(3px); z-index:1000; justify-content:center; align-items:center; padding:20px; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:white; max-width:700px; width:100%; border-radius:16px; box-shadow:0 30px 60px rgba(0,0,0,0.2); padding:30px 35px; position:relative; animation:fadeIn 0.25s ease; max-height:90vh; overflow-y:auto; }
+        .modal-wide { max-width:1100px; height:85vh; display:flex; flex-direction:column; }
+        .modal-wide .modal-body { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #0b2a3b; padding-bottom:12px; flex-shrink:0; }
+        .modal-header h2 { font-weight:500; color:#0b2a3b; }
+        .modal-header .close-btn { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#4a5568; transition:color 0.2s; }
+        .modal-header .close-btn:hover { color:#e53e3e; }
+
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#2d3748; }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:white; transition:border 0.2s; font-family:inherit; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:#2b6cb0; box-shadow:0 0 0 3px rgba(43,108,176,0.15); }
+        .form-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:25px; flex-shrink:0; }
+
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 30px; }
+        .form-grid .form-group { margin-bottom:18px; }
+        .form-grid .full-width { grid-column:1 / -1; }
+
+        /* Detalle sesión */
+        .detalle-sesion-info { background:#f7fafc; padding:12px 20px; border-radius:12px; margin-bottom:15px; display:flex; flex-wrap:wrap; align-items:center; gap:20px 40px; flex-shrink:0; }
+        .detalle-sesion-info .info-item { display:flex; align-items:center; gap:6px; }
+        .detalle-sesion-info .info-item .label { font-size:0.7rem; text-transform:uppercase; color:#4a5568; font-weight:600; letter-spacing:0.3px; }
+        .detalle-sesion-info .info-item .value { font-size:0.95rem; font-weight:500; color:#1a202c; }
+        .detalle-sesion-info .info-item .value .estado-badge { font-size:0.65rem; }
+
+        .enlace-container { background:white; border-radius:8px; padding:6px 14px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; flex-shrink:0; margin-bottom:15px; }
+        .enlace-container .label { font-size:0.7rem; text-transform:uppercase; color:#4a5568; font-weight:600; letter-spacing:0.3px; }
+        .enlace-container .enlace-url { flex:1; min-width:0; font-size:0.85rem; color:#2b6cb0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .enlace-container .enlace-url a { color:#2b6cb0; text-decoration:none; }
+        .enlace-container .enlace-url a:hover { text-decoration:underline; }
+
+        .sub-header { display:flex; justify-content:space-between; align-items:center; margin:10px 0 12px 0; flex-shrink:0; }
+        .sub-header h3 { color:#0b2a3b; font-weight:500; font-size:1.1rem; }
+
+        .acuerdos-table-wrapper { flex:1; overflow-y:auto; border:1px solid #edf2f7; border-radius:8px; min-height:0; }
+        .acuerdos-table-wrapper table { border-collapse:collapse; }
+        .acuerdos-table-wrapper thead th { position:sticky; top:0; background:#f7fafc; z-index:2; border-bottom:2px solid #0b2a3b; }
+        .acuerdos-table-wrapper td:first-child, .acuerdos-table-wrapper th:first-child { min-width:150px; white-space:nowrap; }
+        .acuerdos-table-wrapper td:last-child, .acuerdos-table-wrapper th:last-child { text-align:right; min-width:80px; }
+        .acuerdos-table-wrapper td:nth-child(2) { width:100%; }
+
+        .toast {
+            position:fixed; bottom:20px; right:20px; background:#0b2a3b; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; z-index:2000; animation:slideUp 0.3s ease;
+        }
+        .toast.show { display:block; }
+        .toast.success { background:#276749; }
+        .toast.error { background:#9b2c2c; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        .error-banner {
+            background: #fed7d7; color: #9b2c2c; padding: 15px 20px; border-radius: 8px; margin: 20px 0; text-align: center; font-weight: 600; border: 1px solid #feb2b2;
+        }
+        .error-banner i { margin-right: 10px; }
+
+        /* Botón de usuarios (solo TI) */
+        .btn-ti {
+            background: #2b6cb0;
+            color: white;
+        }
+        .btn-ti:hover {
+            background: #1a4a6b;
+        }
+
+        @media (max-width:700px) {
+            .header { flex-direction:column; align-items:stretch; text-align:center; }
+            .header h1 { font-size:1.2rem; }
+            .header-actions { justify-content:center; flex-wrap:wrap; }
+            .search-box input { width:120px; }
+            .card { padding:15px; }
+            .modal { padding:20px; }
+            .modal-wide { max-width:100%; height:auto; max-height:90vh; }
+            .detalle-sesion-info { flex-direction:column; align-items:flex-start; gap:8px; }
+            .form-grid { grid-template-columns:1fr; gap:0; }
+            .login-card { padding:30px 20px; }
+        }
+        @media (max-width:500px) {
+            table, thead, tbody, th, td, tr { display:block; }
+            thead { display:none; }
+            tbody tr { margin-bottom:15px; border:1px solid #e2e8f0; border-radius:8px; padding:10px; }
+            tbody td { display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px solid #f0f4f8; }
+            tbody td:last-child { border-bottom:none; }
+            tbody td::before { content:attr(data-label); font-weight:600; color:#0b2a3b; }
+            .acciones { justify-content:flex-end; }
+            .acuerdos-table-wrapper td:first-child, .acuerdos-table-wrapper th:first-child { min-width:auto; white-space:normal; }
+        }
+
+        /* ===== PANTALLA DE LOGIN (fondo azul marino) ===== */
         .login-container {
             display: flex;
             justify-content: center;
@@ -107,164 +254,6 @@
             text-align: center;
             min-height: 24px;
         }
-        .login-card .version {
-            text-align: center;
-            margin-top: 20px;
-            color: #a0aec0;
-            font-size: 0.75rem;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== RESTO DE ESTILOS (sin cambios) ===== */
-        .header { background:#0b2a3b; color:white; padding:18px 30px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
-        .header h1 { font-weight:500; font-size:1.4rem; letter-spacing:0.5px; margin:0; }
-        .header-actions { display:flex; align-items:center; gap:15px; flex-wrap:wrap; }
-
-        .search-box { display:flex; align-items:center; background:white; border-radius:30px; padding:4px 16px; gap:8px; position:relative; }
-        .search-box input { border:none; padding:6px 0; font-size:0.9rem; background:transparent; outline:none; width:180px; color:#1a202c; }
-        .search-box i { color:#4a5568; font-size:0.9rem; }
-        .search-box .clear-btn { position:absolute; right:8px; background:none; border:none; color:#a0aec0; cursor:pointer; font-size:1rem; padding:0 4px; display:none; transition:color 0.2s; }
-        .search-box .clear-btn:hover { color:#e53e3e; }
-        .search-box .clear-btn.visible { display:block; }
-
-        .btn-primary { background:white; color:#0b2a3b; border:none; padding:8px 20px; border-radius:30px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
-        .btn-primary:hover { background:#e2e8f0; transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,0.15); }
-        .btn-primary i { font-size:1rem; }
-        .btn-secondary { background:#edf2f7; color:#2d3748; border:none; padding:8px 18px; border-radius:30px; font-weight:600; cursor:pointer; transition:background 0.2s; font-size:0.9rem; }
-        .btn-secondary:hover { background:#e2e8f0; }
-        .btn-danger { background:#e53e3e; color:white; border:none; padding:8px 18px; border-radius:30px; font-weight:600; cursor:pointer; transition:background 0.2s; font-size:0.9rem; }
-        .btn-danger:hover { background:#c53030; }
-        .btn-small { padding:4px 12px; font-size:0.8rem; }
-        .btn-link { background:none; border:none; color:#2b6cb0; font-weight:600; cursor:pointer; text-decoration:underline; padding:0; font-size:0.9rem; }
-        .btn-link:hover { color:#0b2a3b; }
-        .btn-icon { background:none; border:none; cursor:pointer; color:#4a5568; font-size:1.1rem; transition:color 0.2s; padding:4px; }
-        .btn-icon:hover { color:#0b2a3b; }
-        .btn-icon.success { color:#48bb78; }
-
-        .mode-switch { display:flex; background:rgba(255,255,255,0.2); border-radius:30px; padding:4px; gap:4px; }
-        .mode-switch button { background:transparent; border:none; padding:6px 14px; border-radius:30px; font-weight:600; font-size:0.9rem; color:white; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:4px; }
-        .mode-switch button.active { background:white; color:#0b2a3b; }
-        .mode-switch button i { font-size:1rem; }
-
-        .status-indicator { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:rgba(255,255,255,0.8); }
-        .status-indicator .dot { width:10px; height:10px; border-radius:50%; background:#a0aec0; transition:background 0.3s; }
-        .status-indicator .dot.online { background:#48bb78; }
-        .status-indicator .dot.error { background:#e53e3e; }
-
-        .card { background:white; border-radius:0 0 12px 12px; box-shadow:0 8px 30px rgba(0,0,0,0.06); padding:25px 30px; overflow-x:auto; }
-        .contrast-line { height:3px; background:#0b2a3b; width:100%; margin:0 0 25px 0; border-radius:2px; }
-
-        .table-wrapper { overflow-x:auto; }
-        table { width:100%; border-collapse:collapse; font-size:0.95rem; }
-        thead { background:#f7fafc; border-bottom:3px solid #0b2a3b; }
-        thead th { text-align:left; padding:14px 12px; font-weight:600; color:#0b2a3b; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.3px; }
-        tbody tr { border-bottom:1px solid #edf2f7; transition:background 0.1s; }
-        tbody tr:hover { background:#f7fafc; }
-        tbody td { padding:14px 12px; vertical-align:middle; }
-
-        .estado-badge { display:inline-block; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.3px; }
-        .estado-borrador { background:#edf2f7; color:#4a5568; }
-        .estado-firmado { background:#c6f6d5; color:#276749; }
-        .estado-archivado { background:#fed7d7; color:#9b2c2c; }
-
-        .acciones i { font-size:1.1rem; margin:0 4px; cursor:pointer; color:#4a5568; transition:color 0.2s, transform 0.1s; }
-        .acciones i:hover { color:#0b2a3b; transform:scale(1.15); }
-        .acciones i.fa-trash-alt:hover { color:#e53e3e; }
-
-        .empty-message { text-align:center; padding:40px 0; color:#718096; font-size:1.1rem; }
-
-        /* Modales */
-        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,42,59,0.5); backdrop-filter:blur(3px); z-index:1000; justify-content:center; align-items:center; padding:20px; }
-        .modal-overlay.active { display:flex; }
-        .modal { background:white; max-width:700px; width:100%; border-radius:16px; box-shadow:0 30px 60px rgba(0,0,0,0.2); padding:30px 35px; position:relative; animation:fadeIn 0.25s ease; max-height:90vh; overflow-y:auto; }
-        .modal-wide { max-width:1100px; height:85vh; display:flex; flex-direction:column; }
-        .modal-wide .modal-body { flex:1; overflow:hidden; display:flex; flex-direction:column; }
-        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #0b2a3b; padding-bottom:12px; flex-shrink:0; }
-        .modal-header h2 { font-weight:500; color:#0b2a3b; }
-        .modal-header .close-btn { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#4a5568; transition:color 0.2s; }
-        .modal-header .close-btn:hover { color:#e53e3e; }
-
-        .form-group { margin-bottom:18px; }
-        .form-group label { display:block; font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#2d3748; }
-        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:white; transition:border 0.2s; font-family:inherit; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:#2b6cb0; box-shadow:0 0 0 3px rgba(43,108,176,0.15); }
-        .form-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:25px; flex-shrink:0; }
-
-        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 30px; }
-        .form-grid .form-group { margin-bottom:18px; }
-        .form-grid .full-width { grid-column:1 / -1; }
-
-        /* Detalle sesión */
-        .detalle-sesion-info { background:#f7fafc; padding:12px 20px; border-radius:12px; margin-bottom:15px; display:flex; flex-wrap:wrap; align-items:center; gap:20px 40px; flex-shrink:0; }
-        .detalle-sesion-info .info-item { display:flex; align-items:center; gap:6px; }
-        .detalle-sesion-info .info-item .label { font-size:0.7rem; text-transform:uppercase; color:#4a5568; font-weight:600; letter-spacing:0.3px; }
-        .detalle-sesion-info .info-item .value { font-size:0.95rem; font-weight:500; color:#1a202c; }
-        .detalle-sesion-info .info-item .value .estado-badge { font-size:0.65rem; }
-
-        .enlace-container { background:white; border-radius:8px; padding:6px 14px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; flex-shrink:0; margin-bottom:15px; }
-        .enlace-container .label { font-size:0.7rem; text-transform:uppercase; color:#4a5568; font-weight:600; letter-spacing:0.3px; }
-        .enlace-container .enlace-url { flex:1; min-width:0; font-size:0.85rem; color:#2b6cb0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .enlace-container .enlace-url a { color:#2b6cb0; text-decoration:none; }
-        .enlace-container .enlace-url a:hover { text-decoration:underline; }
-
-        .sub-header { display:flex; justify-content:space-between; align-items:center; margin:10px 0 12px 0; flex-shrink:0; }
-        .sub-header h3 { color:#0b2a3b; font-weight:500; font-size:1.1rem; }
-
-        .acuerdos-table-wrapper { flex:1; overflow-y:auto; border:1px solid #edf2f7; border-radius:8px; min-height:0; }
-        .acuerdos-table-wrapper table { border-collapse:collapse; }
-        .acuerdos-table-wrapper thead th { position:sticky; top:0; background:#f7fafc; z-index:2; border-bottom:2px solid #0b2a3b; }
-        .acuerdos-table-wrapper td:first-child, .acuerdos-table-wrapper th:first-child { min-width:150px; white-space:nowrap; }
-        .acuerdos-table-wrapper td:last-child, .acuerdos-table-wrapper th:last-child { text-align:right; min-width:80px; }
-        .acuerdos-table-wrapper td:nth-child(2) { width:100%; }
-
-        .toast {
-            position:fixed; bottom:20px; right:20px; background:#0b2a3b; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; z-index:2000; animation:slideUp 0.3s ease;
-        }
-        .toast.show { display:block; }
-        .toast.success { background:#276749; }
-        .toast.error { background:#9b2c2c; }
-        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
-        .error-banner {
-            background: #fed7d7; color: #9b2c2c; padding: 15px 20px; border-radius: 8px; margin: 20px 0; text-align: center; font-weight: 600; border: 1px solid #feb2b2;
-        }
-        .error-banner i { margin-right: 10px; }
-
-        /* Botón de usuarios (solo TI) */
-        .btn-ti {
-            background: #2b6cb0;
-            color: white;
-        }
-        .btn-ti:hover {
-            background: #1a4a6b;
-        }
-
-        @media (max-width:700px) {
-            .header { flex-direction:column; align-items:stretch; text-align:center; }
-            .header h1 { font-size:1.2rem; }
-            .header-actions { justify-content:center; flex-wrap:wrap; }
-            .search-box input { width:120px; }
-            .card { padding:15px; }
-            .modal { padding:20px; }
-            .modal-wide { max-width:100%; height:auto; max-height:90vh; }
-            .detalle-sesion-info { flex-direction:column; align-items:flex-start; gap:8px; }
-            .form-grid { grid-template-columns:1fr; gap:0; }
-            .login-card { padding:30px 20px; }
-        }
-        @media (max-width:500px) {
-            table, thead, tbody, th, td, tr { display:block; }
-            thead { display:none; }
-            tbody tr { margin-bottom:15px; border:1px solid #e2e8f0; border-radius:8px; padding:10px; }
-            tbody td { display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px solid #f0f4f8; }
-            tbody td:last-child { border-bottom:none; }
-            tbody td::before { content:attr(data-label); font-weight:600; color:#0b2a3b; }
-            .acciones { justify-content:flex-end; }
-            .acuerdos-table-wrapper td:first-child, .acuerdos-table-wrapper th:first-child { min-width:auto; white-space:normal; }
-        }
     </style>
 </head>
 <body>
@@ -291,7 +280,6 @@
             </button>
             <div id="loginError" class="error-msg"></div>
         </form>
-        <div class="version">v2.0 · Seguridad mejorada</div>
     </div>
 </div>
 
@@ -340,7 +328,7 @@
     </div>
 </div>
 
-<!-- ===== MODALES (sin cambios) ===== -->
+<!-- ===== MODALES ===== -->
 <!-- Modal Formulario Sesión -->
 <div class="modal-overlay" id="modalFormSesion">
     <div class="modal">
@@ -532,11 +520,10 @@
 <script>
 (function() {
     // ============================================================
-    // CONFIGURACIÓN
+    // CONFIGURACIÓN (TODA LA COMUNICACIÓN PASA POR EL WORKER)
     // ============================================================
     const WORKER_URL = 'https://proxy-jsonbin.cdelgado-ffs.workers.dev/';
-    const USUARIOS_URL = 'https://api.jsonbin.io/v3/b/6a42bab5f5f4af5e294346d0?meta=false';
-    const JSONBIN_API_KEY = '$2a$10$4e3QV3RCHml1DxiFvCKILuwjNoghTJxTZY3XQslBwKVxidKIb86ja';
+    const USUARIOS_URL = WORKER_URL + 'usuarios';
     // ============================================================
 
     // Variables globales
@@ -547,7 +534,7 @@
     let modoActual = 'view';
     let sesionActualId = null;
     let online = false;
-    let usuarioActual = null; // { username, permisos }
+    let usuarioActual = null; // { username, password, permisos }
 
     // Elementos DOM
     const loginContainer = document.getElementById('loginContainer');
@@ -564,31 +551,32 @@
     // ----- Funciones de autenticación -----
     function getAuthHeader() {
         if (!usuarioActual) return null;
-        return 'Basic ' + btoa(`${usuarioActual.username}:${usuarioActual.password || ''}`);
+        return 'Basic ' + btoa(`${usuarioActual.username}:${usuarioActual.password}`);
     }
 
     async function iniciarSesion(username, password) {
         try {
-            // Validar contra JSONBin
-            const resp = await fetch(USUARIOS_URL, {
-                headers: { 'X-Master-Key': JSONBIN_API_KEY }
+            console.log('🔍 Intentando login para:', username);
+            const resp = await fetch(WORKER_URL + 'login', {
+                headers: {
+                    'Authorization': 'Basic ' + btoa(`${username}:${password}`)
+                }
             });
-            if (!resp.ok) throw new Error('Error al obtener usuarios');
-            const data = await resp.json();
-            const usuario = data.find(u => u.username === username && u.password === password);
-            if (!usuario) {
-                throw new Error('Usuario o contraseña incorrectos');
+            console.log(`📡 Login ${resp.status} ${resp.statusText}`);
+
+            if (!resp.ok) {
+                const errText = await resp.text();
+                throw new Error(errText || 'Error al iniciar sesión');
             }
-            // Guardar sesión
-            usuarioActual = {
-                username: usuario.username,
-                password: usuario.password,
-                permisos: usuario.permisos
+            const data = await resp.json();
+            console.log('✅ Login exitoso:', data);
+            return {
+                username: data.username,
+                password: password,
+                permisos: data.permisos
             };
-            sessionStorage.setItem('usuarioActual', JSON.stringify(usuarioActual));
-            return usuarioActual;
         } catch(e) {
-            console.error('Error en login:', e);
+            console.error('❌ Error en login:', e);
             throw e;
         }
     }
@@ -833,7 +821,7 @@
         btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
     }
 
-    // ----- Detalle de sesión (sin cambios) -----
+    // ----- Detalle de sesión -----
     function verDetalleSesion(id) {
         const sesion = sesiones.find(s => s.id === id);
         if (!sesion) return;
@@ -1083,37 +1071,42 @@
     // ----- Gestión de usuarios (solo TI) -----
     async function cargarUsuarios() {
         try {
-            const resp = await fetch(USUARIOS_URL, {
-                headers: { 'X-Master-Key': JSONBIN_API_KEY }
-            });
-            if (!resp.ok) throw new Error('Error al cargar usuarios');
+            const headers = { 'Authorization': getAuthHeader() };
+            const resp = await fetch(USUARIOS_URL, { headers });
+            if (!resp.ok) {
+                const errText = await resp.text();
+                throw new Error(`Error al cargar usuarios: ${errText}`);
+            }
             const data = await resp.json();
             usuarios = data;
             return true;
         } catch(e) {
             console.error('Error cargando usuarios:', e);
-            mostrarToast('Error al cargar usuarios', 'error');
+            mostrarToast('Error al cargar usuarios: ' + e.message, 'error');
             return false;
         }
     }
 
     async function guardarUsuarios() {
         try {
-            const resp = await fetch('https://api.jsonbin.io/v3/b/6a42bab5f5f4af5e294346d0', {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': getAuthHeader()
+            };
+            const resp = await fetch(USUARIOS_URL, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': JSONBIN_API_KEY,
-                    'X-Bin-Versioning': 'false'
-                },
+                headers: headers,
                 body: JSON.stringify(usuarios)
             });
-            if (!resp.ok) throw new Error('Error al guardar usuarios');
+            if (!resp.ok) {
+                const errText = await resp.text();
+                throw new Error(`Error al guardar usuarios: ${errText}`);
+            }
             mostrarToast('Usuarios guardados ✅', 'success');
             return true;
         } catch(e) {
             console.error('Error guardando usuarios:', e);
-            mostrarToast('Error al guardar usuarios', 'error');
+            mostrarToast('Error al guardar usuarios: ' + e.message, 'error');
             return false;
         }
     }
