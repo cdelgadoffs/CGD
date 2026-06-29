@@ -534,6 +534,7 @@
     let modoActual = 'view';
     let sesionActualId = null;
     let online = false;
+    let datosCargados = false; // true solo si la última carga desde la nube fue exitosa
     let usuarioActual = null; // { username, password, permisos }
 
     // Elementos DOM
@@ -617,6 +618,7 @@
                 sesiones = data;
                 actualizarNextId();
                 actualizarEstadoConexion(true);
+                datosCargados = true;
                 return true;
             } else {
                 throw new Error('Datos no son array');
@@ -624,14 +626,20 @@
         } catch(e) {
             console.error('Error al cargar:', e);
             actualizarEstadoConexion(false, e.message);
+            datosCargados = false;
             mostrarToast(`Error al cargar: ${e.message}`, 'error');
             errorMessage.textContent = `Error: ${e.message}`;
             errorBanner.style.display = 'block';
+            actualizarInterfazSegunPermisos();
             return false;
         }
     }
 
     async function guardarEnNube() {
+        if (!datosCargados) {
+            mostrarToast('⛔ Guardado bloqueado: los datos locales no están sincronizados con la nube. Pulsa "Sincronizar" e intenta de nuevo para evitar borrar información existente.', 'error');
+            return false;
+        }
         try {
             const headers = {
                 'Content-Type': 'application/json',
@@ -755,6 +763,10 @@
 
     // ----- Formulario Sesión -----
     function abrirFormSesion(id = null) {
+        if (!datosCargados) {
+            mostrarToast('No se pudieron cargar los datos actuales. Sincroniza antes de crear o editar para evitar pérdida de información.', 'error');
+            return;
+        }
         if (!usuarioActual.permisos.create && !id) {
             mostrarToast('No tienes permiso para crear', 'error');
             return;
@@ -945,6 +957,10 @@
 
     // ----- Formulario Acuerdo -----
     function abrirFormAcuerdo(sesionId, acuerdoId = null) {
+        if (!datosCargados) {
+            mostrarToast('No se pudieron cargar los datos actuales. Sincroniza antes de crear o editar para evitar pérdida de información.', 'error');
+            return;
+        }
         if (!usuarioActual.permisos.create && !acuerdoId) {
             mostrarToast('No tienes permiso para crear acuerdos', 'error');
             return;
@@ -1242,8 +1258,8 @@
         if (!usuarioActual) return;
         const permisos = usuarioActual.permisos;
 
-        // Botón nueva sesión (solo si tiene create)
-        btnNuevaSesion.style.display = (permisos.create && modoActual === 'edit') ? 'inline-flex' : 'none';
+        // Botón nueva sesión (solo si tiene create y los datos cargaron bien)
+        btnNuevaSesion.style.display = (permisos.create && modoActual === 'edit' && datosCargados) ? 'inline-flex' : 'none';
 
         // Botón gestión de usuarios (solo TI)
         btnGestionUsuarios.style.display = permisos.ti ? 'inline-flex' : 'none';
@@ -1329,7 +1345,7 @@
                 modeButtons.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 modoActual = this.dataset.mode;
-                document.getElementById('btnNuevaSesion').style.display = (modoActual === 'edit' && usuarioActual.permisos.create) ? 'inline-flex' : 'none';
+                document.getElementById('btnNuevaSesion').style.display = (modoActual === 'edit' && usuarioActual.permisos.create && datosCargados) ? 'inline-flex' : 'none';
                 const filtro = document.getElementById('buscadorSesiones').value;
                 renderizarSesiones(filtro);
                 if (sesionActualId) {
@@ -1363,6 +1379,7 @@
             const originalIcon = this.querySelector('i').className;
             this.querySelector('i').className = 'fas fa-spinner fa-spin';
             const exito = await cargarDesdeNube();
+            actualizarInterfazSegunPermisos();
             if (exito) {
                 renderizarSesiones(document.getElementById('buscadorSesiones').value);
                 if (sesionActualId) {
