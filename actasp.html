@@ -1273,6 +1273,8 @@
 
             try {
                 const usuario = await iniciarSesion(user, pass);
+                usuarioActual = usuario;
+                sessionStorage.setItem('usuarioActual', JSON.stringify(usuarioActual));
                 loginContainer.style.display = 'none';
                 mainApp.style.display = 'block';
                 // Cargar datos
