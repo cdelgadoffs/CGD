@@ -7,11 +7,121 @@
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/cdelgadoffs/CGD/36a1655067bd5796051a6bbc9f26d22d449d4ceb/cdelgado.PNG">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ===== ESTILOS (sin cambios) ===== */
+        /* ===== ESTILOS ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',Roboto,sans-serif; background:#f0f4f8; color:#1a202c; padding:20px; }
         .container { max-width:1200px; margin:0 auto; }
 
+        /* ===== LOGIN OVERLAY ===== */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0b2a3b 0%, #1a4b6d 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            transition: opacity 0.5s ease;
+        }
+        #loginOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 45px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.4s ease;
+        }
+        .login-box .logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .login-box .logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #0b2a3b;
+        }
+        .login-box .logo h2 {
+            color: #0b2a3b;
+            font-weight: 500;
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+        .login-box .logo p {
+            color: #4a5568;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .login-box .form-group {
+            margin-bottom: 18px;
+        }
+        .login-box .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+        .login-box .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border 0.2s;
+        }
+        .login-box .form-group input:focus {
+            outline: none;
+            border-color: #2b6cb0;
+            box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+        }
+        .login-box .login-error {
+            background: #fed7d7;
+            color: #9b2c2c;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+        }
+        .login-box .login-error.show {
+            display: block;
+        }
+        .login-box .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #0b2a3b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-box .btn-login:hover {
+            background: #1a4b6d;
+        }
+        .login-box .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .login-box .btn-login i {
+            margin-right: 8px;
+        }
+
+        /* ===== HEADER (sin cambios) ===== */
         .header { background:#0b2a3b; color:white; padding:18px 30px; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
         .header h1 { font-weight:500; font-size:1.4rem; letter-spacing:0.5px; margin:0; }
         .header-actions { display:flex; align-items:center; gap:15px; flex-wrap:wrap; }
@@ -137,6 +247,7 @@
             .modal-wide { max-width:100%; height:auto; max-height:90vh; }
             .detalle-sesion-info { flex-direction:column; align-items:flex-start; gap:8px; }
             .form-grid { grid-template-columns:1fr; gap:0; }
+            .login-box { padding:30px 25px; }
         }
         @media (max-width:500px) {
             table, thead, tbody, th, td, tr { display:block; }
@@ -151,6 +262,35 @@
     </style>
 </head>
 <body>
+
+<!-- ===== LOGIN OVERLAY ===== -->
+<div id="loginOverlay">
+    <div class="login-box">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/cdelgadoffs/CGD/36a1655067bd5796051a6bbc9f26d22d449d4ceb/cdelgado.PNG" alt="Logo">
+            <h2>Actas del CGD</h2>
+            <p>Inicia sesión para gestionar las actas</p>
+        </div>
+        <form id="loginForm" autocomplete="off">
+            <div class="form-group">
+                <label for="loginUser">Usuario</label>
+                <input type="text" id="loginUser" placeholder="Ingresa tu usuario" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="loginPass">Contraseña</label>
+                <input type="password" id="loginPass" placeholder="Ingresa tu contraseña" required>
+            </div>
+            <div id="loginError" class="login-error">
+                <i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos
+            </div>
+            <button type="submit" class="btn-login" id="btnLogin">
+                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== APLICACIÓN PRINCIPAL ===== -->
 <div class="container">
     <header class="header">
         <h1>ACTAS DE SESIONES DEL CGD</h1>
@@ -170,6 +310,9 @@
                 <button class="btn-icon" id="syncBtn" title="Sincronizar desde la nube" style="color:white;"><i class="fas fa-cloud-upload-alt"></i></button>
             </div>
             <button class="btn-primary" id="btnNuevaSesion" style="display:none;"><i class="fas fa-plus-circle"></i> Nueva Sesión</button>
+            <button class="btn-secondary" id="btnLogout" style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
         </div>
     </header>
 
@@ -322,42 +465,95 @@
     // ============================================================
     const WORKER_URL = 'https://proxy-jsonbin.cdelgado-ffs.workers.dev/';
 
-    // Autenticación básica (debe coincidir con la configurada en el Worker)
-    const AUTH_USER = 'admin';      // Cambiar si es necesario
-    const AUTH_PASS = 'admin123';   // Cambiar si es necesario
+    // Credenciales para login (deben coincidir con las del Worker)
+    const VALID_USER = 'admin';
+    const VALID_PASS = 'admin123';
 
-    function getAuthHeader() {
-        return 'Basic ' + btoa(`${AUTH_USER}:${AUTH_PASS}`);
-    }
     // ============================================================
+    // ELEMENTOS DEL LOGIN
+    const loginOverlay = document.getElementById('loginOverlay');
+    const loginForm = document.getElementById('loginForm');
+    const loginUser = document.getElementById('loginUser');
+    const loginPass = document.getElementById('loginPass');
+    const loginError = document.getElementById('loginError');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
 
+    // ============================================================
+    // FUNCIONES DE AUTENTICACIÓN
+    function getAuthHeader() {
+        return 'Basic ' + btoa(`${VALID_USER}:${VALID_PASS}`);
+    }
+
+    function verificarAutenticacion() {
+        // Si ya hay una sesión activa en sessionStorage, ocultar login
+        const session = sessionStorage.getItem('cgd_session');
+        if (session === 'authenticated') {
+            loginOverlay.classList.add('hidden');
+            return true;
+        }
+        loginOverlay.classList.remove('hidden');
+        return false;
+    }
+
+    function iniciarSesion(user, pass) {
+        if (user === VALID_USER && pass === VALID_PASS) {
+            sessionStorage.setItem('cgd_session', 'authenticated');
+            loginOverlay.classList.add('hidden');
+            loginError.classList.remove('show');
+            // Inicializar la aplicación
+            inicializarApp();
+            return true;
+        } else {
+            loginError.classList.add('show');
+            loginError.textContent = '❌ Usuario o contraseña incorrectos';
+            return false;
+        }
+    }
+
+    function cerrarSesion() {
+        sessionStorage.removeItem('cgd_session');
+        // Ocultar todo y mostrar login
+        document.querySelector('.container').style.display = 'none';
+        loginOverlay.classList.remove('hidden');
+        loginForm.reset();
+        loginError.classList.remove('show');
+        // Limpiar datos de la aplicación
+        sesiones = [];
+        renderizarSesiones();
+    }
+
+    // ============================================================
+    // EVENTOS DEL LOGIN
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = loginUser.value.trim();
+        const pass = loginPass.value.trim();
+        btnLogin.disabled = true;
+        btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+        setTimeout(() => {
+            iniciarSesion(user, pass);
+            btnLogin.disabled = false;
+            btnLogin.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+        }, 500); // Pequeño retraso para feedback visual
+    });
+
+    btnLogout.addEventListener('click', cerrarSesion);
+
+    // ============================================================
+    // VARIABLES GLOBALES DE LA APLICACIÓN
     let sesiones = [];
     let nextSesionId = 1;
     let modoActual = 'view';
     let sesionActualId = null;
     let online = false;
 
-    // ----- Elementos DOM -----
-    const errorBanner = document.getElementById('errorBanner');
-    const errorMessage = document.getElementById('errorMessage');
-
-    // ----- Toast (notificaciones) -----
-    function mostrarToast(mensaje, tipo = 'success') {
-        const toast = document.getElementById('toast');
-        toast.textContent = mensaje;
-        toast.className = `toast ${tipo} show`;
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3500);
-    }
-
-    // ----- Funciones de comunicación con el Worker -----
+    // ============================================================
+    // FUNCIONES DE COMUNICACIÓN CON EL WORKER
     async function cargarDesdeNube() {
-        errorBanner.style.display = 'none';
+        document.getElementById('errorBanner').style.display = 'none';
         try {
-            const headers = {
-                'Authorization': getAuthHeader()
-            };
+            const headers = { 'Authorization': getAuthHeader() };
             console.log('🔍 Cargando desde Worker:', WORKER_URL);
             const resp = await fetch(WORKER_URL, { headers });
             console.log(`📡 GET ${resp.status} ${resp.statusText}`);
@@ -382,7 +578,6 @@
                 actualizarEstadoConexion(true);
                 return true;
             } else {
-                // El Worker devolvió algo que no es array
                 console.error('❌ El Worker devolvió datos inesperados:', data);
                 throw new Error('Los datos recibidos no tienen el formato esperado.');
             }
@@ -390,9 +585,8 @@
             console.error('❌ Error al cargar desde la nube:', e);
             actualizarEstadoConexion(false, e.message);
             mostrarToast(`Error al cargar: ${e.message}`, 'error');
-            // Mostrar banner de error en la interfaz
-            errorMessage.textContent = `Error: ${e.message}. Verifica la consola para más detalles.`;
-            errorBanner.style.display = 'block';
+            document.getElementById('errorMessage').textContent = `Error: ${e.message}. Verifica la consola.`;
+            document.getElementById('errorBanner').style.display = 'block';
             return false;
         }
     }
@@ -456,7 +650,18 @@
         }
     }
 
-    // ----- Funciones de interfaz (renderizado, eventos, etc.) -----
+    // ----- Toast (notificaciones) -----
+    function mostrarToast(mensaje, tipo = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = mensaje;
+        toast.className = `toast ${tipo} show`;
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3500);
+    }
+
+    // ============================================================
+    // FUNCIONES DE INTERFAZ
     function renderizarSesiones(filtro = '') {
         const tbody = document.getElementById('tbodySesiones');
         const empty = document.getElementById('emptySesiones');
@@ -518,7 +723,8 @@
         }
     }
 
-    // ----- Modales helpers -----
+    // ============================================================
+    // MODALES Y DEMÁS FUNCIONES (sin cambios)
     function abrirModal(id) { document.getElementById(id).classList.add('active'); }
     function cerrarModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -586,7 +792,7 @@
         btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
     }
 
-    // ----- Resto de funciones (sin cambios) -----
+    // ----- Detalle de sesión -----
     function verDetalleSesion(id) {
         const sesion = sesiones.find(s => s.id === id);
         if (!sesion) return;
@@ -827,13 +1033,14 @@
         }
     }
 
-    // ----- Inicialización -----
-    async function inicializar() {
+    // ============================================================
+    // INICIALIZACIÓN DE LA APLICACIÓN
+    async function inicializarApp() {
+        document.querySelector('.container').style.display = 'block';
         const exito = await cargarDesdeNube();
         if (exito) {
             renderizarSesiones();
         } else {
-            // Mostrar tabla vacía con mensaje de error
             document.getElementById('tbodySesiones').innerHTML = '';
             document.getElementById('emptySesiones').textContent = '❌ No se pudieron cargar los datos. Revisa la consola.';
             document.getElementById('emptySesiones').style.display = 'block';
@@ -945,8 +1152,25 @@
         });
     }
 
-    // Iniciar
-    inicializar();
+    // ============================================================
+    // PUNTO DE ENTRADA PRINCIPAL
+    // Al cargar la página, verificar si ya hay sesión activa
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ocultar la aplicación inicialmente
+        document.querySelector('.container').style.display = 'none';
+        
+        // Verificar autenticación
+        const autenticado = verificarAutenticacion();
+        if (autenticado) {
+            // Si ya está autenticado, inicializar la app
+            inicializarApp();
+        } else {
+            // Mostrar login
+            loginOverlay.classList.remove('hidden');
+            // Enfocar el campo de usuario
+            loginUser.focus();
+        }
+    });
 
 })();
 </script>
